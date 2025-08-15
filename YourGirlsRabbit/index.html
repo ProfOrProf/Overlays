@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>YOURGIRLSRABBIT – spinning dissolve (OBS-safe)</title>
+<title>YOURGIRLSRABBIT – full-canvas dissolve (OBS-safe)</title>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -80,7 +80,7 @@
     LCTX.fillStyle = g;
     LCTX.fillText(TEXT, x, y);
 
-    // Tiny glow seed (kept minimal for clean alpha)
+    // Tiny glow seed (minimal to keep alpha clean)
     LCTX.save();
     LCTX.shadowColor = css('--glow');
     LCTX.shadowBlur  = 8;
@@ -99,7 +99,9 @@
 
     const angle = (Math.PI * 2) * (STAR_SPINS * t);
     const L = easeOutCubic(t);
-    const fullLen = Math.max(w*1.8, h*2.4, 1200);
+
+    // *** Full canvas diagonal so it reaches the edges ***
+    const fullLen = Math.sqrt(CAN.width*CAN.width + CAN.height*CAN.height);
     const lenNow  = fullLen * L;
 
     // a bit thicker + pixel-snapped to avoid AA crumbs
@@ -121,21 +123,19 @@
     LCTX.restore();
   }
 
-  // OBS-safe scrub: zero RGB wherever alpha is 0 (prevents bleed when scaled)
+  // OBS-safe scrub: zero RGB wherever alpha is ~0 (prevents bleed when scaled)
   function scrubTransparency(){
     const w = LAYER.width, h = LAYER.height;
     try {
       const img = LCTX.getImageData(0, 0, w, h);
       const d = img.data;
-      // also snap near-zero alphas to 0 to be extra safe
       for (let i = 0; i < d.length; i += 4) {
-        if (d[i+3] < 8) { // ~3% alpha threshold
+        if (d[i+3] < 8) { // near transparent
           d[i] = 0; d[i+1] = 0; d[i+2] = 0; d[i+3] = 0;
         }
       }
       LCTX.putImageData(img, 0, 0);
     } catch(e) {
-      // If getImageData is blocked for some reason, fall back to a clear
       LCTX.clearRect(0, 0, w, h);
     }
   }
@@ -172,8 +172,7 @@
     }
 
     if (!finished){
-      // Final scrub to eliminate any residual RGB in transparent pixels
-      scrubTransparency();
+      scrubTransparency(); // final OBS-safe clean
       finished = true;
     }
     drawStage(1);
