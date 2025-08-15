@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>NAZRALLA – spinning dissolve</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sun:#f6d15a;     /* warm yellow */
+    --ember:#e45a26;   /* ember orange */
+    --brown:#2a1a0d;   /* backing/border brown */
+    --glow:#ffd36e;    /* warm glow */
+  }
+  html,body{ height:100%; margin:0; background:transparent; overflow:hidden; }
+  canvas{ width:100vw; height:100vh; display:block; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+(() => {
+  const CAN = document.getElementById('c');
+  const CTX = CAN.getContext('2d');
+
+  // Offscreen text layer we erase from (persistence)
+  const LAYER = document.createElement('canvas');
+  const LCTX  = LAYER.getContext('2d');
+
+  const TEXT = 'NAZRALLA';
+  const FONT = 'Press Start 2P';
+
+  // Timing
+  const BLINKS       = 10;
+  const BLINK_PERIOD = 1000;   // ms
+  const STAR_TIME    = 8000;   // ms (slow dissolve)
+  const STAR_SPINS   = 8;      // total rotations during dissolve (tunes coverage)
+
+  let bounds = {x:0,y:0,w:0,h:0,px:0};
+
+  // Resize / HiDPI
+  function resize(){
+    const dpr = Math.max(1, Math.floor(window.devicePixelRatio || 1));
+    CAN.width  = Math.floor(CAN.clientWidth * dpr);
+    CAN.height = Math.floor(CAN.clientHeight * dpr);
+    CTX.setTransform(dpr,0,0,dpr,0,0);
+
+    LAYER.width  = CAN.clientWidth;
+    LAYER.height = CAN.clientHeight;
+
+    drawTextLayer();
+  }
+  window.addEventListener('resize', resize, {passive:true});
+
+  function cssVar(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+
+  function drawTextLayer(){
+    const W = LAYER.width, H = LAYER.height;
+    const base = Math.min(W, H);
+    const px = Math.max(28, Math.floor(base * 0.085)); // font scale
+
+    LCTX.setTransform(1,0,0,1,0,0);
+    LCTX.clearRect(0,0,W,H);
+
+    LCTX.font = `${px}px "${FONT}", monospace`;
+    LCTX.textBaseline = 'alphabetic';
+
+    const m = LCTX.measureText(TEXT);
+    const textW = m.width;
+    const textH = (m.actualBoundingBoxAscent || 0) + (m.actualBoundingBoxDescent || 0) || px*1.1;
+    const x = (W - textW)/2;
+    const y = (H + textH)/2 - textH*0.2;
+
+    // Brown backing (slightly larger “stroke” look)
+    LCTX.lineJoin = 'round';
+    LCTX.strokeStyle = cssVar('--brown');
+    LCTX.lineWidth   = Math.max(3, Math.round(px * 0.22));
+    LCTX.strokeText(TEXT, x, y);
+
+    // Gradient fill (yellow → orange)
+    const grad = LCTX.createLinearGradient(0, y - textH, 0, y + textH);
+    grad.addColorStop(0.35, cssVar('--sun'));
+    grad.addColorStop(1.00, cssVar('--ember'));
+    LCTX.fillStyle = grad;
+    LCTX.fillText(TEXT, x, y);
+
+    // Very subtle glow
+    LCTX.save();
+    LCTX.shadowColor = cssVar('--glow');
+    LCTX.shadowBlur  = 10;
+    LCTX.fillRect(x, y-textH, 1, 1);
+    LCTX.shadowBlur  = 18;
+    LCTX.fillRect(x+textW, y, 1, 1);
+    LCTX.restore();
+
+    bounds = { x, y, w:textW, h:textH, px };
+  }
+
+  // Easing for length growth
+  const easeOutCubic = t => 1 - Math.pow(1 - t, 3);
+
+  // 5-arm spinning star eraser (thin lines) — rotates AND grows
+  function eraseWithSpinningStar(t){
+    const { x, y, w, h, px } = bounds;
+    const cx = x + w/2;
+    const cy = y - h/2*0.1;
+
+    // rotation over time
+    const angle = (Math.PI * 2) * (STAR_SPINS * t);
+    // length grows from center to full span
+    const L = easeOutCubic(t);
+    const fullLen = Math.max(w*1.8, h*2.4, 1200); // big enough to sweep the whole text
+    const lenNow  = fullLen * L;
+
+    // very thin lines
+    const barH = Math.max(2, Math.round(px * 0.06));
+
+    LCTX.save();
+    LCTX.globalCompositeOperation = 'destination-out';
+    LCTX.translate(cx, cy);
+    LCTX.rotate(angle);
+
+    // draw 5 arms, evenly spaced, centered (grow both directions)
+    for (let i=0; i<5; i++){
+      LCTX.save();
+      LCTX.rotate(i * (2*Math.PI/5));
+      // draw line as a thin rectangle from -len/2 to +len/2 so growth looks “from the middle”
+      LCTX.fillStyle = '#000';
+      LCTX.fillRect(-lenNow/2, -barH/2, lenNow, barH);
+      LCTX.restore();
+    }
+
+    LCTX.restore();
+  }
+
+  function drawStage(alpha=1){
+    CTX.clearRect(0,0,CAN.clientWidth,CAN.clientHeight);
+    if (alpha>0){
+      CTX.globalAlpha = alpha;
+      CTX.drawImage(LAYER, 0, 0);
+      CTX.globalAlpha = 1;
+    }
+  }
+
+  // Animation
+  let t0;
+  function frame(now){
+    if (!t0) t0 = now;
+
+    const blinkEnd = t0 + BLINKS*BLINK_PERIOD;
+    const starEnd  = blinkEnd + STAR_TIME;
+
+    if (now < blinkEnd){
+      // Blink (don’t alter the layer)
+      const phase = ((now - t0) % BLINK_PERIOD) / BLINK_PERIOD;
+      drawStage(phase < 0.5 ? 1 : 0);
+      requestAnimationFrame(frame);
+      return;
+    }
+
+    if (now < starEnd){
+      const t = (now - blinkEnd) / STAR_TIME; // 0..1
+      eraseWithSpinningStar(Math.min(1, t));
+      drawStage(1);
+      requestAnimationFrame(frame);
+      return;
+    }
+
+    // Finished — show permanently-erased result
+    drawStage(1);
+  }
+
+  // Boot after font load
+  document.fonts?.load(`16px "${FONT}"`).then(() => { resize(); requestAnimationFrame(frame); });
+})();
+</script>
+</body>
+</html>
