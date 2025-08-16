@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Octo Adventure — Onboarding Demo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --fg: #eaf7ff;
+      --faint: #8bbbd1;
+      --accent: #72e9ff;
+      --accent2: #a7ffb5;
+      --panel: rgba(0, 0, 0, 0.55);
+      --edge: rgba(255, 255, 255, 0.08);
+    }
+    html, body { height: 100%; background: transparent; }
+    body {
+      margin: 0;
+      font-family: "Press Start 2P", monospace;
+      font-size: 11pt; /* requested size */
+      color: var(--fg);
+      letter-spacing: 0.5px;
+    }
+    .container { min-height: 100%; display: flex; align-items: center; justify-content: center; padding: 2vh 2vw; }
+    .panel {
+      width: min(1000px, 92vw);
+      padding: 24px 28px;
+      background: var(--panel);
+      border: 1px solid var(--edge);
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.3);
+    }
+    h1 { font-size: 14pt; margin: 0 0 12px; color: var(--accent); }
+    .badge { display:inline-block; font-size: 9pt; padding: 3px 6px; border: 1px solid var(--edge); border-radius: 6px; background: rgba(255,255,255,.04); margin-left: 8px; }
+
+    .step { display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; padding: 12px 0; border-bottom: 1px dashed var(--edge); }
+    .step:last-child { border-bottom: none; }
+    .q, .a { grid-column: 1 / -1; }
+    .q::before { content: "Q:"; margin-right: 8px; color: var(--accent2); }
+    .a::before { content: "A:"; margin-right: 8px; color: var(--accent); }
+
+    .label { opacity: .75; color: var(--faint); }
+    .title, .reveal, .footer { margin-top: 14px; }
+    .title, .reveal { padding: 10px 12px; border: 1px solid var(--edge); border-radius: 8px; background: rgba(255,255,255,.04); }
+    .title { color: var(--accent2); }
+    .reveal { color: var(--accent); }
+
+    .footer { display: grid; grid-template-columns: 1fr; gap: 6px; }
+    .small { font-size: 9pt; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="panel" role="log" aria-live="polite">
+      <h1>Onboarding Demo — Coral Realms <span class="badge">mock data</span></h1>
+
+      <div class="step">
+        <div class="q">What name will your story be written under?</div>
+        <div class="a">Mako</div>
+      </div>
+      <div class="step">
+        <div class="q">Between 3 ft and 7 ft tall, how tall are you?</div>
+        <div class="a">5'9"</div>
+      </div>
+      <div class="step">
+        <div class="q">What color are your eyes?</div>
+        <div class="a">Slate</div>
+      </div>
+      <div class="step">
+        <div class="q">What color are your scales?</div>
+        <div class="a">Teal</div>
+      </div>
+      <div class="step">
+        <div class="q">Describe the fin along your back — sharp, flowing, or ridged?</div>
+        <div class="a">Ridged</div>
+      </div>
+      <div class="step">
+        <div class="q">Choose your path: Trench Guard, Coral Scholar, Tide Merchant, or Abyssal Acolyte.</div>
+        <div class="a">Coral Scholar</div>
+      </div>
+      <div class="step">
+        <div class="q">From the rack, which do you claim — Coralblade, Tidebow, Trident, or Shellcaster?</div>
+        <div class="a">Shellcaster</div>
+      </div>
+      <div class="step">
+        <div class="q">Claim a quirk — Speak to eels, Breathe air &amp; water, Glow faintly, or Never sink.</div>
+        <div class="a">Glow faintly</div>
+      </div>
+
+      <div class="title"><span class="label">Title</span><br />Mako, Coral Scholar of the Synod</div>
+      <div class="reveal"><span class="label">Reveal</span><br />Mako — your reflection ripples in the tidepool; you are reefborn. Your journey begins now.</div>
+
+      <div class="footer small">
+        <div><span class="label">Rumors</span></div>
+        <div>• Kelp forests hummed at dawn.</div>
+        <div>• Three lanternfish circled the trench gate.</div>
+        <div>• A shell song mentioned your name.</div>
+      </div>
+
+      <div class="small" style="margin-top:10px; opacity:.7;">Font: Press Start 2P (11pt). Background is transparent for OBS.</div>
+    </div>
+  </div>
+</body>
+</html>
