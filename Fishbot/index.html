@@ -18,7 +18,7 @@
     body {
       margin: 0;
       font-family: "Press Start 2P", monospace;
-      font-size: 11pt; /* requested size */
+      font-size: 11pt;
       color: var(--fg);
       letter-spacing: 0.5px;
     }
@@ -40,7 +40,7 @@
     .q::before { content: "Q:"; margin-right: 8px; color: var(--accent2); }
     .a::before { content: "A:"; margin-right: 8px; color: var(--accent); }
 
-    .label { opacity: .75; color: var(--faint); }
+    .label { color: var(--faint); }
     .title, .reveal, .footer { margin-top: 14px; }
     .title, .reveal { padding: 10px 12px; border: 1px solid var(--edge); border-radius: 8px; background: rgba(255,255,255,.04); }
     .title { color: var(--accent2); }
@@ -49,7 +49,6 @@
     .footer { display: grid; grid-template-columns: 1fr; gap: 6px; }
     .small { font-size: 9pt; }
 
-    /* Type cursor */
     .cursor { display:inline-block; width: 0.7ch; }
     .cursor::after { content:"▌"; animation: blink 1s steps(1) infinite; }
     @keyframes blink { 50% { opacity: 0; } }
@@ -58,41 +57,16 @@
 <body>
   <div class="container">
     <div class="panel" role="log" aria-live="polite">
-      <h1>Onboarding Demo — Coral Realms <span class="badge">typed mock</span></h1>
+      <h1>Onboarding Demo — Coral Realms <span class="badge">Typed Mock</span></h1>
 
-      <!-- Steps with data-text to be typed -->
-      <div class="step">
-        <div class="q" data-text="What name will your story be written under?"></div>
-        <div class="a" data-text="Mako"></div>
-      </div>
-      <div class="step">
-        <div class="q" data-text="Between 3 ft and 7 ft tall, how tall are you?"></div>
-        <div class="a" data-text="5'9\""></div>
-      </div>
-      <div class="step">
-        <div class="q" data-text="What color are your eyes?"></div>
-        <div class="a" data-text="Slate"></div>
-      </div>
-      <div class="step">
-        <div class="q" data-text="What color are your scales?"></div>
-        <div class="a" data-text="Teal"></div>
-      </div>
-      <div class="step">
-        <div class="q" data-text="Describe the fin along your back — sharp, flowing, or ridged?"></div>
-        <div class="a" data-text="Ridged"></div>
-      </div>
-      <div class="step">
-        <div class="q" data-text="Choose your path: Trench Guard, Coral Scholar, Tide Merchant, or Abyssal Acolyte."></div>
-        <div class="a" data-text="Coral Scholar"></div>
-      </div>
-      <div class="step">
-        <div class="q" data-text="From the rack, which do you claim — Coralblade, Tidebow, Trident, or Shellcaster?"></div>
-        <div class="a" data-text="Shellcaster"></div>
-      </div>
-      <div class="step">
-        <div class="q" data-text="Claim a quirk — Speak to eels, Breathe air & water, Glow faintly, or Never sink."></div>
-        <div class="a" data-text="Glow faintly"></div>
-      </div>
+      <div class="step"><div class="q" data-text="What name will your story be written under?"></div><div class="a" data-text="Mako"></div></div>
+      <div class="step"><div class="q" data-text="Between 3 ft and 7 ft tall, how tall are you?"></div><div class="a" data-text="5'9\""></div></div>
+      <div class="step"><div class="q" data-text="What color are your eyes?"></div><div class="a" data-text="Slate"></div></div>
+      <div class="step"><div class="q" data-text="What color are your scales?"></div><div class="a" data-text="Teal"></div></div>
+      <div class="step"><div class="q" data-text="Describe the fin along your back — sharp, flowing, or ridged?"></div><div class="a" data-text="Ridged"></div></div>
+      <div class="step"><div class="q" data-text="Choose your path: Trench Guard, Coral Scholar, Tide Merchant, or Abyssal Acolyte."></div><div class="a" data-text="Coral Scholar"></div></div>
+      <div class="step"><div class="q" data-text="From the rack, which do you claim — Coralblade, Tidebow, Trident, or Shellcaster?"></div><div class="a" data-text="Shellcaster"></div></div>
+      <div class="step"><div class="q" data-text="Claim a quirk — Speak to eels, Breathe air & water, Glow faintly, or Never sink."></div><div class="a" data-text="Glow faintly"></div></div>
 
       <div class="title" id="title" data-text="Mako, Coral Scholar of the Synod"></div>
       <div class="reveal" id="reveal" data-text="Mako — your reflection ripples in the tidepool; you are reefborn. Your journey begins now."></div>
@@ -104,20 +78,13 @@
         <div class="rumor" data-text="• A shell song mentioned your name."></div>
       </div>
 
-      <div class="small" style="margin-top:10px; opacity:.7;">Font: Press Start 2P (11pt). Background is transparent for OBS. Type speed & pauses are configurable below.</div>
+      <div class="small" style="margin-top:10px;">Font: Press Start 2P (11pt). Background is transparent for OBS. Type speed & pauses are configurable below.</div>
     </div>
   </div>
 
   <script>
-    // ---------------- Config ----------------
-    const TYPE_MS = 22;       // per-character speed (ms)
-    const PAUSE_Q = 500;      // pause after a question fully types (ms)
-    const PAUSE_A = 650;      // pause after an answer fully types (ms)
-    const PAUSE_BLOCK = 800;  // pause between steps (ms)
-
-    // -------------- Typewriter core --------------
+    const TYPE_MS = 22, PAUSE_Q = 500, PAUSE_A = 650, PAUSE_BLOCK = 800;
     function sleep(ms){ return new Promise(r=>setTimeout(r, ms)); }
-
     async function typeInto(el, text){
       el.textContent = "";
       const cursor = document.createElement('span');
@@ -129,39 +96,27 @@
       }
       cursor.remove();
     }
-
     async function playSequence(){
       const steps = Array.from(document.querySelectorAll('.step'));
       for (const step of steps){
         const q = step.querySelector('.q');
         const a = step.querySelector('.a');
-        const qText = q.getAttribute('data-text') || '';
-        const aText = a.getAttribute('data-text') || '';
-        await typeInto(q, qText);
+        await typeInto(q, q.getAttribute('data-text') || '');
         await sleep(PAUSE_Q);
-        await typeInto(a, aText);
-        await sleep(PAUSE_A);
-        await sleep(PAUSE_BLOCK);
+        await typeInto(a, a.getAttribute('data-text') || '');
+        await sleep(PAUSE_A + PAUSE_BLOCK);
       }
-      // Title, Reveal, Rumors
-      const title = document.getElementById('title');
-      const reveal = document.getElementById('reveal');
-      const rumors = Array.from(document.querySelectorAll('#rumors .rumor'));
-      await typeInto(title, (title.getAttribute('data-text')||''));
+      await typeInto(title, title.getAttribute('data-text')||'');
       await sleep(450);
-      await typeInto(reveal, (reveal.getAttribute('data-text')||''));
-      for (const r of rumors){
+      await typeInto(reveal, reveal.getAttribute('data-text')||'');
+      for (const r of document.querySelectorAll('#rumors .rumor')){
         await sleep(250);
-        await typeInto(r, (r.getAttribute('data-text')||''));
+        await typeInto(r, r.getAttribute('data-text')||'');
       }
     }
-
-    // Kick off when fonts are ready (prevents layout jumps)
-    if (document.fonts && document.fonts.ready) {
-      document.fonts.ready.then(playSequence);
-    } else {
-      window.addEventListener('load', playSequence);
-    }
+    const title=document.getElementById('title'), reveal=document.getElementById('reveal');
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(playSequence);
+    else window.addEventListener('load', playSequence);
   </script>
 </body>
 </html>
