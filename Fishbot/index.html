@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Octo Adventure — Onboarding Demo</title>
+  <title>Octo Adventure — Onboarding Demo (Typed)</title>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -36,7 +36,7 @@
 
     .step { display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; padding: 12px 0; border-bottom: 1px dashed var(--edge); }
     .step:last-child { border-bottom: none; }
-    .q, .a { grid-column: 1 / -1; }
+    .q, .a { grid-column: 1 / -1; white-space: pre-wrap; }
     .q::before { content: "Q:"; margin-right: 8px; color: var(--accent2); }
     .a::before { content: "A:"; margin-right: 8px; color: var(--accent); }
 
@@ -48,58 +48,120 @@
 
     .footer { display: grid; grid-template-columns: 1fr; gap: 6px; }
     .small { font-size: 9pt; }
+
+    /* Type cursor */
+    .cursor { display:inline-block; width: 0.7ch; }
+    .cursor::after { content:"▌"; animation: blink 1s steps(1) infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="panel" role="log" aria-live="polite">
-      <h1>Onboarding Demo — Coral Realms <span class="badge">mock data</span></h1>
+      <h1>Onboarding Demo — Coral Realms <span class="badge">typed mock</span></h1>
 
+      <!-- Steps with data-text to be typed -->
       <div class="step">
-        <div class="q">What name will your story be written under?</div>
-        <div class="a">Mako</div>
+        <div class="q" data-text="What name will your story be written under?"></div>
+        <div class="a" data-text="Mako"></div>
       </div>
       <div class="step">
-        <div class="q">Between 3 ft and 7 ft tall, how tall are you?</div>
-        <div class="a">5'9"</div>
+        <div class="q" data-text="Between 3 ft and 7 ft tall, how tall are you?"></div>
+        <div class="a" data-text="5'9\""></div>
       </div>
       <div class="step">
-        <div class="q">What color are your eyes?</div>
-        <div class="a">Slate</div>
+        <div class="q" data-text="What color are your eyes?"></div>
+        <div class="a" data-text="Slate"></div>
       </div>
       <div class="step">
-        <div class="q">What color are your scales?</div>
-        <div class="a">Teal</div>
+        <div class="q" data-text="What color are your scales?"></div>
+        <div class="a" data-text="Teal"></div>
       </div>
       <div class="step">
-        <div class="q">Describe the fin along your back — sharp, flowing, or ridged?</div>
-        <div class="a">Ridged</div>
+        <div class="q" data-text="Describe the fin along your back — sharp, flowing, or ridged?"></div>
+        <div class="a" data-text="Ridged"></div>
       </div>
       <div class="step">
-        <div class="q">Choose your path: Trench Guard, Coral Scholar, Tide Merchant, or Abyssal Acolyte.</div>
-        <div class="a">Coral Scholar</div>
+        <div class="q" data-text="Choose your path: Trench Guard, Coral Scholar, Tide Merchant, or Abyssal Acolyte."></div>
+        <div class="a" data-text="Coral Scholar"></div>
       </div>
       <div class="step">
-        <div class="q">From the rack, which do you claim — Coralblade, Tidebow, Trident, or Shellcaster?</div>
-        <div class="a">Shellcaster</div>
+        <div class="q" data-text="From the rack, which do you claim — Coralblade, Tidebow, Trident, or Shellcaster?"></div>
+        <div class="a" data-text="Shellcaster"></div>
       </div>
       <div class="step">
-        <div class="q">Claim a quirk — Speak to eels, Breathe air &amp; water, Glow faintly, or Never sink.</div>
-        <div class="a">Glow faintly</div>
+        <div class="q" data-text="Claim a quirk — Speak to eels, Breathe air & water, Glow faintly, or Never sink."></div>
+        <div class="a" data-text="Glow faintly"></div>
       </div>
 
-      <div class="title"><span class="label">Title</span><br />Mako, Coral Scholar of the Synod</div>
-      <div class="reveal"><span class="label">Reveal</span><br />Mako — your reflection ripples in the tidepool; you are reefborn. Your journey begins now.</div>
+      <div class="title" id="title" data-text="Mako, Coral Scholar of the Synod"></div>
+      <div class="reveal" id="reveal" data-text="Mako — your reflection ripples in the tidepool; you are reefborn. Your journey begins now."></div>
 
-      <div class="footer small">
+      <div class="footer small" id="rumors">
         <div><span class="label">Rumors</span></div>
-        <div>• Kelp forests hummed at dawn.</div>
-        <div>• Three lanternfish circled the trench gate.</div>
-        <div>• A shell song mentioned your name.</div>
+        <div class="rumor" data-text="• Kelp forests hummed at dawn."></div>
+        <div class="rumor" data-text="• Three lanternfish circled the trench gate."></div>
+        <div class="rumor" data-text="• A shell song mentioned your name."></div>
       </div>
 
-      <div class="small" style="margin-top:10px; opacity:.7;">Font: Press Start 2P (11pt). Background is transparent for OBS.</div>
+      <div class="small" style="margin-top:10px; opacity:.7;">Font: Press Start 2P (11pt). Background is transparent for OBS. Type speed & pauses are configurable below.</div>
     </div>
   </div>
+
+  <script>
+    // ---------------- Config ----------------
+    const TYPE_MS = 22;       // per-character speed (ms)
+    const PAUSE_Q = 500;      // pause after a question fully types (ms)
+    const PAUSE_A = 650;      // pause after an answer fully types (ms)
+    const PAUSE_BLOCK = 800;  // pause between steps (ms)
+
+    // -------------- Typewriter core --------------
+    function sleep(ms){ return new Promise(r=>setTimeout(r, ms)); }
+
+    async function typeInto(el, text){
+      el.textContent = "";
+      const cursor = document.createElement('span');
+      cursor.className = 'cursor';
+      el.appendChild(cursor);
+      for (let i=0;i<text.length;i++){
+        cursor.insertAdjacentText('beforebegin', text[i]);
+        await sleep(TYPE_MS);
+      }
+      cursor.remove();
+    }
+
+    async function playSequence(){
+      const steps = Array.from(document.querySelectorAll('.step'));
+      for (const step of steps){
+        const q = step.querySelector('.q');
+        const a = step.querySelector('.a');
+        const qText = q.getAttribute('data-text') || '';
+        const aText = a.getAttribute('data-text') || '';
+        await typeInto(q, qText);
+        await sleep(PAUSE_Q);
+        await typeInto(a, aText);
+        await sleep(PAUSE_A);
+        await sleep(PAUSE_BLOCK);
+      }
+      // Title, Reveal, Rumors
+      const title = document.getElementById('title');
+      const reveal = document.getElementById('reveal');
+      const rumors = Array.from(document.querySelectorAll('#rumors .rumor'));
+      await typeInto(title, (title.getAttribute('data-text')||''));
+      await sleep(450);
+      await typeInto(reveal, (reveal.getAttribute('data-text')||''));
+      for (const r of rumors){
+        await sleep(250);
+        await typeInto(r, (r.getAttribute('data-text')||''));
+      }
+    }
+
+    // Kick off when fonts are ready (prevents layout jumps)
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(playSequence);
+    } else {
+      window.addEventListener('load', playSequence);
+    }
+  </script>
 </body>
 </html>
