@@ -8,11 +8,11 @@
   <style>
     :root {
       --fg: #eaf7ff;
-      --faint: #8bbbd1;
-      --accent: #72e9ff;
-      --accent2: #a7ffb5;
-      --panel: rgba(0, 0, 0, 0.55);
-      --edge: rgba(255, 255, 255, 0.08);
+      --faint: #a0d4e6;
+      --accent: #00d9ff;
+      --accent2: #00ff8c;
+      --panel: #000000;
+      --edge: #333333;
     }
     html, body { height: 100%; background: transparent; }
     body {
@@ -29,10 +29,10 @@
       background: var(--panel);
       border: 1px solid var(--edge);
       border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.3);
+      box-shadow: 0 10px 30px rgba(0,0,0,.8);
     }
     h1 { font-size: 14pt; margin: 0 0 12px; color: var(--accent); }
-    .badge { display:inline-block; font-size: 9pt; padding: 3px 6px; border: 1px solid var(--edge); border-radius: 6px; background: rgba(255,255,255,.04); margin-left: 8px; }
+    .badge { display:inline-block; font-size: 9pt; padding: 3px 6px; border: 1px solid var(--edge); border-radius: 6px; background: var(--panel); margin-left: 8px; }
 
     .step { display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; padding: 12px 0; border-bottom: 1px dashed var(--edge); }
     .step:last-child { border-bottom: none; }
@@ -42,7 +42,7 @@
 
     .label { color: var(--faint); }
     .title, .reveal, .footer { margin-top: 14px; }
-    .title, .reveal { padding: 10px 12px; border: 1px solid var(--edge); border-radius: 8px; background: rgba(255,255,255,.04); }
+    .title, .reveal { padding: 10px 12px; border: 1px solid var(--edge); border-radius: 8px; background: var(--panel); }
     .title { color: var(--accent2); }
     .reveal { color: var(--accent); }
 
@@ -57,7 +57,7 @@
 <body>
   <div class="container">
     <div class="panel" role="log" aria-live="polite">
-      <h1>Onboarding Demo — Coral Realms</h1>
+      <h1>Onboarding Demo — Coral Realms <span class="badge">Typed Mock</span></h1>
 
       <div class="step"><div class="q" data-text="What name will your story be written under?"></div><div class="a" data-text="Mako"></div></div>
       <div class="step"><div class="q" data-text="Between 3 ft and 7 ft tall, how tall are you?"></div><div class="a" data-text="5'9\""></div></div>
@@ -78,7 +78,8 @@
         <div class="rumor" data-text="• A shell song mentioned your name."></div>
       </div>
 
-    
+      <div class="small" style="margin-top:10px;">Font: Press Start 2P (11pt). Background is transparent for OBS. Type speed & pauses are configurable below.</div>
+    </div>
   </div>
 
   <script>
