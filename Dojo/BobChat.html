@@ -14,7 +14,6 @@
     --offset-x: 24px;
     --offset-y: 24px;
 
-    /* colors from HUD */
     --red-heart: #ff2b2b;
     --yellow-star: #ffd83b;
   }
@@ -43,28 +42,28 @@
     overflow: hidden;
   }
 
-  /* Title bar now full width */
   .header{
     width: 100%;
     padding: 24px 0;
     background: var(--red-heart);
     border-bottom: 4px solid #fff;
-    box-shadow: 0 6px 0 #000;
     display: flex;
     justify-content: center;
     align-items: center;
   }
 
   .header .title{
-    font-size: 38px;
+    font-size: 44px;
     font-style: italic;
     color: var(--yellow-star);
-    white-space: nowrap;    /* no wrapping */
-    overflow: hidden;       /* prevents spill */
+    white-space: nowrap;
+    letter-spacing: -2px;  /* tighten spacing */
     text-shadow: 
-      4px 4px 0 #000,
-      -4px -4px 0 #000,
-      0 0 12px #000;
+      -2px -2px 0 #000,   /* black border */
+      2px -2px 0 #000,
+      -2px 2px 0 #000,
+      2px 2px 0 #000,
+      0 0 8px #555;       /* grey shadow glow */
   }
 </style>
 </head>
