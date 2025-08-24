@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <title>Dojo Chat Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <style>
   :root{
     --canvas-w: 1920px;
@@ -29,6 +30,7 @@
     margin:0; padding:0;
     background: transparent;
     overflow:hidden;
+    font-family: 'Press Start 2P', monospace;
   }
 
   .stage{ position:relative; width:100%; height:100%; }
@@ -39,12 +41,11 @@
     bottom: var(--offset-y);
     width: var(--panel-w);
     height: var(--panel-h);
-
     background: var(--bg);
     border: 4px solid var(--frame);
-    border-radius: 22px;                 /* rounded, no square nubs */
+    border-radius: 22px;
     box-shadow: 8px 8px 0 var(--shadow);
-    overflow: hidden;
+    overflow: hidden; /* header is inside, so no clipping */
   }
 
   /* inner bevel + faint scanlines */
@@ -57,31 +58,49 @@
       repeating-linear-gradient(180deg, rgba(255,255,255,.04) 0px, rgba(255,255,255,.04) 1px, transparent 2px, transparent 4px),
       var(--inner);
     box-shadow: inset 0 0 40px rgba(0,0,0,.35), 0 0 12px var(--glow);
+    z-index: 0;
   }
 
-  /* emoji badge */
-  .badge{
-    position:absolute;
-    top:-34px; left:18px;
-    padding:14px 18px;
-    font-size:28px;                      /* BIG emoji */
-    line-height:1;
-    border:4px solid #fff;
-    border-radius:14px;
+  /* centered header strip */
+  .header{
+    position: relative;
+    z-index: 2;                 /* above the inset layer */
+    margin: 10px;               /* aligns with ::before inset */
+    height: 64px;
+    border: 4px solid #fff;
+    border-radius: 14px;
     background: linear-gradient(90deg,var(--badge-a),var(--badge-b));
-    color:#fff;
+    box-shadow: 6px 6px 0 var(--shadow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    color: #fff;
     text-shadow: 2px 2px 0 #2a6b5d;
-    box-shadow: 8px 8px 0 var(--shadow);
-    user-select:none;
-    transform: translateZ(0);            /* crisp in OBS */
+    user-select: none;
+  }
+  .header .emoji{
+    font-size: 28px;            /* bigger gloves */
+    line-height: 1;
+  }
+  .header .title{
+    font-size: 14px;
+    letter-spacing: 2px;
+    font-style: italic;         /* italic */
+    /* Press Start 2P doesn’t have a true italic; fake the feel with a gentle skew */
+    transform: skewX(-7deg);
   }
 </style>
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 <body>
   <div class="stage">
     <div class="chat-panel" aria-hidden="true">
-      <div class="badge">👊🥊👊</div>
+      <div class="header">
+        <span class="emoji">🥊</span>
+        <span class="title">STRIKE&nbsp;FEED</span>
+        <span class="emoji">🥊</span>
+      </div>
+      <!-- Your jchat/browser chat source sits behind this header inside the panel area -->
     </div>
   </div>
 </body>
