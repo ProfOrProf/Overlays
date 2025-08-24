@@ -15,9 +15,8 @@
     --offset-x: 24px;   /* from left */
     --offset-y: 24px;   /* from bottom */
 
-    /* HUD colors */
-    --red-heart:   #e60000;  /* vivid red */
-    --yellow-star: #ffd700;  /* bright gold */
+    /* Colors */
+    --red-heart:   #e60000;
   }
 
   html,body{
@@ -44,7 +43,7 @@
     overflow: hidden;
   }
 
-  /* inner bevel layer */
+  /* inner bevel */
   .chat-panel::before{
     content:"";
     position:absolute; inset:10px;
@@ -57,38 +56,21 @@
     z-index: 0;
   }
 
-  /* STRIKE FEED banner (inside the panel; full width, not clipped) */
+  /* Blank red header */
   .header{
     position: relative;
     z-index: 2;
-    margin: 10px;              /* aligns with inner inset */
+    margin: 10px;
     border-radius: 16px;
     overflow: hidden;
   }
   .header-bar{
     width: 100%;
     background: var(--red-heart);
-    border: 6px solid #000;           /* thick black border */
+    border: 6px solid #000;
     border-radius: 16px;
-    padding: 18px 10px;               /* compact height */
-    box-shadow: 10px 10px 0 #555;     /* deep grey drop shadow */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  .header-text{
-    white-space: nowrap;              /* single line */
-    letter-spacing: -2px;             /* pull STRIKE + FEED closer */
-    font-size: 42px;                  /* big + dominant */
-    font-style: italic;
-    color: var(--yellow-star);
-    /* thick outline (arcade stroke) + subtle soft shadow */
-    text-shadow:
-      -3px -3px 0 #000,
-       3px -3px 0 #000,
-      -3px  3px 0 #000,
-       3px  3px 0 #000,
-       0    0   8px rgba(0,0,0,.6);
+    padding: 24px 10px;   /* taller, roomy for text on top */
+    box-shadow: 10px 10px 0 #555;
   }
 </style>
 </head>
@@ -96,13 +78,10 @@
   <div class="stage">
     <div class="chat-panel">
       <div class="header">
-        <div class="header-bar">
-          <span class="header-text">STRIKE FEED</span>
-        </div>
+        <div class="header-bar"></div>
       </div>
 
-      <!-- Your chat (e.g., jChat) goes here underneath the banner -->
-      <!-- Position your chat source so it sits inside the panel below the header. -->
+      <!-- Chat overlay (like jChat) will sit below here -->
     </div>
   </div>
 </body>
