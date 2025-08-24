@@ -15,7 +15,6 @@
     --offset-y: 24px;
 
     --red-heart: #ff2b2b;
-    --yellow-star: #ffd83b;
   }
 
   html,body{
@@ -44,34 +43,17 @@
 
   .header{
     width: 100%;
-    padding: 24px 0;
-    background: var(--red-heart);
+    padding: 24px 0;              /* keep the same height */
+    background: var(--red-heart); /* plain red fill */
     border-bottom: 4px solid #fff;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .header .title{
-    font-size: 44px;
-    font-style: italic;
-    color: var(--yellow-star);
-    white-space: nowrap;
-    letter-spacing: -2px;  /* tighten spacing */
-    text-shadow: 
-      -2px -2px 0 #000,   /* black border */
-      2px -2px 0 #000,
-      -2px 2px 0 #000,
-      2px 2px 0 #000,
-      0 0 8px #555;       /* grey shadow glow */
   }
 </style>
 </head>
 <body>
   <div class="stage">
     <div class="chat-panel" aria-hidden="true">
-      <div class="header">
-      </div>
+      <div class="header"></div>
+      <!-- jChat or OBS chat overlay goes below -->
     </div>
   </div>
 </body>
