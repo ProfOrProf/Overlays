@@ -43,26 +43,24 @@
     overflow: hidden;
   }
 
-  /* Title bar */
+  /* Title bar now full width */
   .header{
-    position: relative;
-    z-index: 2;
-    margin: 12px;
-    padding: 20px 16px;
-    border: 4px solid #fff;
-    border-radius: 14px;
+    width: 100%;
+    padding: 24px 0;
     background: var(--red-heart);
-    box-shadow: 8px 8px 0 #000;
+    border-bottom: 4px solid #fff;
+    box-shadow: 0 6px 0 #000;
     display: flex;
-    align-items: center;
     justify-content: center;
+    align-items: center;
   }
 
   .header .title{
-    font-size: 40px;              /* much bigger */
-    letter-spacing: 3px;
+    font-size: 38px;
     font-style: italic;
     color: var(--yellow-star);
+    white-space: nowrap;    /* no wrapping */
+    overflow: hidden;       /* prevents spill */
     text-shadow: 
       4px 4px 0 #000,
       -4px -4px 0 #000,
