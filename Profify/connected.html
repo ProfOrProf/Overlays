@@ -12,9 +12,9 @@
 
   <style>
     :root{
-      --hot-pink: #ff2da8;      /* hot pink */
-      --cool-blue: #23b3ff;     /* cool blue */
-      --bg: #0f1117;            /* dark background (tweak if you want light) */
+      --hot-pink: #ff2da8;  /* hot pink */
+      --cool-blue: #23b3ff; /* cool blue */
+      --bg: #0f1117;        /* dark background */
       --fg: #e6e9ef;
     }
     * { box-sizing: border-box; }
@@ -32,53 +32,42 @@
       padding: 24px;
     }
     .card {
-      width: min(920px, 92vw);
+      width: min(1000px, 94vw);
       text-align: center;
     }
     .logo {
-      width: min(720px, 90vw);
+      width: min(780px, 92vw);
       height: auto;
       display: block;
       margin: 0 auto 28px;
-      image-rendering: -webkit-optimize-contrast; /* a little crisper on some browsers */
+      image-rendering: -webkit-optimize-contrast;
     }
-
-    /* Headline styling: 100pt max, responsive on small screens */
     .headline {
       font-family: 'Press Start 2P', cursive;
       text-transform: uppercase;
-      line-height: 1.15;
+      line-height: 1.2;
       margin: 0;
-      /* 100pt max (≈133px), scale down on small screens */
-      font-size: clamp(28px, 7.5vw, 100pt);
+      /* ~100pt max, scales down on small screens */
+      font-size: clamp(28px, 7.8vw, 100pt);
+      letter-spacing: 1px;
 
-      /* gradient text (hot pink -> cool blue) */
+      /* gradient text */
       background: linear-gradient(90deg, var(--hot-pink), var(--cool-blue));
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
       -webkit-text-fill-color: transparent;
-      letter-spacing: 1px;
-    }
-    .headline .small {
-      display: block;
-      margin-top: 10px;
-      font-size: 0.68em; /* “GG!” a bit smaller; adjust to taste */
     }
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="card">
-      <!-- Replace the src with your PNG URL -->
-      <!-- Example (GitHub Pages): https://USER.github.io/REPO/Profco.png -->
-      <!-- Example (raw): https://raw.githubusercontent.com/USER/REPO/branch/Profco.png -->
-      <img class="logo" src="REPLACE_WITH_YOUR_GITHUB_IMAGE_URL" alt="Profify" />
+      <!-- Your image on top -->
+      <img class="logo" src="https://proforprof.com/profify/profco.png" alt="Profify Logo" />
 
-      <h1 class="headline">
-        Profify Connected!
-        <span class="small">GG!</span>
-      </h1>
+      <!-- Big retro headline -->
+      <h1 class="headline">PROFIFY CONNECTED!!! GG!!!</h1>
     </div>
   </div>
 </body>
