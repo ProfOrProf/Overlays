@@ -20,8 +20,8 @@
   <meta name="twitter:image" content="https://proforprof.com/profify/profco.png" />
 
   <!-- Data + Search -->
-  <link rel="preload" href="manifest.json" as="fetch" crossorigin="anonymous" />
-  <script src="search.js" defer></script>
+  <link rel="preload" href="/wikiprofia/manifest.json" as="fetch" crossorigin="anonymous" />
+  <script src="/wikiprofia/search.js" defer></script>
 
   <!-- Styles -->
   <style>
@@ -79,6 +79,7 @@
     }
     .btn:hover{ background:var(--twitch); color:#fff; text-decoration:none }
 
+    .notice{ margin-top:1rem; padding:.75rem 1rem; border:1px solid #e9e9e9; border-radius:8px; background:#fff; color:#444 }
     footer{
       font-size:.9rem; color:#555;
       margin-top:2rem; border-top:1px solid #ddd; padding-top:1rem;
@@ -101,6 +102,7 @@
 
 <h2>Runners</h2>
 <div id="runner-grid" class="grid"></div>
+<div id="runner-status" class="notice" hidden></div>
 
 <footer>
   Made with ❤️ by <a href="https://proforprof.com">ProfOrProf</a>. Not affiliated with Wikipedia or Twitch.
@@ -108,42 +110,61 @@
 
 <!-- Card rendering + search init -->
 <script>
+  const MANIFEST_URL = '/wikiprofia/manifest.json'; // <- absolute path is safest on Netlify
   const FALLBACK_AVATAR = 'https://proforprof.com/profify/profco.png';
   const avatarCache = new Map();
 
+  function showStatus(msg) {
+    const box = document.getElementById('runner-status');
+    box.textContent = msg;
+    box.hidden = false;
+  }
+
   async function resolveAvatarForRunner(r) {
-    if (r.avatar && r.avatar.trim()) return r.avatar.trim();
-    const handle = (r.twitch && typeof r.twitch === 'string') ? r.twitch.trim().toLowerCase() : '';
-    if (!handle) return FALLBACK_AVATAR;
-
-    if (avatarCache.has(handle)) return avatarCache.get(handle);
-
     try {
+      if (r.avatar && r.avatar.trim()) return r.avatar.trim();
+
+      const handle = (r.twitch && typeof r.twitch === 'string') ? r.twitch.trim().toLowerCase() : '';
+      if (!handle) return FALLBACK_AVATAR;
+
+      if (avatarCache.has(handle)) return avatarCache.get(handle);
+
       const resp = await fetch(`https://unavatar.io/twitch/${encodeURIComponent(handle)}?json`, { cache: 'force-cache' });
-      if (!resp.ok) throw new Error('http ' + resp.status);
+      if (!resp.ok) throw new Error('unavatar http ' + resp.status);
       const data = await resp.json();
       const url = (data && data.url) ? data.url : FALLBACK_AVATAR;
       avatarCache.set(handle, url);
       return url;
     } catch (e) {
-      console.warn('Avatar resolve failed for', handle, e);
-      avatarCache.set(handle, FALLBACK_AVATAR);
+      console.warn('Avatar resolve failed for', r.title || r.twitch, e);
       return FALLBACK_AVATAR;
     }
   }
 
-  fetch('manifest.json')
-    .then(r => r.json())
-    .then(async data => {
+  (async function loadAndRender() {
+    try {
+      const res = await fetch(MANIFEST_URL, { cache: 'no-store' });
+      if (!res.ok) throw new Error(`Manifest fetch failed (${res.status}) from ${MANIFEST_URL}`);
+      const data = await res.json();
+
+      if (!data || !Array.isArray(data.runners)) {
+        console.error('Manifest JSON shape invalid:', data);
+        showStatus('No runners found. Check manifest.json format (must contain { "runners": [ ... ] }).');
+        return;
+      }
+      if (data.runners.length === 0) {
+        showStatus('No runners listed yet. Add entries to manifest.json.');
+        return;
+      }
+
       const grid = document.getElementById('runner-grid');
-      const runners = Array.isArray(data.runners) ? data.runners : [];
 
-      const resolved = await Promise.all(runners.map(async r => ({
-        runner: r,
-        avatar: await resolveAvatarForRunner(r)
-      })));
+      // Resolve avatars in parallel
+      const resolved = await Promise.all(
+        data.runners.map(async r => ({ r, avatar: await resolveAvatarForRunner(r) }))
+      );
 
-      resolved.forEach(({ runner: r, avatar }) => {
+      resolved.forEach(({ r, avatar }) => {
         const card = document.createElement('div');
         card.className = 'card';
 
@@ -159,7 +180,7 @@
         meta.className = 'meta';
 
         const title = `<a class="t" href="${r.url}">${r.title}</a>`;
-        const desc  = `<div class="desc">${r.description || ''}</div>`;
+        const desc  = `<div class="desc">${r.description ? r.description : ''}</div>`;
 
         let actions = '';
         const handle = (r.twitch && typeof r.twitch === 'string') ? r.twitch.trim().toLowerCase() : '';
@@ -179,9 +200,14 @@
         card.appendChild(meta);
         grid.appendChild(card);
       });
-    })
-    .catch(err => console.error('Manifest load failed:', err));
 
+    } catch (err) {
+      console.error(err);
+      showStatus('Could not load runners. Open DevTools → Console for details. Likely causes: wrong manifest path, JSON syntax error, or CORS.');
+    }
+  })();
+
+  // Search init
   window.addEventListener('DOMContentLoaded', () => {
     if (window.initWikiprofiaSearch) window.initWikiprofiaSearch();
   });
