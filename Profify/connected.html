@@ -1,74 +1,249 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Profify Connected</title>
-
-  <!-- Google Font: Press Start 2P -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-
-  <style>
-    :root{
-      --hot-pink: #ff2da8;  /* hot pink */
-      --cool-blue: #23b3ff; /* cool blue */
-      --bg: #0f1117;        /* dark background */
-      --fg: #e6e9ef;
-    }
-    * { box-sizing: border-box; }
-    html, body {
-      height: 100%;
-      margin: 0;
-      background: var(--bg);
-      color: var(--fg);
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-    }
-    .wrap {
-      min-height: 100%;
-      display: grid;
-      place-items: center;
-      padding: 24px;
-    }
-    .card {
-      width: min(1000px, 94vw);
-      text-align: center;
-    }
-    .logo {
-      width: min(780px, 92vw);
-      height: auto;
-      display: block;
-      margin: 0 auto 28px;
-      image-rendering: -webkit-optimize-contrast;
-    }
-    .headline {
-      font-family: 'Press Start 2P', cursive;
-      text-transform: uppercase;
-      line-height: 1.2;
-      margin: 0;
-      /* ~100pt max, scales down on small screens */
-      font-size: clamp(28px, 7.8vw, 100pt);
-      letter-spacing: 1px;
-
-      /* gradient text */
-      background: linear-gradient(90deg, var(--hot-pink), var(--cool-blue));
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      -webkit-text-fill-color: transparent;
-    }
-  </style>
+<meta charset="UTF-8" />
+<title>PROFIFY CONNECTED – logo + dissolve (OBS-safe)</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* Same vibe/colors as your sample */
+    --main:#b06fff;      /* bright purple */
+    --secondary:#6b24a5; /* deep purple */
+    --outline:#000000;   /* black outline */
+    --glow:#d9b3ff;      /* light purple glow */
+  }
+  html,body{height:100%;margin:0;background:transparent;overflow:hidden}
+  canvas{width:100vw;height:100vh;display:block}
+</style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="card">
-      <!-- Your image on top -->
-      <img class="logo" src="https://proforprof.com/profify/profco.png" alt="Profify Logo" />
+<canvas id="c"></canvas>
+<script>
+(() => {
+  const CAN = document.getElementById('c');
+  const CTX = CAN.getContext('2d');
 
-      <!-- Big retro headline -->
-      <h1 class="headline">PROFIFY CONNECTED!!! GG!!!</h1>
-    </div>
-  </div>
+  // Offscreen layer we erase into (TEXT ONLY goes here)
+  const LAYER = document.createElement('canvas');
+  const LCTX  = LAYER.getContext('2d', { willReadFrequently: true });
+
+  // ----- CONFIG -----
+  const LOGO_URL = 'https://proforprof.com/profify/profco.png';
+  const TEXT     = 'PROFIFY CONNECTED!!! GG!!!';
+  const FONT     = 'Press Start 2P';
+
+  const BLINKS = 4, BLINK_PERIOD = 900; // quick intro blink
+  const STAR_TIME = 7000, STAR_SPINS = 7; // dissolve duration + spins
+
+  // ----- STATE -----
+  const LOGO = new Image();
+  LOGO.crossOrigin = 'anonymous'; // okay if server sets CORS; if not, it still draws (we don't read CTX)
+  LOGO.src = LOGO_URL;
+
+  let layout = {
+    logo: {x:0,y:0,w:0,h:0, loaded:false},
+    textBounds: {x:0,y:0,w:0,h:0, px:0}
+  };
+
+  let finished = false;
+
+  function css(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+
+  function resize(){
+    const dpr = Math.max(1, Math.floor(window.devicePixelRatio || 1));
+    CAN.width  = Math.floor(CAN.clientWidth * dpr);
+    CAN.height = Math.floor(CAN.clientHeight * dpr);
+    CTX.setTransform(dpr,0,0,dpr,0,0);
+
+    LAYER.width  = CAN.clientWidth;
+    LAYER.height = CAN.clientHeight;
+    LCTX.setTransform(1,0,0,1,0,0);
+
+    computeLayout();
+    drawTextLayer(); // (re)build text layer
+  }
+  window.addEventListener('resize', resize, {passive:true});
+
+  function computeLayout(){
+    const W = CAN.clientWidth, H = CAN.clientHeight;
+
+    // --- Logo box (top-centered), keep nice margin and sane scaling
+    const maxLogoW = Math.min(W * 0.7, 900);  // clamp width
+    const maxLogoH = Math.min(H * 0.35, 380); // clamp height
+    if (LOGO.complete && LOGO.naturalWidth && LOGO.naturalHeight){
+      const scale = Math.min(maxLogoW / LOGO.naturalWidth, maxLogoH / LOGO.naturalHeight, 1);
+      const w = Math.round(LOGO.naturalWidth  * scale);
+      const h = Math.round(LOGO.naturalHeight * scale);
+      layout.logo = { x: Math.round((W - w)/2), y: Math.round(H * 0.06), w, h, loaded:true };
+    } else {
+      // Fallback placeholder box; text will still place below
+      const w = Math.round(maxLogoW * 0.7);
+      const h = Math.round(maxLogoH * 0.5);
+      layout.logo = { x: Math.round((W - w)/2), y: Math.round(H * 0.06), w, h, loaded:false };
+    }
+
+    // --- Text goes below the logo
+    const gap = Math.round(Math.min(W,H) * 0.04); // space between logo and text
+    const topForText = layout.logo.y + layout.logo.h + gap;
+    const availableH = Math.max(120, H - topForText - gap);
+
+    // Font size based on remaining space; “Press Start 2P” has compact height
+    const base = Math.min(W, availableH);
+    const px = Math.max(28, Math.floor(base * 0.11)); // tweak to taste
+
+    // Measure and center text
+    LCTX.save();
+    LCTX.font = `${px}px "${FONT}", monospace`;
+    LCTX.textBaseline = 'alphabetic';
+    const m = LCTX.measureText(TEXT);
+    LCTX.restore();
+
+    const textW = m.width;
+    const textH = (m.actualBoundingBoxAscent || 0) + (m.actualBoundingBoxDescent || 0) || px*1.1;
+    const x = Math.round((W - textW)/2);
+    const y = Math.round(topForText + textH); // baseline
+
+    layout.textBounds = { x, y, w:textW, h:textH, px };
+  }
+
+  function drawTextLayer(){
+    const W = LAYER.width, H = LAYER.height;
+    const { x, y, w, h, px } = layout.textBounds;
+
+    LCTX.clearRect(0,0,W,H);
+    LCTX.font = `${px}px "${FONT}", monospace`;
+    LCTX.textBaseline = 'alphabetic';
+
+    // Outline
+    LCTX.lineJoin = 'round';
+    LCTX.strokeStyle = css('--outline');
+    LCTX.lineWidth   = Math.max(3, Math.round(px * 0.22));
+    LCTX.strokeText(TEXT, x, y);
+
+    // Gradient fill
+    const g = LCTX.createLinearGradient(0, y - h, 0, y + h);
+    g.addColorStop(0, css('--main'));
+    g.addColorStop(1, css('--secondary'));
+    LCTX.fillStyle = g;
+    LCTX.fillText(TEXT, x, y);
+
+    // Tiny glow seed
+    LCTX.save();
+    LCTX.shadowColor = css('--glow');
+    LCTX.shadowBlur  = 8;
+    LCTX.fillRect(x, y - h, 1, 1);
+    LCTX.restore();
+  }
+
+  const easeOutCubic = t => 1 - Math.pow(1 - t, 3);
+
+  function eraseWithSpinningStar(t){
+    const { x, y, w, h, px } = layout.textBounds;
+    const cx = x + w/2;
+    const cy = y - h/2*0.1;
+
+    const angle = (Math.PI * 2) * (STAR_SPINS * t);
+    const L = easeOutCubic(t);
+
+    const fullLen = Math.sqrt(CAN.width*CAN.width + CAN.height*CAN.height);
+    const lenNow  = fullLen * L;
+
+    const barH = Math.max(3, Math.round(px * 0.09));
+
+    LCTX.save();
+    LCTX.globalCompositeOperation = 'destination-out';
+    LCTX.translate(Math.round(cx), Math.round(cy));
+    LCTX.rotate(angle);
+
+    for (let i=0; i<5; i++){
+      LCTX.save();
+      LCTX.rotate(i * (2*Math.PI/5));
+      const x0 = Math.round(-lenNow/2), y0 = Math.round(-barH/2);
+      LCTX.fillStyle = '#000';
+      LCTX.fillRect(x0, y0, Math.round(lenNow)+2, barH+2);
+      LCTX.restore();
+    }
+    LCTX.restore();
+  }
+
+  // OBS-safe scrub: zero RGB wherever alpha is ~0 (prevents edge bleed when scaled)
+  function scrubTransparency(){
+    const w = LAYER.width, h = LAYER.height;
+    try {
+      const img = LCTX.getImageData(0, 0, w, h);
+      const d = img.data;
+      for (let i = 0; i < d.length; i += 4) {
+        if (d[i+3] < 8) { d[i]=0; d[i+1]=0; d[i+2]=0; d[i+3]=0; }
+      }
+      LCTX.putImageData(img, 0, 0);
+    } catch(e) {
+      // If cross-origin security blocks it (shouldn't; we don't read the main CTX), just clear
+      // LCTX.clearRect(0, 0, w, h);
+    }
+  }
+
+  function drawStage(alpha=1){
+    const W = CAN.clientWidth, H = CAN.clientHeight;
+    CTX.clearRect(0,0,W,H);
+
+    // Draw logo first (always visible)
+    const L = layout.logo;
+    if (L.w && L.h) {
+      CTX.imageSmoothingEnabled = true;
+      CTX.imageSmoothingQuality = 'high';
+      // If not loaded yet, you’ll see nothing here until it loads
+      if (LOGO.complete && LOGO.naturalWidth) CTX.drawImage(LOGO, L.x, L.y, L.w, L.h);
+    }
+
+    // Draw the text layer (with optional alpha for blinking phase)
+    if (alpha>0){
+      CTX.globalAlpha = alpha;
+      CTX.drawImage(LAYER, 0, 0);
+      CTX.globalAlpha = 1;
+    }
+  }
+
+  let t0;
+  function frame(now){
+    if (!t0) t0 = now;
+
+    const blinkEnd = t0 + BLINKS*BLINK_PERIOD;
+    const starEnd  = blinkEnd + STAR_TIME;
+
+    if (now < blinkEnd){
+      const phase = ((now - t0) % BLINK_PERIOD) / BLINK_PERIOD;
+      drawStage(phase < 0.5 ? 1 : 0);
+      requestAnimationFrame(frame);
+      return;
+    }
+
+    if (now < starEnd){
+      const t = (now - blinkEnd) / STAR_TIME;
+      eraseWithSpinningStar(Math.min(1, t));
+      drawStage(1);
+      requestAnimationFrame(frame);
+      return;
+    }
+
+    if (!finished){
+      scrubTransparency(); // final OBS-safe clean on the text layer
+      finished = true;
+    }
+    drawStage(1);
+    // stop animating
+  }
+
+  function start(){
+    resize();
+    requestAnimationFrame(frame);
+  }
+
+  // Wait for font and (optionally) logo
+  Promise.allSettled([
+    document.fonts?.load(`16px "${FONT}"`) || Promise.resolve(),
+    new Promise(res => { if (LOGO.complete) res(); else LOGO.onload = res; })
+  ]).then(start);
+})();
+</script>
 </body>
 </html>
