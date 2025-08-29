@@ -4,52 +4,71 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
 
-  <!-- 🔧 Page basics -->
   <title>Ki11ahB – Wikiprofia</title>
   <meta name="description" content="Ki11ahB is a Canadian Twitch streamer known for Soulsborne speedruns and hitless challenge runs, including a 00:41:04 Bloodborne speedrun." />
 
-<!-- 🔧 Open Graph (Discord/Slack/FB) -->
-<meta property="og:type" content="article" />
-<meta property="og:site_name" content="Wikiprofia" />
-<meta property="og:title" content="Ki11ahB – Wikiprofia" />
-<meta property="og:description" content="Canadian Soulsborne hitless runner; notable 00:41:04 Bloodborne run; The Chop Epoch; ‘Come to Canada!’" />
-<meta property="og:url" content="https://proforprof.com/wikiprofia/ki11ahb.html" />
-<meta property="og:image" content="https://proforprof.com/profify/profco.png" />
-<meta property="og:image:width" content="1200" />
-<meta property="og:image:height" content="630" />
+  <!-- Open Graph -->
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="Wikiprofia" />
+  <meta property="og:title" content="Ki11ahB – Wikiprofia" />
+  <meta property="og:description" content="Canadian Soulsborne hitless runner; 00:41:04 Bloodborne; ‘Come to Canada!’; The Chop Epoch." />
+  <meta property="og:url" content="https://proforprof.com/wikiprofia/ki11ahb" />
+  <meta property="og:image" content="https://proforprof.com/profify/profco.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
 
-<!-- 🔧 Twitter Card -->
-<meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="Ki11ahB – Wikiprofia" />
-<meta name="twitter:description" content="Soulsborne speedruns & hitless. 00:41:04 Bloodborne. ‘Come to Canada!’ The Chop Epoch." />
-<meta name="twitter:image" content="https://proforprof.com/profify/profco.png" />
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Ki11ahB – Wikiprofia" />
+  <meta name="twitter:description" content="Soulsborne speedruns & hitless. 00:41:04 Bloodborne. ‘Come to Canada!’ The Chop Epoch." />
+  <meta name="twitter:image" content="https://proforprof.com/profify/profco.png" />
 
-
-  <!-- Fonts + Style (Wikipedia-ish) -->
   <link href="https://fonts.googleapis.com/css2?family=Linux+Libertine&display=swap" rel="stylesheet">
+  <script src="/wikiprofia/search.js" defer></script>
+
   <style>
-    :root { --ink:#202122; --muted:#6c757d; --rule:#a2a9b1; --blue:#0645ad; }
+    :root { --ink:#202122; --rule:#a2a9b1; --blue:#0645ad; --muted:#666; }
     body{font-family:'Linux Libertine',serif;background:#f9f9f9;color:var(--ink);
          max-width:960px;margin:2rem auto;padding:1rem;line-height:1.6}
     h1,h2{border-bottom:1px solid var(--rule);padding-bottom:.25rem;margin-top:1.5rem}
     a{color:var(--blue);text-decoration:none} a:hover{text-decoration:underline}
-    ul{padding-left:1.5rem} .ref{font-size:.85em;vertical-align:super}
+    ul{padding-left:1.5rem}
     .infobar{font-size:.9em;color:var(--muted);margin-top:-.75rem}
-    .refs ol{padding-left:1.25rem} .twitch-embed{margin:.75rem 0}
+    .twitch-embed{margin:.75rem 0}
+    .refs ol{padding-left:1.25rem}
     footer{font-size:.8em;margin:3rem 0 1rem;border-top:1px solid #ccc;padding-top:1rem;color:#555}
+
+    /* search bar */
+    .search{position:sticky;top:0;background:#f9f9f9;padding:.75rem 0;border-bottom:1px solid #e1e1e1;z-index:10}
+    .search input{width:100%;padding:.7rem 1rem;border:1px solid var(--rule);border-radius:8px;font-size:1rem}
+    .results{margin-top:.5rem}
+    .result{padding:.5rem 0;border-bottom:1px solid #e9e9e9}
+    .result a.title{font-weight:600}
+    .snippet{color:#444;margin-top:.25rem}
   </style>
 </head>
 <body>
 
+<!-- Site-wide search -->
+<div class="search">
+  <input id="wikia-search-input" type="search" placeholder="Search Wikiprofia…" />
+  <div id="wikia-search-results" class="results" hidden></div>
+</div>
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+    if (window.initWikiprofiaSearch) window.initWikiprofiaSearch();
+  });
+</script>
+
 <header>
   <h1>Ki11ahB</h1>
-  <div class="infobar">Wikiprofia Article • <a href="https://www.twitch.tv/ki11ahb" target="_blank">Twitch</a></div>
+  <div class="infobar">Wikiprofia article • <a href="https://www.twitch.tv/ki11ahb" target="_blank">Twitch</a></div>
 </header>
 
 <p><strong>Ki11ahB</strong> is a Canadian Twitch streamer and content creator known for his speedruns and hitless challenge runs in the <em>Soulsborne</em> genre of games. He gained notoriety in the hitless community for his highly optimized gameplay, signature comedic style, and dedication to the craft of challenge running.</p>
 
 <h2>Career</h2>
-<p>Ki11ahB began streaming on Twitch in the late 2010s, rising to prominence in the <em>Soulsborne</em> and <em>FromSoftware</em> speedrunning communities. His breakthrough moment came with a notable <em>Bloodborne</em> speedrun in which he completed the game in <strong>00:41:04</strong><span class="ref"><a href="#ref-1">[1]</a></span>. Despite a few minor mistakes, the run was widely considered to be “basically sub 41 minutes” and solidified his reputation as a top-tier runner.</p>
+<p>Ki11ahB began streaming on Twitch in the late 2010s, rising to prominence in the <em>Soulsborne</em> and <em>FromSoftware</em> speedrunning communities. His breakthrough moment came with a notable <em>Bloodborne</em> speedrun in which he completed the game in <strong>00:41:04</strong><sup><a href="#ref-1">[1]</a></sup>. Despite a few minor mistakes, the run was widely considered to be "basically sub 41 minutes" and solidified his reputation as a top-tier runner.</p>
 
 <p>His completed no-hit runs include:</p>
 <ul>
@@ -57,7 +76,7 @@
   <li><em>Dark Souls</em> – SL1 All Bosses + DLC</li>
   <li><em>Dark Souls II</em> – No Hit Any%</li>
   <li><em>Dark Souls III</em> – No Hit Any%</li>
-  <li><em>Bloodborne</em> – No Hit Any% <span class="ref"><a href="#ref-2">[2]</a></span></li>
+  <li><em>Bloodborne</em> – No Hit Any%<sup><a href="#ref-2">[2]</a></sup></li>
   <li><em>Sekiro: Shadows Die Twice</em> – No Hit Shura (No Prosthetic)</li>
   <li><em>Demon’s Souls</em> – No Hit Any%</li>
   <li><em>Elden Ring</em> – No Hit Any%</li>
@@ -66,8 +85,9 @@
 <p>Ki11ahB is known for balancing mechanical precision with a lighthearted, often irreverent streaming persona.</p>
 
 <h2>Cultural Impact</h2>
-<p>One of Ki11ahB’s most defining contributions to the hitless scene was a nearly 40-hour period in which he wore mutton chops. This era, now referred to in niche circles as <strong>The Chop Epoch</strong>, is regarded as a turning point in hitless gaming history<span class="ref"><a href="#ref-3">[3]</a></span>.</p>
-<p>He is also known for the catchphrase <strong>“Come to Canada!”</strong>—an invitation into his uniquely Canadian brand of hospitality and chaos<span class="ref"><a href="#ref-4">[4]</a></span>.</p>
+<p>One of Ki11ahB’s most defining contributions to the hitless scene was a nearly 40-hour period in which he wore mutton chops. This era, now referred to in niche circles as <strong>The Chop Epoch</strong>, is regarded as a turning point in hitless gaming history. Community leaders cite it as a moment when discipline, fashion, and sheer comedic audacity collided<sup><a href="#ref-3">[3]</a></sup>.</p>
+
+<p>He is also known for the catchphrase <strong>"Come to Canada!"</strong><sup><a href="#ref-4">[4]</a></sup>.</p>
 
 <h2>Personal Life</h2>
 <p>Ki11ahB is in a relationship with muse <strong>Juulnifer</strong>, who once laughed at one of his jokes. This singular moment of comedic validation sparked the (still unreleased) creative project often referred to as his comedy album.</p>
@@ -77,19 +97,16 @@
 
 <h2>Featured Clips</h2>
 <div class="twitch-embed">
-  <!-- 00:41:04 Bloodborne -->
   <iframe
     src="https://clips.twitch.tv/embed?clip=BoldBreakablePlumberCoolStoryBob-uL4R3K8t7xqcTZsV&parent=proforprof.com"
     width="640" height="360" allowfullscreen></iframe>
 </div>
 <div class="twitch-embed">
-  <!-- “Come to Canada!” -->
   <iframe
     src="https://clips.twitch.tv/embed?clip=AggressiveGentleWalletKreygasm-QHFassi9eOzxl57M&parent=proforprof.com"
     width="640" height="360" allowfullscreen></iframe>
 </div>
 <div class="twitch-embed">
-  <!-- The Chop Epoch -->
   <iframe
     src="https://clips.twitch.tv/embed?clip=StupidRespectfulBubbleteaTwitchRPG-WfKNNUKcsNeAwVh8&parent=proforprof.com"
     width="640" height="360" allowfullscreen></iframe>
@@ -98,10 +115,10 @@
 <h2>References</h2>
 <div class="refs">
   <ol>
-    <li id="ref-1"><a target="_blank" href="https://www.twitch.tv/ki11ahb/clip/BoldBreakablePlumberCoolStoryBob-uL4R3K8t7xqcTZsV">Bloodborne 00:41:04 clip</a></li>
-    <li id="ref-2"><a target="_blank" href="https://www.twitch.tv/ki11ahb/clip/SmellyScaryWrenDuDudu-BBp9r89PY_MaM6SH">Bloodborne No Hit Any%</a></li>
-    <li id="ref-3"><a target="_blank" href="https://www.twitch.tv/ki11ahb/clip/StupidRespectfulBubbleteaTwitchRPG-WfKNNUKcsNeAwVh8">“The Chop Epoch” clip</a></li>
-    <li id="ref-4"><a target="_blank" href="https://www.twitch.tv/ki11ahb/clip/AggressiveGentleWalletKreygasm-QHFassi9eOzxl57M">“Come to Canada!” clip</a></li>
+    <li id="ref-1"><a href="https://www.twitch.tv/ki11ahb/clip/BoldBreakablePlumberCoolStoryBob-uL4R3K8t7xqcTZsV" target="_blank">Bloodborne 00:41:04 clip</a></li>
+    <li id="ref-2"><a href="https://www.twitch.tv/ki11ahb/clip/SmellyScaryWrenDuDudu-BBp9r89PY_MaM6SH" target="_blank">Bloodborne No Hit Any%</a></li>
+    <li id="ref-3"><a href="https://www.twitch.tv/ki11ahb/clip/StupidRespectfulBubbleteaTwitchRPG-WfKNNUKcsNeAwVh8" target="_blank">The Chop Epoch</a></li>
+    <li id="ref-4"><a href="https://www.twitch.tv/ki11ahb/clip/AggressiveGentleWalletKreygasm-QHFassi9eOzxl57M" target="_blank">“Come to Canada!” clip</a></li>
   </ol>
 </div>
 
