@@ -2,11 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>PROFIFY CONNECTED – logo + dissolve (OBS-safe)</title>
+<title>PROFIFY – stacked dissolve (OBS-safe)</title>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <style>
   :root{
-    /* Same vibe/colors as your sample */
     --main:#b06fff;      /* bright purple */
     --secondary:#6b24a5; /* deep purple */
     --outline:#000000;   /* black outline */
@@ -23,31 +22,35 @@
   const CAN = document.getElementById('c');
   const CTX = CAN.getContext('2d');
 
-  // Offscreen layer we erase into (TEXT ONLY goes here)
+  // Offscreen layer for TEXT ONLY (so we can erase/dissolve it)
   const LAYER = document.createElement('canvas');
   const LCTX  = LAYER.getContext('2d', { willReadFrequently: true });
 
   // ----- CONFIG -----
   const LOGO_URL = 'https://proforprof.com/profify/profco.png';
-  const TEXT     = 'PROFIFY CONNECTED!!! GG!!!';
+  const LINES    = ['Profify', 'Connected!', 'GGs!!!']; // stacked lines
   const FONT     = 'Press Start 2P';
 
+  // Timing
   const BLINKS = 4, BLINK_PERIOD = 900; // quick intro blink
   const STAR_TIME = 7000, STAR_SPINS = 7; // dissolve duration + spins
 
   // ----- STATE -----
   const LOGO = new Image();
-  LOGO.crossOrigin = 'anonymous'; // okay if server sets CORS; if not, it still draws (we don't read CTX)
+  LOGO.crossOrigin = 'anonymous';
   LOGO.src = LOGO_URL;
 
   let layout = {
-    logo: {x:0,y:0,w:0,h:0, loaded:false},
-    textBounds: {x:0,y:0,w:0,h:0, px:0}
+    logo: {x:0,y:0,w:0,h:0},
+    // textBounds describes the full bounding rectangle of all lines as a group
+    textBounds: {left:0, top:0, right:0, bottom:0, w:0, h:0, px:0, cx:0, cy:0},
+    // per-line baselines & widths (for drawing)
+    lines: [] // [{x,y,w,h}]
   };
 
   let finished = false;
 
-  function css(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+  const css = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
   function resize(){
     const dpr = Math.max(1, Math.floor(window.devicePixelRatio || 1));
@@ -60,95 +63,130 @@
     LCTX.setTransform(1,0,0,1,0,0);
 
     computeLayout();
-    drawTextLayer(); // (re)build text layer
+    drawTextLayer();
   }
   window.addEventListener('resize', resize, {passive:true});
 
   function computeLayout(){
     const W = CAN.clientWidth, H = CAN.clientHeight;
 
-    // --- Logo box (top-centered), keep nice margin and sane scaling
-    const maxLogoW = Math.min(W * 0.7, 900);  // clamp width
-    const maxLogoH = Math.min(H * 0.35, 380); // clamp height
+    // --- Logo sizing/placement (top-centered)
+    const maxLogoW = Math.min(W * 0.7, 900);
+    const maxLogoH = Math.min(H * 0.35, 380);
     if (LOGO.complete && LOGO.naturalWidth && LOGO.naturalHeight){
       const scale = Math.min(maxLogoW / LOGO.naturalWidth, maxLogoH / LOGO.naturalHeight, 1);
       const w = Math.round(LOGO.naturalWidth  * scale);
       const h = Math.round(LOGO.naturalHeight * scale);
-      layout.logo = { x: Math.round((W - w)/2), y: Math.round(H * 0.06), w, h, loaded:true };
+      layout.logo = { x: Math.round((W - w)/2), y: Math.round(H * 0.06), w, h };
     } else {
-      // Fallback placeholder box; text will still place below
+      // placeholder box if not loaded yet
       const w = Math.round(maxLogoW * 0.7);
       const h = Math.round(maxLogoH * 0.5);
-      layout.logo = { x: Math.round((W - w)/2), y: Math.round(H * 0.06), w, h, loaded:false };
+      layout.logo = { x: Math.round((W - w)/2), y: Math.round(H * 0.06), w, h };
     }
 
-    // --- Text goes below the logo
-    const gap = Math.round(Math.min(W,H) * 0.04); // space between logo and text
+    // --- Text block goes below the logo
+    const gap = Math.round(Math.min(W,H) * 0.04);
     const topForText = layout.logo.y + layout.logo.h + gap;
     const availableH = Math.max(120, H - topForText - gap);
 
-    // Font size based on remaining space; “Press Start 2P” has compact height
+    // Pick a size that fits nicely; 3 lines with Press Start 2P
     const base = Math.min(W, availableH);
-    const px = Math.max(28, Math.floor(base * 0.11)); // tweak to taste
+    const px = Math.max(28, Math.floor(base * 0.09)); // slightly smaller to fit 3 lines
+    const lineGap = Math.round(px * 0.35);            // spacing between baselines
 
-    // Measure and center text
     LCTX.save();
     LCTX.font = `${px}px "${FONT}", monospace`;
     LCTX.textBaseline = 'alphabetic';
-    const m = LCTX.measureText(TEXT);
+
+    // Measure all lines & compute overall bounds
+    const lineMetrics = LINES.map(txt => {
+      const m = LCTX.measureText(txt);
+      const w = m.width;
+      const h = (m.actualBoundingBoxAscent || 0) + (m.actualBoundingBoxDescent || 0) || px*1.1;
+      return {txt, w, h};
+    });
+
+    const totalHeight = lineMetrics.reduce((sum, lm) => sum + lm.h, 0) + lineGap * (LINES.length - 1);
+    const topY = Math.round(topForText + (availableH - totalHeight)/2);
+    const groupLefts = [];
+    const groupRights = [];
+    const perLine = [];
+
+    let runningY = topY;
+    for (const lm of lineMetrics){
+      const x = Math.round((W - lm.w)/2);
+      const y = Math.round(runningY + lm.h); // baseline for this line
+      perLine.push({ x, y, w: lm.w, h: lm.h, txt: lm.txt });
+      groupLefts.push(x);
+      groupRights.push(x + lm.w);
+      runningY = y + lineGap; // next line's baseline start
+    }
+
+    const left   = Math.min(...groupLefts);
+    const right  = Math.max(...groupRights);
+    const top    = topY;
+    const bottom = perLine[perLine.length - 1].y; // baseline of last line
+    const wGroup = right - left;
+    const hGroup = bottom - top;
+
+    layout.lines = perLine;
+    layout.textBounds = {
+      left, top, right, bottom, w: wGroup, h: hGroup, px,
+      cx: left + wGroup/2,
+      cy: top  + hGroup/2
+    };
+
     LCTX.restore();
-
-    const textW = m.width;
-    const textH = (m.actualBoundingBoxAscent || 0) + (m.actualBoundingBoxDescent || 0) || px*1.1;
-    const x = Math.round((W - textW)/2);
-    const y = Math.round(topForText + textH); // baseline
-
-    layout.textBounds = { x, y, w:textW, h:textH, px };
   }
 
   function drawTextLayer(){
     const W = LAYER.width, H = LAYER.height;
-    const { x, y, w, h, px } = layout.textBounds;
-
     LCTX.clearRect(0,0,W,H);
+
+    const { px } = layout.textBounds;
     LCTX.font = `${px}px "${FONT}", monospace`;
     LCTX.textBaseline = 'alphabetic';
 
-    // Outline
-    LCTX.lineJoin = 'round';
-    LCTX.strokeStyle = css('--outline');
-    LCTX.lineWidth   = Math.max(3, Math.round(px * 0.22));
-    LCTX.strokeText(TEXT, x, y);
+    for (const line of layout.lines){
+      // Outline
+      LCTX.lineJoin = 'round';
+      LCTX.strokeStyle = css('--outline');
+      LCTX.lineWidth   = Math.max(3, Math.round(px * 0.22));
+      LCTX.strokeText(line.txt, line.x, line.y);
 
-    // Gradient fill
-    const g = LCTX.createLinearGradient(0, y - h, 0, y + h);
-    g.addColorStop(0, css('--main'));
-    g.addColorStop(1, css('--secondary'));
-    LCTX.fillStyle = g;
-    LCTX.fillText(TEXT, x, y);
+      // Gradient fill (vertical per line)
+      const g = LCTX.createLinearGradient(0, line.y - line.h, 0, line.y + line.h);
+      g.addColorStop(0, css('--main'));
+      g.addColorStop(1, css('--secondary'));
+      LCTX.fillStyle = g;
+      LCTX.fillText(line.txt, line.x, line.y);
+    }
 
-    // Tiny glow seed
+    // Tiny glow seed (to activate subtle glow without polluting alpha)
+    const b = layout.textBounds;
     LCTX.save();
     LCTX.shadowColor = css('--glow');
     LCTX.shadowBlur  = 8;
-    LCTX.fillRect(x, y - h, 1, 1);
+    LCTX.fillRect(Math.round(b.left), Math.round(b.top), 1, 1);
     LCTX.restore();
   }
 
   const easeOutCubic = t => 1 - Math.pow(1 - t, 3);
 
   function eraseWithSpinningStar(t){
-    const { x, y, w, h, px } = layout.textBounds;
-    const cx = x + w/2;
-    const cy = y - h/2*0.1;
+    const b = layout.textBounds;
+    const cx = b.cx;
+    const cy = b.cy;
 
     const angle = (Math.PI * 2) * (STAR_SPINS * t);
     const L = easeOutCubic(t);
 
+    // Full-diagonal length so bars reach corners
     const fullLen = Math.sqrt(CAN.width*CAN.width + CAN.height*CAN.height);
     const lenNow  = fullLen * L;
 
-    const barH = Math.max(3, Math.round(px * 0.09));
+    const barH = Math.max(3, Math.round(b.px * 0.09));
 
     LCTX.save();
     LCTX.globalCompositeOperation = 'destination-out';
@@ -166,7 +204,7 @@
     LCTX.restore();
   }
 
-  // OBS-safe scrub: zero RGB wherever alpha is ~0 (prevents edge bleed when scaled)
+  // OBS-safe scrub: zero RGB where alpha is ~0 to avoid edge bleed on scaling
   function scrubTransparency(){
     const w = LAYER.width, h = LAYER.height;
     try {
@@ -176,26 +214,22 @@
         if (d[i+3] < 8) { d[i]=0; d[i+1]=0; d[i+2]=0; d[i+3]=0; }
       }
       LCTX.putImageData(img, 0, 0);
-    } catch(e) {
-      // If cross-origin security blocks it (shouldn't; we don't read the main CTX), just clear
-      // LCTX.clearRect(0, 0, w, h);
-    }
+    } catch(e) { /* no-op on security errors (shouldn't happen; we don't read main CTX) */ }
   }
 
   function drawStage(alpha=1){
     const W = CAN.clientWidth, H = CAN.clientHeight;
     CTX.clearRect(0,0,W,H);
 
-    // Draw logo first (always visible)
+    // Logo (always on, above text)
     const L = layout.logo;
-    if (L.w && L.h) {
+    if (L.w && L.h && LOGO.complete && LOGO.naturalWidth){
       CTX.imageSmoothingEnabled = true;
       CTX.imageSmoothingQuality = 'high';
-      // If not loaded yet, you’ll see nothing here until it loads
-      if (LOGO.complete && LOGO.naturalWidth) CTX.drawImage(LOGO, L.x, L.y, L.w, L.h);
+      CTX.drawImage(LOGO, L.x, L.y, L.w, L.h);
     }
 
-    // Draw the text layer (with optional alpha for blinking phase)
+    // Text layer (blink via alpha, then full for dissolve)
     if (alpha>0){
       CTX.globalAlpha = alpha;
       CTX.drawImage(LAYER, 0, 0);
@@ -226,7 +260,7 @@
     }
 
     if (!finished){
-      scrubTransparency(); // final OBS-safe clean on the text layer
+      scrubTransparency(); // final OBS-safe clean
       finished = true;
     }
     drawStage(1);
@@ -238,7 +272,6 @@
     requestAnimationFrame(frame);
   }
 
-  // Wait for font and (optionally) logo
   Promise.allSettled([
     document.fonts?.load(`16px "${FONT}"`) || Promise.resolve(),
     new Promise(res => { if (LOGO.complete) res(); else LOGO.onload = res; })
