@@ -99,6 +99,9 @@
 <!-- Card rendering + search init -->
 <script>
   // Build runner cards from manifest.json (title, url, description, avatar)
+  <script>
+  const FALLBACK_AVATAR = 'https://proforprof.com/profify/profco.png';
+
   fetch('manifest.json')
     .then(r => r.json())
     .then(data => {
@@ -107,20 +110,43 @@
         const card = document.createElement('div');
         card.className = 'card';
 
+        // derive handle (lowercase) for safety
+        const handle = (r.twitch && typeof r.twitch === 'string')
+          ? r.twitch.trim().toLowerCase()
+          : '';
+
+        // choose avatar: manifest avatar > unavatar via twitch handle > site fallback
+        const avatarSrc = r.avatar
+          ? r.avatar
+          : (handle ? `https://unavatar.io/twitch/${handle}?s=128` : FALLBACK_AVATAR);
+
         const img = document.createElement('img');
         img.className = 'avatar';
         img.loading = 'lazy';
         img.alt = `${r.title} avatar`;
-        img.src = r.avatar || 'https://proforprof.com/profify/profco.png';
-        img.onerror = () => { img.src = 'https://proforprof.com/profify/profco.png'; };
+        img.referrerPolicy = 'no-referrer';
+        img.src = avatarSrc;
+        img.onerror = () => { img.src = FALLBACK_AVATAR; };
 
         const meta = document.createElement('div');
         meta.className = 'meta';
-        meta.innerHTML = `
-          <a class="t" href="${r.url}">${r.title}</a>
-          <div class="desc">${r.description ? r.description : ''}</div>
-        `;
 
+        const title = `<a class="t" href="${r.url}">${r.title}</a>`;
+        const desc  = `<div class="desc">${r.description ? r.description : ''}</div>`;
+
+        let actions = '';
+        if (handle) {
+          const twitchUrl = `https://www.twitch.tv/${handle}`;
+          actions = `
+            <div class="actions">
+              <a class="btn" href="${twitchUrl}" target="_blank" rel="noopener noreferrer"
+                 aria-label="Follow ${handle} on Twitch">
+                Follow on Twitch
+              </a>
+            </div>`;
+        }
+
+        meta.innerHTML = `${title}${desc}${actions}`;
         card.appendChild(img);
         card.appendChild(meta);
         grid.appendChild(card);
@@ -128,11 +154,12 @@
     })
     .catch(err => console.error('Manifest load failed:', err));
 
-  // Kick on the site-wide search
+  // Search init
   window.addEventListener('DOMContentLoaded', () => {
     if (window.initWikiprofiaSearch) window.initWikiprofiaSearch();
   });
 </script>
+
 
 </body>
 </html>
