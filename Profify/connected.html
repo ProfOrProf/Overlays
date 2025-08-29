@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Profify Connected</title>
+
+  <!-- Google Font: Press Start 2P -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --hot-pink: #ff2da8;      /* hot pink */
+      --cool-blue: #23b3ff;     /* cool blue */
+      --bg: #0f1117;            /* dark background (tweak if you want light) */
+      --fg: #e6e9ef;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
+    .wrap {
+      min-height: 100%;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+    .card {
+      width: min(920px, 92vw);
+      text-align: center;
+    }
+    .logo {
+      width: min(720px, 90vw);
+      height: auto;
+      display: block;
+      margin: 0 auto 28px;
+      image-rendering: -webkit-optimize-contrast; /* a little crisper on some browsers */
+    }
+
+    /* Headline styling: 100pt max, responsive on small screens */
+    .headline {
+      font-family: 'Press Start 2P', cursive;
+      text-transform: uppercase;
+      line-height: 1.15;
+      margin: 0;
+      /* 100pt max (≈133px), scale down on small screens */
+      font-size: clamp(28px, 7.5vw, 100pt);
+
+      /* gradient text (hot pink -> cool blue) */
+      background: linear-gradient(90deg, var(--hot-pink), var(--cool-blue));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 1px;
+    }
+    .headline .small {
+      display: block;
+      margin-top: 10px;
+      font-size: 0.68em; /* “GG!” a bit smaller; adjust to taste */
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <!-- Replace the src with your PNG URL -->
+      <!-- Example (GitHub Pages): https://USER.github.io/REPO/Profco.png -->
+      <!-- Example (raw): https://raw.githubusercontent.com/USER/REPO/branch/Profco.png -->
+      <img class="logo" src="REPLACE_WITH_YOUR_GITHUB_IMAGE_URL" alt="Profify" />
+
+      <h1 class="headline">
+        Profify Connected!
+        <span class="small">GG!</span>
+      </h1>
+    </div>
+  </div>
+</body>
+</html>
