@@ -110,7 +110,7 @@
 
 <!-- Card rendering + search init -->
 <script>
-  const MANIFEST_URL = '/wikiprofia/manifest.json'; // <- absolute path is safest on Netlify
+  const MANIFEST_URL = '/wikiprofia/manifest.json';
   const FALLBACK_AVATAR = 'https://proforprof.com/profify/profco.png';
   const avatarCache = new Map();
 
@@ -120,94 +120,87 @@
     box.hidden = false;
   }
 
-  async function resolveAvatarForRunner(r) {
+  async function resolveAvatarURL(handle) {
+    const key = handle.toLowerCase();
+    if (avatarCache.has(key)) return avatarCache.get(key);
+
+    // 1) Try direct avatar first
+    const direct = `https://unavatar.io/twitch/${encodeURIComponent(key)}`;
     try {
-      if (r.avatar && r.avatar.trim()) return r.avatar.trim();
+      const ping = await fetch(direct, { method: 'HEAD', mode: 'cors' });
+      if (ping.ok) {
+        avatarCache.set(key, direct);
+        return direct;
+      }
+    } catch (_) { }
 
-      const handle = (r.twitch && typeof r.twitch === 'string') ? r.twitch.trim().toLowerCase() : '';
-      if (!handle) return FALLBACK_AVATAR;
+    // 2) Fallback: JSON → url
+    try {
+      const resp = await fetch(`https://unavatar.io/twitch/${encodeURIComponent(key)}?json`, { cache: 'force-cache' });
+      if (resp.ok) {
+        const data = await resp.json();
+        if (data && data.url) {
+          avatarCache.set(key, data.url);
+          return data.url;
+        }
+      }
+    } catch (_) { }
 
-      if (avatarCache.has(handle)) return avatarCache.get(handle);
-
-      const resp = await fetch(`https://unavatar.io/twitch/${encodeURIComponent(handle)}?json`, { cache: 'force-cache' });
-      if (!resp.ok) throw new Error('unavatar http ' + resp.status);
-      const data = await resp.json();
-      const url = (data && data.url) ? data.url : FALLBACK_AVATAR;
-      avatarCache.set(handle, url);
-      return url;
-    } catch (e) {
-      console.warn('Avatar resolve failed for', r.title || r.twitch, e);
-      return FALLBACK_AVATAR;
-    }
+    avatarCache.set(key, FALLBACK_AVATAR);
+    return FALLBACK_AVATAR;
   }
 
   (async function loadAndRender() {
     try {
       const res = await fetch(MANIFEST_URL, { cache: 'no-store' });
-      if (!res.ok) throw new Error(`Manifest fetch failed (${res.status}) from ${MANIFEST_URL}`);
+      if (!res.ok) throw new Error(`Manifest fetch failed (${res.status})`);
       const data = await res.json();
 
-      if (!data || !Array.isArray(data.runners)) {
-        console.error('Manifest JSON shape invalid:', data);
-        showStatus('No runners found. Check manifest.json format (must contain { "runners": [ ... ] }).');
-        return;
-      }
-      if (data.runners.length === 0) {
-        showStatus('No runners listed yet. Add entries to manifest.json.');
+      if (!data || !Array.isArray(data.runners) || data.runners.length === 0) {
+        showStatus('No runners found. Check manifest.json.');
         return;
       }
 
       const grid = document.getElementById('runner-grid');
 
-      // Resolve avatars in parallel
-      const resolved = await Promise.all(
-        data.runners.map(async r => ({ r, avatar: await resolveAvatarForRunner(r) }))
-      );
-
-      resolved.forEach(({ r, avatar }) => {
+      for (const r of data.runners) {
         const card = document.createElement('div');
         card.className = 'card';
 
         const img = document.createElement('img');
         img.className = 'avatar';
+        img.width = 64; img.height = 64;
         img.loading = 'lazy';
         img.alt = `${r.title} avatar`;
         img.referrerPolicy = 'no-referrer';
-        img.src = avatar || FALLBACK_AVATAR;
+
+        const handle = (r.twitch || '').trim().toLowerCase();
+        const chosen = r.avatar?.trim() || (handle ? await resolveAvatarURL(handle) : FALLBACK_AVATAR);
+        img.src = chosen;
         img.onerror = () => { img.src = FALLBACK_AVATAR; };
 
         const meta = document.createElement('div');
         meta.className = 'meta';
 
         const title = `<a class="t" href="${r.url}">${r.title}</a>`;
-        const desc  = `<div class="desc">${r.description ? r.description : ''}</div>`;
+        const desc  = `<div class="desc">${r.description || ''}</div>`;
+        const btn   = handle ? `
+          <div class="actions">
+            <a class="btn" href="https://www.twitch.tv/${handle}" target="_blank" rel="noopener noreferrer"
+               aria-label="Follow ${handle} on Twitch">Follow on Twitch</a>
+          </div>` : '';
 
-        let actions = '';
-        const handle = (r.twitch && typeof r.twitch === 'string') ? r.twitch.trim().toLowerCase() : '';
-        if (handle) {
-          const twitchUrl = `https://www.twitch.tv/${handle}`;
-          actions = `
-            <div class="actions">
-              <a class="btn" href="${twitchUrl}" target="_blank" rel="noopener noreferrer"
-                 aria-label="Follow ${handle} on Twitch">
-                Follow on Twitch
-              </a>
-            </div>`;
-        }
-
-        meta.innerHTML = `${title}${desc}${actions}`;
+        meta.innerHTML = `${title}${desc}${btn}`;
         card.appendChild(img);
         card.appendChild(meta);
         grid.appendChild(card);
-      });
-
+      }
     } catch (err) {
       console.error(err);
-      showStatus('Could not load runners. Open DevTools → Console for details. Likely causes: wrong manifest path, JSON syntax error, or CORS.');
+      showStatus('Could not load runners. Open Console for details.');
     }
   })();
 
-  // Search init
   window.addEventListener('DOMContentLoaded', () => {
     if (window.initWikiprofiaSearch) window.initWikiprofiaSearch();
   });
