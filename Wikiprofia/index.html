@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
 
   <title>Wikiprofia – Streamer Archive</title>
-  <meta name="description" content="A lovingly stolen parody of Wikipedia for hitless & speedrunners." />
+  <meta name="description" content="A parody encyclopedia for Soulsborne hitless & speedrunners." />
 
   <!-- Open Graph / Twitter -->
   <meta property="og:type" content="website" />
@@ -25,10 +25,10 @@
 
   <!-- Styles -->
   <style>
-    :root { --ink:#202122; --rule:#a2a9b1; --blue:#0645ad; --muted:#666; }
+    :root { --ink:#202122; --rule:#a2a9b1; --blue:#0645ad; --muted:#666; --twitch:#9146FF; }
     * { box-sizing: border-box; }
     body{
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      font-family: system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
       background:#f9f9f9; color:var(--ink);
       max-width: 1000px; margin: 2rem auto; padding: 1rem; line-height:1.6;
     }
@@ -69,6 +69,16 @@
     .t{ display:block; font-weight:700; line-height:1.25; margin:2px 0 }
     .desc{ color:#555; font-size:.95rem }
 
+    /* actions */
+    .actions{ margin-top:.5rem; display:flex; gap:.5rem; flex-wrap:wrap }
+    .btn{
+      display:inline-block; padding:.4rem .7rem; border-radius:8px;
+      border:1px solid var(--twitch); background:#fff; color:var(--twitch);
+      font-weight:600; font-size:.9rem; line-height:1; text-decoration:none;
+      transition:background .15s, color .15s;
+    }
+    .btn:hover{ background:var(--twitch); color:#fff; text-decoration:none }
+
     footer{
       font-size:.9rem; color:#555;
       margin-top:2rem; border-top:1px solid #ddd; padding-top:1rem;
@@ -98,43 +108,61 @@
 
 <!-- Card rendering + search init -->
 <script>
-  // Build runner cards from manifest.json (title, url, description, avatar)
-  <script>
   const FALLBACK_AVATAR = 'https://proforprof.com/profify/profco.png';
+  const avatarCache = new Map();
+
+  async function resolveAvatarForRunner(r) {
+    if (r.avatar && r.avatar.trim()) return r.avatar.trim();
+    const handle = (r.twitch && typeof r.twitch === 'string') ? r.twitch.trim().toLowerCase() : '';
+    if (!handle) return FALLBACK_AVATAR;
+
+    if (avatarCache.has(handle)) return avatarCache.get(handle);
+
+    try {
+      const resp = await fetch(`https://unavatar.io/twitch/${encodeURIComponent(handle)}?json`, { cache: 'force-cache' });
+      if (!resp.ok) throw new Error('http ' + resp.status);
+      const data = await resp.json();
+      const url = (data && data.url) ? data.url : FALLBACK_AVATAR;
+      avatarCache.set(handle, url);
+      return url;
+    } catch (e) {
+      console.warn('Avatar resolve failed for', handle, e);
+      avatarCache.set(handle, FALLBACK_AVATAR);
+      return FALLBACK_AVATAR;
+    }
+  }
 
   fetch('manifest.json')
     .then(r => r.json())
-    .then(data => {
+    .then(async data => {
       const grid = document.getElementById('runner-grid');
-      (data.runners || []).forEach(r => {
+      const runners = Array.isArray(data.runners) ? data.runners : [];
+
+      const resolved = await Promise.all(runners.map(async r => ({
+        runner: r,
+        avatar: await resolveAvatarForRunner(r)
+      })));
+
+      resolved.forEach(({ runner: r, avatar }) => {
         const card = document.createElement('div');
         card.className = 'card';
-
-        // derive handle (lowercase) for safety
-        const handle = (r.twitch && typeof r.twitch === 'string')
-          ? r.twitch.trim().toLowerCase()
-          : '';
-
-        // choose avatar: manifest avatar > unavatar via twitch handle > site fallback
-        const avatarSrc = r.avatar
-          ? r.avatar
-          : (handle ? `https://unavatar.io/twitch/${handle}?s=128` : FALLBACK_AVATAR);
 
         const img = document.createElement('img');
         img.className = 'avatar';
         img.loading = 'lazy';
         img.alt = `${r.title} avatar`;
         img.referrerPolicy = 'no-referrer';
-        img.src = avatarSrc;
+        img.src = avatar || FALLBACK_AVATAR;
         img.onerror = () => { img.src = FALLBACK_AVATAR; };
 
         const meta = document.createElement('div');
         meta.className = 'meta';
 
         const title = `<a class="t" href="${r.url}">${r.title}</a>`;
-        const desc  = `<div class="desc">${r.description ? r.description : ''}</div>`;
+        const desc  = `<div class="desc">${r.description || ''}</div>`;
 
         let actions = '';
+        const handle = (r.twitch && typeof r.twitch === 'string') ? r.twitch.trim().toLowerCase() : '';
         if (handle) {
           const twitchUrl = `https://www.twitch.tv/${handle}`;
           actions = `
@@ -154,12 +182,10 @@
     })
     .catch(err => console.error('Manifest load failed:', err));
 
-  // Search init
   window.addEventListener('DOMContentLoaded', () => {
     if (window.initWikiprofiaSearch) window.initWikiprofiaSearch();
   });
 </script>
-
 
 </body>
 </html>
