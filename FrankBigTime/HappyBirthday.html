@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>HAPPY BIRTHDAY – FrankBigTime!!!</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --purple:#b06fff;
+    --teal:#47eaff;
+    --bg:transparent;
+  }
+  html,body{
+    height:100%; margin:0; background:var(--bg); overflow:hidden;
+    display:flex; align-items:center; justify-content:center;
+  }
+  /* ---------- STAGE 1: Retro blinking lines ---------- */
+  #lines{
+    text-align:center;
+    font-family:'Press Start 2P', monospace;
+    letter-spacing:2px;
+    color:var(--purple);
+    -webkit-text-stroke:2px var(--teal);
+    text-shadow:
+      2px 2px 0 var(--teal), -2px 2px 0 var(--teal),
+      2px -2px 0 var(--teal), -2px -2px 0 var(--teal),
+      0 0 18px rgba(71,234,255,.45);
+    user-select:none;
+  }
+  #lines .l1{ font-size: clamp(22px,5vw,64px);  animation: blink 0.8s steps(1,end) infinite; }
+  #lines .l2{ font-size: clamp(22px,5vw,64px);  animation: blink 0.8s steps(1,end) infinite reverse; }
+  #lines .l3{ font-size: clamp(24px,6vw,72px);  animation: blink 0.8s steps(1,end) infinite; }
+
+  @keyframes blink{
+    0%,49%{opacity:1}
+    50%,100%{opacity:0}
+  }
+
+  /* ---------- STAGE 2: Canvas dissolve ---------- */
+  canvas{ position:absolute; inset:0; width:100vw; height:100vh; display:none; }
+
+  /* ---------- STAGE 3: ASCII cake + button ---------- */
+  #cakeStage{ display:none; text-align:center; font-family:'Press Start 2P', monospace; color:var(--purple); }
+  #cake{
+    display:inline-block; text-align:left; padding:12px 16px; border:2px solid var(--teal); border-radius:12px;
+    box-shadow:0 0 18px rgba(71,234,255,.35), inset 0 0 12px rgba(71,234,255,.15);
+    background:rgba(0,0,0,0.05);
+  }
+  #cake pre{ margin:0; line-height:1.15; color:var(--purple); -webkit-text-stroke: 1px var(--teal); }
+  .candle{ display:inline-block; }
+  #btn{
+    margin-top:14px; padding:10px 14px; cursor:pointer; border:2px solid var(--teal); color:#001; background:var(--teal);
+    font-family:'Press Start 2P', monospace; font-size:14px; border-radius:10px; box-shadow:0 0 16px rgba(71,234,255,.5);
+  }
+  #btn:hover{ filter:brightness(1.1); }
+
+  /* Candle gust animation: italic/normal and stepwise push left, then fade */
+  @keyframes gust{
+    0%  { transform:translateX(0);    font-style:italic;  opacity:1; }
+    25% { transform:translateX(-6px); font-style:normal;  opacity:1; }
+    50% { transform:translateX(-12px);font-style:italic;  opacity:0.85;}
+    75% { transform:translateX(-18px);font-style:normal;  opacity:0.6; }
+    100%{ transform:translateX(-30px);font-style:italic;  opacity:0; }
+  }
+  .blow{ animation: gust 1.4s steps(1,end) forwards; }
+
+  /* Final message */
+  #finalMsg{
+    display:none; margin-top:18px; color:var(--purple); -webkit-text-stroke:2px var(--teal);
+    text-shadow:0 0 18px rgba(71,234,255,.45); font-family:'Press Start 2P', monospace;
+    font-size: clamp(18px,4vw,42px);
+  }
+</style>
+</head>
+<body>
+
+  <!-- Stage 1: alternating blink -->
+  <div id="lines">
+    <div class="l1">HAPPY</div>
+    <div class="l2">BIRTHDAY</div>
+    <div class="l3">FRANKBIGTIME!!!</div>
+  </div>
+
+  <!-- Stage 2: erase canvas (draws the same 3 lines, then star+circle erase) -->
+  <canvas id="c"></canvas>
+
+  <!-- Stage 3: ASCII cake + button -->
+  <div id="cakeStage">
+    <div id="cake">
+<pre id="candles">
+           <span class="candle">i</span>   <span class="candle">i</span>   <span class="candle">i</span>   <span class="candle">i</span>   <span class="candle">i</span>
+          <span class="candle">|</span>   <span class="candle">|</span>   <span class="candle">|</span>   <span class="candle">|</span>   <span class="candle">|</span>
+</pre>
+<pre>
+        .====================.
+        |   H A P P Y       |
+        |   B I R T H D A Y |
+        |  F R A N K !!!    |
+        |--------------------|
+        |                    |
+        |     ████████       |
+        |    ██████████      |
+        |   ████████████     |
+        '===================='
+</pre>
+    </div>
+    <div style="margin-top:14px;">
+      <button id="btn">BLOW ME!</button>
+    </div>
+    <div id="finalMsg">Seriously, though. Happy birthday!</div>
+  </div>
+
+<script>
+(() => {
+  /* ---------- Stage timing ---------- */
+  const BLINK_BEATS_MS = 3600; // how long to blink before the erase starts
+
+  /* ---------- Stage 1 → Stage 2 ---------- */
+  const lines = document.getElementById('lines');
+  const CAN   = document.getElementById('c');
+  const CTX   = CAN.getContext('2d');
+
+  // Offscreen layer we erase into
+  const LAYER = document.createElement('canvas');
+  const LCTX  = LAYER.getContext('2d', { willReadFrequently: true });
+
+  const FONT = 'Press Start 2P';
+  const PURPLE = getCSS('--purple');
+  const TEAL   = getCSS('--teal');
+
+  let metrics = { px: 48, rows: [], cx: 0, cy: 0 };
+
+  function getCSS(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+
+  function layoutCanvas(){
+    const dpr = Math.max(1, Math.floor(window.devicePixelRatio || 1));
+    CAN.width  = Math.floor(CAN.clientWidth  * dpr);
+    CAN.height = Math.floor(CAN.clientHeight * dpr);
+    CTX.setTransform(dpr,0,0,dpr,0,0);
+
+    LAYER.width  = CAN.clientWidth;
+    LAYER.height = CAN.clientHeight;
+    LCTX.setTransform(1,0,0,1,0,0);
+
+    const base = Math.min(LAYER.width, LAYER.height);
+    const px = Math.max(26, Math.floor(base * 0.07));
+
+    const rows = ["HAPPY", "BIRTHDAY", "FRANKBIGTIME!!!"];
+    LCTX.font = `${px}px "${FONT}", monospace`;
+    LCTX.textBaseline = 'alphabetic';
+
+    const lineGap = Math.floor(px * 0.35);
+    const heights = rows.map(() => (LCTX.measureText("M").actualBoundingBoxAscent||px*0.9) + (LCTX.measureText("M").actualBoundingBoxDescent||px*0.2));
+    const totalH  = heights.reduce((a,b)=>a+b,0) + lineGap*2;
+
+    let y = (LAYER.height - totalH)/2 + heights[0];
+    const rowsInfo = rows.map((text, i) => {
+      const m = LCTX.measureText(text);
+      const w = m.width;
+      const h = heights[i];
+      const x = (LAYER.width - w)/2;
+      const yi = y;
+      y += (i < rows.length-1 ? h + lineGap : 0);
+      return {text, x, y: yi, w, h};
+    });
+
+    metrics = { px, rows: rowsInfo, cx: LAYER.width/2, cy: LAYER.height/2 };
+  }
+
+  function drawLinesToLayer(){
+    LCTX.clearRect(0,0,LAYER.width,LAYER.height);
+    LCTX.lineJoin = 'round';
+    LCTX.strokeStyle = TEAL;
+    LCTX.lineWidth   = Math.max(3, Math.round(metrics.px * 0.22));
+    LCTX.font = `${metrics.px}px "${FONT}", monospace`;
+    LCTX.textBaseline = 'alphabetic';
+
+    metrics.rows.forEach(r => {
+      LCTX.strokeText(r.text, Math.round(r.x), Math.round(r.y));
+      LCTX.fillStyle = PURPLE;
+      LCTX.fillText(r.text, Math.round(r.x), Math.round(r.y));
+    });
+  }
+
+  const easeOut = t => 1 - Math.pow(1 - t, 3);
+
+  function eraseWithCircle(t){
+    const maxR = Math.sqrt((LAYER.width/2)**2 + (LAYER.height/2)**2);
+    const r = easeOut(t) * (maxR + 6);
+    LCTX.save();
+    LCTX.globalCompositeOperation = 'destination-out';
+    LCTX.beginPath();
+    LCTX.arc(Math.round(metrics.cx), Math.round(metrics.cy), r, 0, Math.PI*2);
+    LCTX.fillStyle = '#000';
+    LCTX.fill();
+    LCTX.restore();
+  }
+
+  function eraseWithStar(t){
+    const angle = (Math.PI * 2) * (6 * t); // 6 spins
+    const L = easeOut(t);
+    const fullLen = Math.sqrt(LAYER.width**2 + LAYER.height**2) * 2;
+    const lenNow  = fullLen * L;
+    const barH = Math.max(3, Math.round(metrics.px * 0.09));
+
+    LCTX.save();
+    LCTX.globalCompositeOperation = 'destination-out';
+    LCTX.translate(Math.round(metrics.cx), Math.round(metrics.cy));
+    LCTX.rotate(angle);
+
+    for (let i=0;i<5;i++){
+      LCTX.save();
+      LCTX.rotate(i * (2*Math.PI/5));
+      const x0 = Math.round(-lenNow/2), y0 = Math.round(-barH/2);
+      LCTX.fillRect(x0, y0, Math.round(lenNow)+2, barH+2);
+      LCTX.restore();
+    }
+    LCTX.restore();
+  }
+
+  function scrubTransparency(){
+    try{
+      const img = LCTX.getImageData(0,0,LAYER.width,LAYER.height);
+      const d = img.data;
+      for(let i=0;i<d.length;i+=4){
+        if (d[i+3] < 8){ d[i]=0; d[i+1]=0; d[i+2]=0; d[i+3]=0; }
+      }
+      LCTX.putImageData(img,0,0);
+    }catch(e){ LCTX.clearRect(0,0,LAYER.width,LAYER.height); }
+  }
+
+  function drawStage(){
+    CTX.clearRect(0,0,CAN.clientWidth,CAN.clientHeight);
+    CTX.drawImage(LAYER, 0, 0);
+  }
+
+  let startErase;
+  function raf(now){
+    if (startErase == null) startErase = now;
+    const t = Math.min(1, (now - startErase) / 7000); // 7s dissolve
+    eraseWithCircle(t);
+    eraseWithStar(t);
+    drawStage();
+    if (t < 1) requestAnimationFrame(raf);
+    else {
+      scrubTransparency();
+      drawStage();
+      // Stage 3
+      CAN.style.display = 'none';
+      document.getElementById('cakeStage').style.display = 'block';
+    }
+  }
+
+  function beginErase(){
+    // Hide DOM blinking, start canvas dissolve
+    lines.style.display = 'none';
+    CAN.style.display = 'block';
+    layoutCanvas();
+    drawLinesToLayer();
+    drawStage();
+    requestAnimationFrame(raf);
+  }
+
+  // Kickoff: blink for a few beats, then erase
+  window.addEventListener('resize', () => { if (CAN.style.display==='block') { layoutCanvas(); drawLinesToLayer(); drawStage(); }});
+  setTimeout(beginErase, BLINK_BEATS_MS);
+
+  /* ---------- Stage 3: Cake interactions ---------- */
+  const btn = document.getElementById('btn');
+  btn.addEventListener('click', () => {
+    // Gust the candles
+    document.querySelectorAll('.candle').forEach((el, idx) => {
+      el.classList.add('blow');
+      // stagger slightly for flavor
+      el.style.animationDelay = `${idx*0.05}s`;
+      el.addEventListener('animationend', () => el.style.visibility='hidden', { once:true });
+    });
+
+    // After gust finishes, fade out cake and show final message
+    setTimeout(() => {
+      const cakeStage = document.getElementById('cakeStage');
+      const cake = document.getElementById('cake');
+      cake.style.transition = 'opacity 300ms ease-out, transform 300ms ease-out';
+      cake.style.opacity = '0';
+      cake.style.transform = 'scale(0.96)';
+      setTimeout(() => {
+        cakeStage.querySelector('#finalMsg').style.display = 'block';
+        cake.remove();
+        btn.remove();
+      }, 320);
+    }, 1600); // gust duration
+  });
+})();
+</script>
+</body>
+</html>
