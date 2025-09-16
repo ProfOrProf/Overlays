@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Prof Saves — Downloads</title>
+<style>
+  :root{
+    --bg:#0f0f11;
+    --panel:#17181b;
+    --ink:#e9e9ee;
+    --muted:#b7bbc5;
+    --blood:#c1121a;
+    --accent:#89cff0;  /* baby blue for hints */
+    --green:#21ff63;   /* DOS green */
+    --green-dim:#146414;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;background:linear-gradient(180deg,#0b0b0d, var(--bg) 20%, #0b0b0d);
+    color:var(--ink); font:16px/1.5 system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    display:flex; align-items:center; justify-content:center; padding:32px;
+  }
+  .wrap{width:100%; max-width:920px}
+  .banner{
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    white-space:pre; overflow:auto; padding:18px 18px 8px; border-radius:16px;
+    background: radial-gradient(1200px 450px at 50% -20%, rgba(33,255,99,.25), transparent 60%), var(--panel);
+    box-shadow:0 10px 30px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.04);
+  }
+  .banner span{display:block}
+  .banner .l1{color:#146414}
+  .banner .l2{color:#19821a}
+  .banner .l3{color:#1aa329}
+  .banner .l4{color:#16c744}
+  .banner .l5{color:#10e65a}
+  .banner .l6{color:#0efb64}
+  .banner .l7{color:#1aff70}
+  .banner .l8{color:#1eff78}
+  .banner .l9{color:#20ff7e}
+  .banner .l10{color:#21ff63}
+  h1{margin:18px 4px 8px; font-size:28px; font-weight:700; letter-spacing:.4px}
+  .sub{margin:0 4px 22px; color:var(--muted)}
+  .row{display:grid; grid-template-columns: 1fr 1fr; gap:14px; margin:10px 4px 8px}
+  @media (max-width:800px){ .row{grid-template-columns:1fr} }
+  .card{
+    background:var(--panel); padding:18px; border-radius:14px;
+    box-shadow:0 6px 24px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.05);
+  }
+  .title{display:flex; align-items:center; gap:10px; margin:0 0 6px; font-weight:700}
+  .meta{font-size:13px; color:var(--muted); margin-bottom:12px}
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:10px;
+    width:100%; height:45px; border-radius:12px; border:none; cursor:pointer;
+    background:linear-gradient(180deg,#26ff7a,#1cc14f); color:#041406; font-weight:800;
+    letter-spacing:.2px; text-decoration:none; box-shadow:0 6px 16px rgba(33,255,99,.25);
+    transition:transform .08s ease, box-shadow .2s ease, filter .2s ease;
+  }
+  .btn:hover{transform:translateY(-1px); filter:saturate(1.15); box-shadow:0 10px 22px rgba(33,255,99,.28)}
+  .btn:active{transform:translateY(1px); filter:saturate(.95)}
+  .btn.secondary{
+    background:linear-gradient(180deg,#393c45,#2a2d33); color:#e8f7ff; box-shadow:0 6px 16px rgba(0,0,0,.25);
+  }
+  .hint{font-size:13px; color:var(--muted); margin:16px 4px 0}
+  code{background:#0c0d10; color:var(--accent); padding:.2rem .35rem; border-radius:6px}
+  .error{color:#ff6161}
+  .tag{display:inline-block; font-size:12px; padding:2px 8px; border-radius:999px; background:#25272e; color:#a2a8b3; margin-left:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <pre class="banner" aria-hidden="true">
+<span class="l1">                                                                                               </span>
+<span class="l2">@@@@@@@   @@@@@@@    @@@@@@   @@@@@@@@     @@@@@@    @@@@@@   @@@  @@@  @@@@@@@@   @@@@@@  @@@  </span>
+<span class="l3">@@@@@@@@  @@@@@@@@  @@@@@@@@  @@@@@@@@    @@@@@@@   @@@@@@@@  @@@  @@@  @@@@@@@@  @@@@@@@  @@@  </span>
+<span class="l4">@@!  @@@  @@!  @@@  @@!  @@@  @@!         !@@       @@!  @@@  @@!  @@@  @@!       !@@      @@!  </span>
+<span class="l5">!@!  @!@  !@!  @!@  !@!  @!@  !@!         !@!       !@!  @!@  !@!  @!@  !@!       !@!      !@   </span>
+<span class="l6">@!@@!@!   @!@!!@!   @!@  !@!  @!!!:!      !!@@!!    @!@!@!@!  @!@  !@!  @!!!:!    !!@@!!   @!@  </span>
+<span class="l7">!!@!!!    !!@!@!    !@!  !!!  !!!!!:       !!@!!!   !!!@!!!!  !@!  !!!  !!!!!:     !!@!!!  !!!  </span>
+<span class="l8">!!:       !!: :!!   !!:  !!!  !!:              !:!  !!:  !!!  :!:  !!:  !!:            !:!      </span>
+<span class="l9">:!:       :!:  !:!  :!:  !:!  :!:             !:!   :!:  !:!   ::!!:!   :!:           !:!  :!:  </span>
+<span class="l10"> ::       ::   :::  ::::: ::   ::         :::: ::   ::   :::    ::::     :: ::::  :::: ::   ::  </span>
+<span class="l10"> :         :   : :   : :  :    :          :: : :     :   : :     :      : :: ::   :: : :   :::  </span>
+  </pre>
+
+  <h1>Prof Saves — Downloads <span id="relTag" class="tag" hidden></span></h1>
+  <p id="relMeta" class="sub">Latest release · loading…</p>
+
+  <div class="row">
+    <div class="card">
+      <p class="title">Setup Installer (EXE)</p>
+      <p class="meta"><span id="setupSize">…</span></p>
+      <a id="setupBtn" class="btn" href="#" download>Download ProfSaves-BB-Setup.exe</a>
+    </div>
+    <div class="card">
+      <p class="title">Portable Installer (EXE)</p>
+      <p class="meta"><span id="portSize">…</span></p>
+      <a id="portableBtn" class="btn secondary" href="#" download>Download ProfSavesInstaller.exe</a>
+    </div>
+  </div>
+
+  <p class="hint">
+    Trouble downloading from GitHub? Right-click → <b>Save link as…</b> or use these direct URLs:
+    <br>
+    <code id="directSetup">https://github.com/YOUR_GITHUB_OWNER/YOUR_REPO_NAME/releases/latest/download/ProfSaves-BB-Setup.exe</code>
+    <br>
+    <code id="directPortable">https://github.com/YOUR_GITHUB_OWNER/YOUR_REPO_NAME/releases/latest/download/ProfSavesInstaller.exe</code>
+  </p>
+
+  <p class="hint">
+    Windows may show SmartScreen for new publishers. Click <b>More info</b> → <b>Run anyway</b>.
+  </p>
+
+  <p id="err" class="hint error" hidden></p>
+</div>
+
+<script>
+  const OWNER = "YOUR_GITHUB_OWNER";   // ← replace
+  const REPO  = "YOUR_REPO_NAME";      // ← replace
+  const ASSETS = {
+    setup: "ProfSaves-BB-Setup.exe",
+    portable: "ProfSavesInstaller.exe"
+  };
+
+  const setupBtn = document.getElementById("setupBtn");
+  const portableBtn = document.getElementById("portableBtn");
+  const setupSize = document.getElementById("setupSize");
+  const portSize  = document.getElementById("portSize");
+  const relTagEl  = document.getElementById("relTag");
+  const relMeta   = document.getElementById("relMeta");
+  const errEl     = document.getElementById("err");
+  const directSetup = document.getElementById("directSetup");
+  const directPortable = document.getElementById("directPortable");
+
+  function latestUrl(asset){ return `https://github.com/${OWNER}/${REPO}/releases/latest/download/${encodeURIComponent(asset)}`; }
+  function fmtSize(bytes){
+    if(!Number.isFinite(bytes)) return "—";
+    const u=["B","KB","MB","GB"]; let i=0, n=bytes;
+    while(n>=1024 && i<u.length-1){ n/=1024; i++; }
+    return `${n.toFixed(n<10&&i>0?1:0)} ${u[i]}`;
+  }
+  function setDirectSamples(){
+    directSetup.textContent = latestUrl(ASSETS.setup);
+    directPortable.textContent = latestUrl(ASSETS.portable);
+  }
+  setDirectSamples();
+  setupBtn.href = latestUrl(ASSETS.setup);
+  portableBtn.href = latestUrl(ASSETS.portable);
+
+  (async () => {
+    try{
+      const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/releases/latest`, {headers:{'Accept':'application/vnd.github+json'}});
+      if(!res.ok) throw new Error(`GitHub API responded ${res.status}`);
+      const rel = await res.json();
+
+      const tag = rel.tag_name || rel.name || "latest";
+      const date = rel.published_at ? new Date(rel.published_at) : null;
+      if(tag){ relTagEl.textContent = tag; relTagEl.hidden = false; }
+      relMeta.textContent = date ? `Latest release • ${date.toLocaleDateString()}`
+                                 : `Latest release`;
+
+      const assets = rel.assets || [];
+      const find = name => assets.find(a => a.name === name);
+
+      const aSetup = find(ASSETS.setup);
+      const aPort  = find(ASSETS.portable);
+
+      if(aSetup){ setupSize.textContent = `File size: ${fmtSize(aSetup.size)}`; setupBtn.href = aSetup.browser_download_url; }
+      else { setupSize.textContent = "File not found in latest release"; setupBtn.classList.add("secondary"); }
+
+      if(aPort){ portSize.textContent = `File size: ${fmtSize(aPort.size)}`; portableBtn.href = aPort.browser_download_url; }
+      else { portSize.textContent = "File not found in latest release"; }
+
+    }catch(e){
+      errEl.textContent = "Could not read GitHub release metadata. Using direct latest links.";
+      errEl.hidden = false;
+      setupSize.textContent = "Size unavailable";
+      portSize.textContent  = "Size unavailable";
+    }
+  })();
+</script>
+</body>
+</html>
