@@ -5,41 +5,69 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Prof Saves — Downloads</title>
 <style>
-  :root{ --bg:#0f0f11; --panel:#17181b; --ink:#e9e9ee; --muted:#b7bbc5; --green:#21ff63; }
+  :root{
+    --bg:#0f0f11; --panel:#17181b; --ink:#e9e9ee; --muted:#b7bbc5;
+    --green:#21ff63;
+  }
   *{box-sizing:border-box}
-  body{ margin:0; background:linear-gradient(180deg,#0b0b0d,var(--bg) 20%,#0b0b0d);
-        color:var(--ink); font:16px/1.5 system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
-        padding:32px; display:flex; justify-content:center; }
-  .wrap{ width:100%; max-width:920px }
-  .hero{ position:relative; border-radius:16px; overflow:hidden; background:var(--panel);
-         box-shadow:0 10px 30px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.04); }
-  .hero img{ display:block; width:100%; height:auto; aspect-ratio: 16/5; object-fit:cover }
-  .hero::before{ content:""; position:absolute; inset:0;
-    background: radial-gradient(1200px 450px at 50% -20%, rgba(33,255,99,.25), transparent 60%),
-                linear-gradient(180deg, rgba(20,100,20,.25), rgba(20,100,20,0) 55%);
-    pointer-events:none; }
-  h1{ margin:18px 4px 4px; font-size:28px; font-weight:700 }
-  .tag{ display:inline-block; font-size:12px; padding:2px 8px; border-radius:999px; background:#25272e; color:#a2a8b3; margin-left:8px }
-  .sub{ margin:0 4px 22px; color:var(--muted) }
-  .row{ display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:10px 4px 8px }
-  @media (max-width:800px){ .row{ grid-template-columns:1fr } }
-  .card{ background:var(--panel); padding:18px; border-radius:14px;
-         box-shadow:0 6px 24px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.05); }
-  .title{ margin:0 0 6px; font-weight:700 }
-  .meta{ font-size:13px; color:var(--muted); margin-bottom:12px }
-  .btn{ display:inline-flex; align-items:center; justify-content:center; width:100%; height:45px; border-radius:12px; border:none;
-        cursor:pointer; text-decoration:none; background:linear-gradient(180deg,#26ff7a,#1cc14f); color:#041406; font-weight:800; letter-spacing:.2px;
-        box-shadow:0 6px 16px rgba(33,255,99,.25); transition:transform .08s ease, box-shadow .2s ease, filter .2s ease; }
-  .btn:hover{ transform:translateY(-1px); filter:saturate(1.15); box-shadow:0 10px 22px rgba(33,255,99,.28) }
-  .btn:active{ transform:translateY(1px); filter:saturate(.95) }
-  .btn.secondary{ background:linear-gradient(180deg,#393c45,#2a2d33); color:#e8f7ff; box-shadow:0 6px 16px rgba(0,0,0,.25) }
-  .footer{ margin:28px 4px 0; color:var(--green); font-weight:800; letter-spacing:.3px }
+  body{
+    margin:0; background:linear-gradient(180deg,#0b0b0d,var(--bg) 20%,#0b0b0d);
+    color:var(--ink); font:16px/1.5 system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    padding:32px; display:flex; justify-content:center;
+  }
+  .wrap{width:100%; max-width:920px}
+
+  /* Banner image */
+  .hero{
+    position:relative; border-radius:16px; overflow:hidden;
+    background:var(--panel);
+    box-shadow:0 10px 30px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.04);
+  }
+  .hero img{
+    display:block; width:100%; height:auto;
+    transform:translateZ(0);
+  }
+  /* subtle poison haze */
+  .hero::before{
+    content:""; position:absolute; inset:0;
+    background:
+      radial-gradient(1200px 450px at 50% -20%, rgba(33,255,99,.25), transparent 60%),
+      linear-gradient(180deg, rgba(20,100,20,.25), rgba(20,100,20,0) 55%);
+    pointer-events:none;
+  }
+
+  h1{margin:18px 4px 4px; font-size:28px; font-weight:700}
+  .tag{display:inline-block; font-size:12px; padding:2px 8px; border-radius:999px; background:#25272e; color:#a2a8b3; margin-left:8px}
+  .sub{margin:0 4px 22px; color:var(--muted)}
+
+  .row{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:10px 4px 8px}
+  @media (max-width:800px){ .row{grid-template-columns:1fr} }
+  .card{
+    background:var(--panel); padding:18px; border-radius:14px;
+    box-shadow:0 6px 24px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.05);
+  }
+  .title{margin:0 0 6px; font-weight:700}
+  .meta{font-size:13px; color:var(--muted); margin-bottom:12px}
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; width:100%; height:45px;
+    border-radius:12px; border:none; cursor:pointer; text-decoration:none;
+    background:linear-gradient(180deg,#26ff7a,#1cc14f); color:#041406; font-weight:800; letter-spacing:.2px;
+    box-shadow:0 6px 16px rgba(33,255,99,.25); transition:transform .08s ease, box-shadow .2s ease, filter .2s ease;
+  }
+  .btn:hover{transform:translateY(-1px); filter:saturate(1.15); box-shadow:0 10px 22px rgba(33,255,99,.28)}
+  .btn:active{transform:translateY(1px); filter:saturate(.95)}
+  .btn.secondary{background:linear-gradient(180deg,#393c45,#2a2d33); color:#e8f7ff; box-shadow:0 6px 16px rgba(0,0,0,.25)}
+
+  .footer{margin:28px 4px 0; color:var(--green); font-weight:800; letter-spacing:.3px}
 </style>
 </head>
 <body>
 <div class="wrap">
+
+  <!-- Banner image -->
   <div class="hero">
-    <img src="https://proforprof.com/profsaves/ProfSaves2.png" alt="Prof Saves! banner">
+    <!-- If you keep the PNG beside this file, this path is correct. Otherwise, change src accordingly. -->
+    <img src="https://proforprof.com/profsaves/ProfSaves.png" alt="Prof Saves! banner">
   </div>
 
   <h1>Prof Saves — Downloads <span class="tag">v0.1</span></h1>
