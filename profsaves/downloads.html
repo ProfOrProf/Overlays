@@ -1,180 +1,79 @@
-$ErrorActionPreference = 'Stop'
-
-$ESC = [char]27
-function rgb($r,$g,$b){@([int]$r,[int]$g,[int]$b)}
-$UseAnsi = $true
-$G1 = rgb 20 90 20
-$G2 = rgb 0 255 0
-$DOS = $G2
-$White = rgb 255 255 255
-$Baby = rgb 137 207 240
-$Red = rgb 255 61 61
-
-function escfg($c){"$ESC[38;2;$($c[0]);$($c[1]);$($c[2])m"}
-function reset(){"$ESC[0m"}
-function line($text,$c,$fallback='White'){ if($UseAnsi){ Write-Host ("{0}{1}{2}" -f (escfg $c),$text,(reset)) } else { Write-Host $text -ForegroundColor $fallback } }
-function parts($arr){
-  if($UseAnsi){
-    $s=''; foreach($p in $arr){ $s += (escfg $p.rgb) + $p.text }; $s += reset; Write-Host $s
-  } else {
-    foreach($p in $arr){ Write-Host $p.text -NoNewline -ForegroundColor $p.fallback }; Write-Host
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Prof Saves — Downloads</title>
+<style>
+  :root{
+    --bg:#0f0f11; --panel:#17181b; --ink:#e9e9ee; --muted:#b7bbc5;
+    --accent:#89cff0; --green:#21ff63;
   }
-}
-function grad($lines,$c1,$c2){
-  $n = $lines.Count; if($n -lt 1){return}
-  for($i=0;$i -lt $n;$i++){
-    $r=[int]($c1[0]+($c2[0]-$c1[0])*$i/[Math]::Max(1,$n-1))
-    $g=[int]($c1[1]+($c2[1]-$c1[1])*$i/[Math]::Max(1,$n-1))
-    $b=[int]($c1[2]+($c2[2]-$c1[2])*$i/[Math]::Max(1,$n-1))
-    if($i -lt [Math]::Floor($n/2)){$fallback='DarkGreen'}else{$fallback='Green'}
-    line $lines[$i] (rgb $r $g $b) $fallback
-  }
-}
+  *{box-sizing:border-box}
+  body{margin:0;background:linear-gradient(180deg,#0b0b0d,var(--bg) 20%,#0b0b0d);
+       color:var(--ink);font:16px/1.5 system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+       padding:32px;display:flex;justify-content:center}
+  .wrap{width:100%;max-width:920px}
+  .banner{font-family:ui-monospace,Consolas,Menlo,monospace;white-space:pre;overflow:auto;
+    padding:18px 18px 8px;border-radius:16px;background:
+    radial-gradient(1200px 450px at 50% -20%, rgba(33,255,99,.25), transparent 60%), var(--panel);
+    box-shadow:0 10px 30px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.04)}
+  .banner span{display:block}
+  .banner .l1{color:#146414}.banner .l2{color:#19821a}.banner .l3{color:#1aa329}
+  .banner .l4{color:#16c744}.banner .l5{color:#10e65a}.banner .l6{color:#0efb64}
+  .banner .l7{color:#1aff70}.banner .l8{color:#1eff78}.banner .l9{color:#20ff7e}
+  .banner .l10{color:#21ff63}
+  h1{margin:18px 4px 4px;font-size:28px;font-weight:700}
+  .tag{display:inline-block;font-size:12px;padding:2px 8px;border-radius:999px;background:#25272e;color:#a2a8b3;margin-left:8px}
+  .sub{margin:0 4px 22px;color:var(--muted)}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:10px 4px 8px}
+  @media (max-width:800px){.row{grid-template-columns:1fr}}
+  .card{background:var(--panel);padding:18px;border-radius:14px;
+    box-shadow:0 6px 24px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.05)}
+  .title{margin:0 0 6px;font-weight:700}
+  .meta{font-size:13px;color:var(--muted);margin-bottom:12px}
+  .btn{display:inline-flex;align-items:center;justify-content:center;width:100%;height:45px;border-radius:12px;border:none;cursor:pointer;
+    background:linear-gradient(180deg,#26ff7a,#1cc14f);color:#041406;font-weight:800;letter-spacing:.2px;text-decoration:none;
+    box-shadow:0 6px 16px rgba(33,255,99,.25);transition:transform .08s ease, box-shadow .2s ease, filter .2s ease}
+  .btn:hover{transform:translateY(-1px);filter:saturate(1.15);box-shadow:0 10px 22px rgba(33,255,99,.28)}
+  .btn:active{transform:translateY(1px);filter:saturate(.95)}
+  .btn.secondary{background:linear-gradient(180deg,#393c45,#2a2d33);color:#e8f7ff;box-shadow:0 6px 16px rgba(0,0,0,.25)}
+  .footer{margin:28px 4px 0;color:var(--green);font-weight:800;letter-spacing:.3px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <pre class="banner" aria-hidden="true">
+<span class="l1">                                                                                               </span>
+<span class="l2">@@@@@@@   @@@@@@@    @@@@@@   @@@@@@@@     @@@@@@    @@@@@@   @@@  @@@  @@@@@@@@   @@@@@@  @@@  </span>
+<span class="l3">@@@@@@@@  @@@@@@@@  @@@@@@@@  @@@@@@@@    @@@@@@@   @@@@@@@@  @@@  @@@  @@@@@@@@  @@@@@@@  @@@  </span>
+<span class="l4">@@!  @@@  @@!  @@@  @@!  @@@  @@!         !@@       @@!  @@@  @@!  @@@  @@!       !@@      @@!  </span>
+<span class="l5">!@!  @!@  !@!  @!@  !@!  @!@  !@!         !@!       !@!  @!@  !@!  @!@  !@!       !@!      !@   </span>
+<span class="l6">@!@@!@!   @!@!!@!   @!@  !@!  @!!!:!      !!@@!!    @!@!@!@!  @!@  !@!  @!!!:!    !!@@!!   @!@  </span>
+<span class="l7">!!@!!!    !!@!@!    !@!  !!!  !!!!!:       !!@!!!   !!!@!!!!  !@!  !!!  !!!!!:     !!@!!!  !!!  </span>
+<span class="l8">!!:       !!: :!!   !!:  !!!  !!:              !:!  !!:  !!!  :!:  !!:  !!:            !:!      </span>
+<span class="l9">:!:       :!:  !:!  :!:  !:!  :!:             !:!   :!:  !:!   ::!!:!   :!:           !:!  :!:  </span>
+<span class="l10"> ::       ::   :::  ::::: ::   ::         :::: ::   ::   :::    ::::     :: ::::  :::: ::   ::  </span>
+<span class="l10"> :         :   : :   : :  :    :          :: : :     :   : :     :      : :: ::   :: : :   :::  </span>
+  </pre>
 
-$banner = @'
-                                                                                                
-@@@@@@@   @@@@@@@    @@@@@@   @@@@@@@@     @@@@@@    @@@@@@   @@@  @@@  @@@@@@@@   @@@@@@  @@@  
-@@@@@@@@  @@@@@@@@  @@@@@@@@  @@@@@@@@    @@@@@@@   @@@@@@@@  @@@  @@@  @@@@@@@@  @@@@@@@  @@@  
-@@!  @@@  @@!  @@@  @@!  @@@  @@!         !@@       @@!  @@@  @@!  @@@  @@!       !@@      @@!  
-!@!  @!@  !@!  @!@  !@!  @!@  !@!         !@!       !@!  @!@  !@!  @!@  !@!       !@!      !@   
-@!@@!@!   @!@!!@!   @!@  !@!  @!!!:!      !!@@!!    @!@!@!@!  @!@  !@!  @!!!:!    !!@@!!   @!@  
-!!@!!!    !!@!@!    !@!  !!!  !!!!!:       !!@!!!   !!!@!!!!  !@!  !!!  !!!!!:     !!@!!!  !!!  
-!!:       !!: :!!   !!:  !!!  !!:              !:!  !!:  !!!  :!:  !!:  !!:            !:!      
-:!:       :!:  !:!  :!:  !:!  :!:             !:!   :!:  !:!   ::!!:!   :!:           !:!  :!:  
- ::       ::   :::  ::::: ::   ::         :::: ::   ::   :::    ::::     :: ::::  :::: ::   ::  
- :         :   : :   : :  :    :          :: : :     :   : :     :      : :: ::   :: : :   :::                                                                                                                       
-'@
+  <h1>Prof Saves — Downloads <span class="tag">v0.1</span></h1>
+  <p class="sub">Grab the installer you prefer below.</p>
 
-# split banner safely and widen console to avoid wrap
-$bannerLines = ($banner -split '\r?\n').Where({ $_ -ne '' })
-try {
-  $raw = $Host.UI.RawUI
-  $max = ($bannerLines | ForEach-Object Length | Measure-Object -Maximum).Maximum
-  $target = [Math]::Min(500, $max + 2)
-  $buf = $raw.BufferSize; if ($buf.Width -lt $target) { $buf.Width = $target; $raw.BufferSize = $buf }
-  $win = $raw.WindowSize; if ($win.Width -lt $target) { $win.Width = $target; $raw.WindowSize = $win }
-} catch {}
+  <div class="row">
+    <div class="card">
+      <p class="title">Setup Installer (EXE)</p>
+      <p class="meta">File size: <strong>1,094 KB</strong></p>
+      <a class="btn" href="./ProfSaves-BB-Setup.exe" download>Download ProfSaves-BB-Setup.exe</a>
+    </div>
+    <div class="card">
+      <p class="title">Portable Installer (EXE)</p>
+      <p class="meta">File size: <strong>18 KB</strong></p>
+      <a class="btn secondary" href="./ProfSavesInstaller.exe" download>Download ProfSavesInstaller.exe</a>
+    </div>
+  </div>
 
-grad $bannerLines $G1 $G2
-
-$RootDir = if ($PSScriptRoot) { $PSScriptRoot } else { Split-Path -Parent $MyInvocation.MyCommand.Path }
-$LiveName = 'SPRJ0005'
-$LiveFolder = Join-Path $RootDir $LiveName
-$ConfigPath = Join-Path $RootDir 'ProfSaves-BB.ini'
-$BackupsDefault = 5
-
-function Ensure-Dir([string]$Path){ if ([string]::IsNullOrWhiteSpace($Path)) { throw "Ensure-Dir: Path is null/empty." } if (-not (Test-Path -LiteralPath $Path)) { New-Item -ItemType Directory -Path $Path | Out-Null } }
-function Read-Ini([string]$Path){ $ini=@{}; if(-not (Test-Path -LiteralPath $Path)){return $ini}; $section=''; foreach($lineRaw in Get-Content -LiteralPath $Path){ $line = ($lineRaw -as [string]).Trim(); if($line -match '^\s*[#;]' -or $line -match '^\s*$'){continue}; if($line -match '^\s*\[(.+?)\]\s*$'){ $section=$Matches[1]; if(-not $ini[$section]){$ini[$section]=@{}}; continue }; if($line -match '^\s*([^=]+?)\s*=\s*(.*)$'){ $k=$Matches[1].Trim(); $v=$Matches[2].Trim(); if(-not $ini[$section]){$ini[$section]=@{}}; $ini[$section][$k]=$v } }; $ini }
-function Write-Ini([string]$Path,[hashtable]$Data){ $sb=New-Object System.Text.StringBuilder; foreach($sec in $Data.Keys){ [void]$sb.AppendLine("[$sec]"); foreach($k in $Data[$sec].Keys){ [void]$sb.AppendLine("$k=$($Data[$sec][$k])") }; [void]$sb.AppendLine() }; $dir = Split-Path -Parent $Path; if($dir){ Ensure-Dir $dir }; [IO.File]::WriteAllText($Path,$sb.ToString(),[Text.Encoding]::UTF8) }
-function Get-NextSlotNumber([string]$Root){ if(-not (Test-Path -LiteralPath $Root)){return 1}; $nums=Get-ChildItem -LiteralPath $Root -Directory -ErrorAction SilentlyContinue | Where-Object {$_.Name -match '^\d+$'} | ForEach-Object {[int]$_.Name}; if($nums.Count -eq 0){1}else{(($nums | Measure-Object -Maximum).Maximum + 1)} }
-function Get-SlotInfo([string]$Root){ $list=@(); if(-not (Test-Path -LiteralPath $Root)){return $list}; $dirs=Get-ChildItem -LiteralPath $Root -Directory -ErrorAction SilentlyContinue | Where-Object {$_.Name -match '^\d+$'} | Sort-Object {[int]$_.Name}; foreach($d in $dirs){ $slot=[int]$d.Name; $saveDir=Join-Path $d.FullName $LiveName; $label=''; $nameTxt=Join-Path $d.FullName 'name.txt'; if(Test-Path -LiteralPath $nameTxt){ $raw=Get-Content -LiteralPath $nameTxt -Raw; $label = ($raw -as [string]) -replace '^\s+|\s+$','' }; $exists=Test-Path -LiteralPath $saveDir; $list += [pscustomobject]@{ Slot=$slot; Exists=$exists; Dir=$d.FullName; SaveDir=$saveDir; Label=$label } }; $list }
-function Backup-Folder([string]$Folder,[int]$Keep=$BackupsDefault){ if(-not (Test-Path -LiteralPath $Folder)){return}; $bakRoot=Join-Path $RootDir '_ProfBackups'; Ensure-Dir $bakRoot; $stamp=Get-Date -Format 'yyyyMMdd-HHmmss'; $dest=Join-Path $bakRoot ("{0}.{1}.bak" -f $LiveName,$stamp); Copy-Item -LiteralPath $Folder -Destination $dest -Recurse -Force; Get-ChildItem -LiteralPath $bakRoot -Directory -ErrorAction SilentlyContinue | Where-Object {$_.Name -like "$LiveName.*.bak"} | Sort-Object LastWriteTime -Descending | Select-Object -Skip $Keep | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue }
-
-line "Hey! Prof Saves! What should I call you?" $DOS 'Green'
-$cfg=Read-Ini $ConfigPath
-if(-not $cfg['User']){$cfg['User']=@{}}
-if(-not $cfg['Settings']){$cfg['Settings']=@{}}
-if(-not $cfg['Settings']['BackupsToKeep']){$cfg['Settings']['BackupsToKeep']="$BackupsDefault"}
-if(-not $cfg['User']['Name'] -or [string]::IsNullOrWhiteSpace($cfg['User']['Name'])){
-  line "" $White
-  line "What is your Name?" $DOS 'Green'
-  $name = Read-Host
-  $name = ($name -as [string]) -replace '^\s+|\s+$',''
-  if([string]::IsNullOrWhiteSpace($name)){$name='Hunter'}
-  $name = $name -replace '[\\/:*?""<>|]','-'
-  $cfg['User']['Name']=$name
-  Write-Ini $ConfigPath $cfg
-}
-
-$UserName=$cfg['User']['Name']
-$Keep=[int]($cfg['Settings']['BackupsToKeep'])
-$SaveRoot=Join-Path $RootDir $UserName
-Ensure-Dir $SaveRoot
-
-if(-not (Test-Path -LiteralPath $LiveFolder)){
-  line "" $White
-  parts @(@{text="Could not find '$LiveName' next to this script."; rgb=$Red; fallback='Red'})
-  line "Put ProfSaves-BB.ps1 and the .bat in the SAME folder as '$LiveName' and run again." $White 'White'
-  Read-Host "Press Enter to exit"
-  exit 1
-}
-
-while($true){
-  line "" $White
-  line ("Hey, {0}! Prof Saves (Bloodborne) - Which save do you want to LOAD?" -f $UserName) $White 'White'
-
-  $slots=Get-SlotInfo -Root $SaveRoot
-
-  if($slots.Count -eq 0){
-    parts @(
-      @{text="You don't have any saves yet. Type '"; rgb=$White; fallback='White'},
-      @{text="new"; rgb=$Baby; fallback='Cyan'},
-      @{text="' to capture your current $LiveName as slot 1."; rgb=$White; fallback='White'}
-    )
-  } else {
-    foreach($s in $slots){
-      if(-not $s.Exists){continue}
-      $labelOut = if($s.Label){$s.Label}else{"<unnamed>"}
-      parts @(
-        @{text=("  {0,2} " -f $s.Slot); rgb=$Baby; fallback='Cyan'},
-        @{text=$labelOut; rgb=$White; fallback='White'}
-      )
-    }
-  }
-
-  line "" $White
-  parts @(
-    @{text="Type slot NUMBER to LOAD, '"; rgb=$White; fallback='White'},
-    @{text="new"; rgb=$Baby; fallback='Cyan'},
-    @{text="' to capture a NEW save, or '"; rgb=$White; fallback='White'},
-    @{text="q"; rgb=$Baby; fallback='Cyan'},
-    @{text="' to quit"; rgb=$White; fallback='White'}
-  )
-  $choice = Read-Host
-
-  if($choice -match '^[Qq]$'){ break }
-
-  if($choice -match '^[Nn](ew)?$'){
-    if(-not (Test-Path -LiteralPath $LiveFolder)){
-      parts @(@{text="Live folder not found: $LiveFolder"; rgb=$Red; fallback='Red'})
-      continue
-    }
-    $next=Get-NextSlotNumber $SaveRoot
-    $slotDir=Join-Path $SaveRoot $next
-    Ensure-Dir $slotDir
-    Copy-Item -LiteralPath $LiveFolder -Destination $slotDir -Recurse -Force
-    line "What do you want to name the save? (optional)" $White 'White'
-    $label = Read-Host
-    $label = ($label -as [string]) -replace '^\s+|\s+$',''
-    if($label){ $label | Set-Content -LiteralPath (Join-Path $slotDir 'name.txt') -Encoding UTF8 }
-    $suffix = if($label){ " - $label"}else{""}
-    line ("Saved slot {0}{1}." -f $next,$suffix) $DOS 'Green'
-    continue
-  }
-
-  if(-not ($choice -as [int])){
-    parts @(@{text="Invalid input. Enter a slot number, 'new', or 'q'."; rgb=$Red; fallback='Red'})
-    continue
-  }
-
-  $slot=[int]$choice
-  $slotDir=Join-Path $SaveRoot $slot
-  $srcSave=Join-Path $slotDir $LiveName
-
-  if(-not (Test-Path -LiteralPath $srcSave)){
-    parts @(@{text="Slot $slot does not exist (no $LiveName found)."; rgb=$Red; fallback='Red'})
-    continue
-  }
-
-  Ensure-Dir $LiveFolder
-  line "Backing up current $LiveName (if present)..." $White 'White'
-  Backup-Folder -Folder $LiveFolder -Keep $Keep
-  line "Loading slot $slot -> live $LiveName ..." $White 'White'
-  if(Test-Path -LiteralPath $LiveFolder){
-    Get-ChildItem -LiteralPath $LiveFolder -Force -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
-  } else {
-    Ensure-Dir $LiveFolder
-  }
-  Get-ChildItem -LiteralPath $srcSave -Force -ErrorAction SilentlyContinue | Copy-Item -Destination $LiveFolder -Recurse -Force
-  line "Loaded slot $slot!" $DOS 'Green'
-}
+  <p class="footer">Remember kids... Prof Saves!!!</p>
+</div>
+</body>
+</html>
