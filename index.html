@@ -44,26 +44,23 @@
   const LAYER = document.createElement('canvas');
   const LCTX  = LAYER.getContext('2d', { willReadFrequently:true });
 
-  // Text + font
   const TEXT = 'Remember kids...';
   const FONT = 'Press Start 2P';
 
-  // KEEP the original “slow” feel for the text phases:
-  const BLINKS = 5;            // show long enough
-  const BLINK_PERIOD = 1000;   // blink speed
-  const STAR_TIME_TEXT = 8000; // long disintegration for text
+  // TEXT: long on-screen + slow dissolve (unchanged)
+  const BLINKS = 5;
+  const BLINK_PERIOD = 1000;
+  const STAR_TIME_TEXT = 8000;
 
-  // Make the image part snappy:
-  const IMG_FADE_MS = 400;     // quick fade-in
-  const IMG_HOLD_MS = 150;     // tiny hold
-  const STAR_TIME_IMG = 1200;  // fast disintegration for image
+  // IMAGE: FAST APPEAR, LONGER HOLD, SLOWER DISSOLVE OUT
+  const IMG_FADE_MS = 250;      // faster appearance
+  const IMG_HOLD_MS = 1800;     // longer on-screen
+  const STAR_TIME_IMG = 6000;   // slower dissolve out
   const STAR_SPINS = 8;
 
-  // State
   let bounds = {x:0,y:0,w:0,h:0,px:0};
   let t0, phase=0, phaseStart=0, finished=false;
 
-  // Image
   const img = new Image();
   img.crossOrigin = "anonymous";
   img.src = "https://proforprof.com/profsaves/ProfSaves2.png";
@@ -102,7 +99,6 @@
     const x = Math.round((W-textW)/2);
     const y = Math.round((H+textH)/2 - textH*0.2);
 
-    // White outline + green fill
     LCTX.lineJoin='round';
     LCTX.strokeStyle = css('--outline');
     LCTX.lineWidth = Math.max(3, Math.round(px*0.22));
@@ -111,7 +107,6 @@
     LCTX.fillStyle = css('--ps-green');
     LCTX.fillText(TEXT,x,y);
 
-    // tiny glow seed
     LCTX.save(); LCTX.shadowColor=css('--glow'); LCTX.shadowBlur=6; LCTX.fillRect(x, y-textH, 1, 1); LCTX.restore();
 
     bounds = {x,y,w:textW,h:textH,px};
@@ -122,7 +117,6 @@
     LCTX.clearRect(0,0,W,H);
     if (!imgReady) return;
 
-    // contain-fit center (respects current window size)
     const s = Math.min(W/img.width, H/img.height);
     const w = Math.round(img.width*s);
     const h = Math.round(img.height*s);
@@ -193,18 +187,18 @@
       if(t>=1){ scrubTransparency(); nextPhase(now); }
       requestAnimationFrame(frame); return;
     }
-    if(phase===2){ // fast image fade-in
+    if(phase===2){ // FAST image fade-in
       const t = Math.min(1,(now-phaseStart)/IMG_FADE_MS);
       drawLayer(t);
       if(t>=1) nextPhase(now);
       requestAnimationFrame(frame); return;
     }
-    if(phase===3){ // tiny hold
+    if(phase===3){ // LONGER HOLD
       drawLayer(1);
       if((now-phaseStart)>=IMG_HOLD_MS) nextPhase(now);
       requestAnimationFrame(frame); return;
     }
-    if(phase===4){ // quick image disintegration
+    if(phase===4){ // SLOWER image disintegration
       const t = Math.min(1,(now-phaseStart)/STAR_TIME_IMG);
       eraseWithSpinningStar(t); drawLayer(1);
       if(t>=1){ scrubTransparency(); nextPhase(now); }
