@@ -8,13 +8,13 @@
 <style>
   :root{
     --ps-green:#00ff57;
-    --outline:#ffffff;       /* white outline so it pops on black */
+    --outline:#ffffff;
     --glow:#bfbfbf;
     --term-green:#7CFC00;
     --caret:#7CFC00;
   }
   html,body{height:100%;margin:0;background:#000;overflow:hidden}
-  #stage{position:fixed;inset:0;background:#000} /* black console look the whole time */
+  #stage{position:fixed;inset:0;background:#000}
   canvas{width:100vw;height:100vh;display:block}
 
   #terminal{
@@ -26,18 +26,10 @@
     overflow:auto;
     display:none;
   }
-  #terminal a{
-    color:var(--term-green);
-    text-decoration:none;
-    border-bottom:1px dotted var(--term-green);
-  }
+  #terminal a{ color:var(--term-green); text-decoration:none; border-bottom:1px dotted var(--term-green); }
   #terminal a:hover{ color:#b7ffb7; border-bottom-color:#b7ffb7; }
   .prompt::before{ content:"C:\\Prof> "; color:#fff; }
-  .caret{
-    display:inline-block; width:.75ch; margin-left:2px;
-    background:var(--caret);
-    animation:blink 1s steps(1,end) infinite;
-  }
+  .caret{ display:inline-block;width:.75ch;margin-left:2px;background:var(--caret);animation:blink 1s steps(1,end) infinite; }
   @keyframes blink{50%{background:transparent}}
 </style>
 </head>
@@ -49,23 +41,29 @@
 (() => {
   const CAN = document.getElementById('c');
   const CTX = CAN.getContext('2d');
-
   const LAYER = document.createElement('canvas');
   const LCTX  = LAYER.getContext('2d', { willReadFrequently:true });
 
+  // Text + font
   const TEXT = 'Remember kids...';
   const FONT = 'Press Start 2P';
 
-  // Tighter timings
-  const BLINKS = 3, BLINK_PERIOD = 500;
-  const STAR_TIME = 3000;
-  const IMG_FADE_MS = 600;
-  const IMG_HOLD_MS = 200;
+  // KEEP the original “slow” feel for the text phases:
+  const BLINKS = 5;            // show long enough
+  const BLINK_PERIOD = 1000;   // blink speed
+  const STAR_TIME_TEXT = 8000; // long disintegration for text
+
+  // Make the image part snappy:
+  const IMG_FADE_MS = 400;     // quick fade-in
+  const IMG_HOLD_MS = 150;     // tiny hold
+  const STAR_TIME_IMG = 1200;  // fast disintegration for image
   const STAR_SPINS = 8;
 
+  // State
   let bounds = {x:0,y:0,w:0,h:0,px:0};
   let t0, phase=0, phaseStart=0, finished=false;
 
+  // Image
   const img = new Image();
   img.crossOrigin = "anonymous";
   img.src = "https://proforprof.com/profsaves/ProfSaves2.png";
@@ -87,7 +85,7 @@
     if (phase <= 1) drawTextLayer();
     else if (imgReady) drawImageToLayer();
   }
-  window.addEventListener('resize', resize, {passive:true});
+  addEventListener('resize', resize, {passive:true});
 
   function drawTextLayer(){
     const W=LAYER.width, H=LAYER.height;
@@ -104,19 +102,17 @@
     const x = Math.round((W-textW)/2);
     const y = Math.round((H+textH)/2 - textH*0.2);
 
-    // White outline on black
+    // White outline + green fill
     LCTX.lineJoin='round';
     LCTX.strokeStyle = css('--outline');
     LCTX.lineWidth = Math.max(3, Math.round(px*0.22));
     LCTX.strokeText(TEXT,x,y);
 
-    // ProfSaves green fill
     LCTX.fillStyle = css('--ps-green');
     LCTX.fillText(TEXT,x,y);
 
-    // Subtle glow
-    LCTX.save(); LCTX.shadowColor=css('--glow'); LCTX.shadowBlur=6;
-    LCTX.fillRect(x, y-textH, 1, 1); LCTX.restore();
+    // tiny glow seed
+    LCTX.save(); LCTX.shadowColor=css('--glow'); LCTX.shadowBlur=6; LCTX.fillRect(x, y-textH, 1, 1); LCTX.restore();
 
     bounds = {x,y,w:textW,h:textH,px};
   }
@@ -126,7 +122,7 @@
     LCTX.clearRect(0,0,W,H);
     if (!imgReady) return;
 
-    // contain-fit center
+    // contain-fit center (respects current window size)
     const s = Math.min(W/img.width, H/img.height);
     const w = Math.round(img.width*s);
     const h = Math.round(img.height*s);
@@ -142,7 +138,8 @@
   function eraseWithSpinningStar(t){
     const {x,y,w,h,px} = bounds;
     const cx = x + w/2;
-    const cy = phase <= 1 ? (y - h/2*0.1) : (y - h/2);
+    const cy = (phase <= 1) ? (y - h/2*0.1) : (y - h/2);
+
     const angle = (Math.PI*2) * (STAR_SPINS*t);
     const L = easeOutCubic(t);
 
@@ -166,9 +163,9 @@
   function scrubTransparency(){
     const w=LAYER.width,h=LAYER.height;
     try{
-      const img=LCTX.getImageData(0,0,w,h), d=img.data;
+      const im=LCTX.getImageData(0,0,w,h), d=im.data;
       for(let i=0;i<d.length;i+=4){ if(d[i+3]<8){ d[i]=d[i+1]=d[i+2]=d[i+3]=0; } }
-      LCTX.putImageData(img,0,0);
+      LCTX.putImageData(im,0,0);
     }catch(e){ LCTX.clearRect(0,0,w,h); }
   }
 
@@ -190,25 +187,25 @@
       if(elapsed>=blinkEnd) nextPhase(now);
       requestAnimationFrame(frame); return;
     }
-    if(phase===1){
-      const t = Math.min(1,(now-phaseStart)/STAR_TIME);
+    if(phase===1){ // slow text disintegration
+      const t = Math.min(1,(now-phaseStart)/STAR_TIME_TEXT);
       eraseWithSpinningStar(t); drawLayer(1);
       if(t>=1){ scrubTransparency(); nextPhase(now); }
       requestAnimationFrame(frame); return;
     }
-    if(phase===2){
+    if(phase===2){ // fast image fade-in
       const t = Math.min(1,(now-phaseStart)/IMG_FADE_MS);
       drawLayer(t);
       if(t>=1) nextPhase(now);
       requestAnimationFrame(frame); return;
     }
-    if(phase===3){
+    if(phase===3){ // tiny hold
       drawLayer(1);
       if((now-phaseStart)>=IMG_HOLD_MS) nextPhase(now);
       requestAnimationFrame(frame); return;
     }
-    if(phase===4){
-      const t = Math.min(1,(now-phaseStart)/STAR_TIME);
+    if(phase===4){ // quick image disintegration
+      const t = Math.min(1,(now-phaseStart)/STAR_TIME_IMG);
       eraseWithSpinningStar(t); drawLayer(1);
       if(t>=1){ scrubTransparency(); nextPhase(now); }
       requestAnimationFrame(frame); return;
@@ -241,47 +238,21 @@ function startTerminal(){
     "https://www.twitch.tv/team/thefirekeepers"
   ];
 
-  const caret = document.createElement('span'); caret.className='caret';
-
   function addPrompt(){
-    const p = document.createElement('div');
-    p.className='prompt';
-    term.appendChild(p);
-    p.appendChild(caret);
-    term.scrollTop = term.scrollHeight;
-    return p;
+    const row = document.createElement('div');
+    row.className='prompt';
+    term.appendChild(row);
+    return row;
   }
 
-  function typeText(str, speed=8){
-    return new Promise(resolve=>{
-      let i=0;
-      const tick=()=>{ 
-        if(i<str.length){ caret.before(document.createTextNode(str.charAt(i++))); term.scrollTop=term.scrollHeight; setTimeout(tick,speed); }
-        else resolve();
-      };
-      tick();
-    });
+  // one link per line with its own prompt
+  for (const url of urls){
+    const row = addPrompt();
+    const a   = document.createElement('a');
+    a.href=url; a.target="_blank"; a.rel="noopener"; a.textContent=url;
+    row.appendChild(a);
   }
-
-  function typeLink(url){
-    return new Promise(resolve=>{
-      const a=document.createElement('a');
-      a.href=url; a.target="_blank"; a.rel="noopener";
-      a.textContent=url;
-      caret.before(a, document.createTextNode(' ')); // single space between links
-      term.scrollTop=term.scrollHeight;
-      setTimeout(resolve, 80);
-    });
-  }
-
-  (async ()=>{
-    const p = addPrompt();
-    // print links, space-separated on one prompt line
-    for (let i=0;i<urls.length;i++){
-      await typeLink(urls[i]);
-    }
-    caret.remove();
-  })();
+  term.scrollTop = term.scrollHeight;
 }
 </script>
 </body>
