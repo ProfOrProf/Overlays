@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta http-equiv="Cache-Control" content="no-store" />
+<title>Dojo Chat Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Hind:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --canvas-w: 1920px;
+    --canvas-h: 1080px;
+
+    --panel-w: 447px;
+    --panel-h: 894px;
+    --offset-x: 24px;
+    --offset-y: 24px;
+
+    --steel-1: #0e1015;
+    --steel-2: #1a1d26;
+    --steel-3: #2a2f3a;
+    --blood-1: #b11318;
+    --blood-2: #5d0a0f;
+    --ember:   #ff2b2b;
+
+    --glow-r: rgba(255,35,35,.55);
+    --glow-dim: rgba(255,35,35,.18);
+
+    --rim: rgba(0,0,0,.85);
+    --inner-stroke: rgba(255,255,255,.08);
+    --glass: rgba(6,6,10,.64);
+  }
+
+  html,body{
+    width:var(--canvas-w);
+    height:var(--canvas-h);
+    margin:0; padding:0;
+    background:transparent;
+    overflow:hidden;
+    font-family:'Hind',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  }
+
+  .stage{ position:relative; width:100%; height:100%; }
+
+  .chat-panel{
+    position:absolute;
+    left:var(--offset-x);
+    bottom:var(--offset-y);
+    width:var(--panel-w);
+    height:var(--panel-h);
+    background:
+      radial-gradient(140% 100% at 100% 0%, rgba(255,255,255,.06) 0%, transparent 36%),
+      linear-gradient(180deg, rgba(255,255,255,.02) 0%, rgba(0,0,0,.12) 100%),
+      linear-gradient(135deg, var(--steel-2), var(--steel-1) 60%);
+    border-radius:22px;
+    box-shadow:
+      0 20px 40px rgba(0,0,0,.6),
+      inset 0 0 0 2px var(--rim),
+      inset 0 0 0 6px rgba(255,255,255,.025);
+    overflow:hidden;
+    isolation:isolate;
+  }
+  .chat-panel::before{
+    content:"";
+    position:absolute; inset:0;
+    border-radius:22px;
+    padding:10px;
+    background:linear-gradient(140deg,#3c444f 0%,#202631 40%,#151922 60%,#464e5a 100%);
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor; mask-composite:exclude;
+    opacity:.85; pointer-events:none;
+  }
+
+  .rim{
+    position:absolute; inset:14px;
+    border-radius:16px;
+    box-shadow:
+      inset 0 0 0 2px var(--inner-stroke),
+      inset 0 0 0 4px rgba(0,0,0,.55),
+      inset 0 0 40px var(--glow-dim);
+  }
+  .led{
+    position:absolute; inset:18px;
+    border-radius:12px; pointer-events:none;
+    background:
+      radial-gradient(6px 6px at 12px 0, var(--ember) 35%, transparent 45%) repeat-x,
+      radial-gradient(6px 6px at 100% 12px, var(--ember) 35%, transparent 45%) repeat-y,
+      radial-gradient(6px 6px at 12px 100%, var(--ember) 35%, transparent 45%) repeat-x,
+      radial-gradient(6px 6px at 0 12px, var(--ember) 35%, transparent 45%) repeat-y;
+    background-size: 28px 2px, 2px 28px, 28px 2px, 2px 28px;
+    background-position: left top, right top, left bottom, left top;
+    box-shadow: 0 0 18px var(--glow-r), inset 0 0 24px var(--glow-dim);
+    opacity:.85; filter: drop-shadow(0 0 6px var(--glow-r));
+  }
+
+  /* GRIM/GOTHIC HEADER */
+  .header{
+    position:absolute; left:0; right:0; top:0; height:118px;
+    background:
+      radial-gradient(120% 200% at 50% -35%, rgba(255,255,255,.06) 0%, transparent 55%),
+      radial-gradient(80% 120% at 50% 150%, rgba(0,0,0,.65), transparent 60%),
+      linear-gradient(180deg, var(--blood-1) 0%, var(--blood-2) 100%);
+    border-bottom:1px solid rgba(255,255,255,.10);
+    box-shadow:
+      inset 0 -18px 32px rgba(0,0,0,.55),
+      inset 0 2px 0 rgba(255,255,255,.05),
+      0 12px 24px rgba(0,0,0,.35);
+    overflow:hidden;
+  }
+  .header::after{
+    content:"";
+    position:absolute; left:16px; right:16px; bottom:-1px; height:5px;
+    border-radius:3px;
+    background:radial-gradient(45% 120% at 50% 0, rgba(255,60,60,.55), transparent 70%);
+    filter: blur(1px); opacity:.9; pointer-events:none;
+  }
+
+  /* Gothic arch band */
+  .arch{
+    position:absolute; left:28px; right:28px; top:16px; height:78px;
+    border-radius:80px/44px;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,0)),
+      linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,0));
+    -webkit-mask:
+      radial-gradient(120% 120% at 50% 100%, #0000 0 58%, #000 59%) top/100% 100% no-repeat;
+    mask:
+      radial-gradient(120% 120% at 50% 100%, #0000 0 58%, #000 59%) top/100% 100% no-repeat;
+    opacity:.45;
+  }
+
+  /* Steles (pillars) */
+  .stele{
+    position:absolute; top:8px; width:28px; height:104px;
+    background:
+      linear-gradient(180deg,#3e4550 0%,#1e232c 55%,#0d1016 100%);
+    border-radius:8px;
+    box-shadow:
+      inset 0 0 0 1px rgba(255,255,255,.08),
+      inset 0 0 18px rgba(0,0,0,.6),
+      0 8px 16px rgba(0,0,0,.45);
+  }
+  .stele.left{ left:18px; }
+  .stele.right{ right:18px; }
+
+  .stele::before{
+    content:"";
+    position:absolute; left:50%; transform:translateX(-50%);
+    top:-12px; width:38px; height:24px;
+    background:
+      linear-gradient(180deg,#4a515f 0%,#202631 70%,#0e1118 100%);
+    border-radius:9px 9px 2px 2px / 14px 14px 2px 2px;
+    box-shadow:
+      inset 0 0 0 1px rgba(255,255,255,.06),
+      0 4px 8px rgba(0,0,0,.45);
+  }
+  .stele::after{
+    content:"";
+    position:absolute; left:50%; transform:translateX(-50%);
+    bottom:-10px; width:36px; height:12px;
+    background:radial-gradient(70% 120% at 50% 0, rgba(255,40,40,.6), transparent 70%);
+    filter: blur(2px); opacity:.6; pointer-events:none;
+  }
+
+  .glass{
+    position:absolute; left:16px; right:16px; top:130px; bottom:16px;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.00) 18%, rgba(0,0,0,.15) 100%),
+      linear-gradient(180deg, var(--glass), rgba(8,10,14,.55));
+    border-radius:12px;
+    box-shadow:
+      inset 0 0 0 1px rgba(255,255,255,.06),
+      inset 0 0 18px rgba(0,0,0,.55);
+    overflow:hidden;
+  }
+  .lattice{
+    position:absolute; inset:0;
+    background:
+      linear-gradient(45deg, rgba(255,255,255,.025) 0 2px, transparent 2px 100%),
+      linear-gradient(-45deg, rgba(255,255,255,.02) 0 2px, transparent 2px 100%);
+    background-size:26px 26px;
+    mix-blend-mode:screen; opacity:.35; pointer-events:none;
+  }
+  #slot{ position:absolute; inset:0; display:block; }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="chat-panel" aria-hidden="true">
+      <div class="rim"></div>
+      <div class="led"></div>
+      <div class="header">
+        <div class="stele left"></div>
+        <div class="stele right"></div>
+        <div class="arch"></div>
+      </div>
+      <div class="glass">
+        <div class="lattice"></div>
+        <div id="slot"></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
