@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Dojo-Map (Interactive)</title>
+<style>
+  html, body { margin:0; padding:0; height:100%; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; background:#0b0f14; color:#e9eef5; }
+  header { padding:16px 20px; background:linear-gradient(90deg,#0b0f14,#101620); border-bottom:1px solid #1e2a3a; position:sticky; top:0; z-index:5; }
+  h1 { margin:0; font-size:20px; letter-spacing:.5px; }
+  .sub { opacity:.8; font-size:12px; }
+  .container { display:flex; height:calc(100% - 68px); }
+  .leftbar { width:320px; border-right:1px solid #1e2a3a; display:flex; flex-direction:column; gap:12px; padding:14px; background:#0d131b; }
+  .panel { background:#0f1621; border:1px solid #1b2433; border-radius:10px; padding:12px; }
+  .panel h3 { margin:0 0 8px 0; font-size:14px; letter-spacing:.3px; }
+  .checkboxes label { display:flex; align-items:center; gap:8px; margin:6px 0; font-size:13px; }
+  .search input { width:100%; padding:8px 10px; border-radius:8px; border:1px solid #1b2433; background:#0b1119; color:#e9eef5; }
+  .search small { opacity:.65; }
+  .controls {}
+  .controls button { margin-right:6px; margin-bottom:6px; padding:6px 10px; border-radius:8px; border:1px solid #1b2433; background:#0b1119; color:#e9eef5; cursor:pointer; }
+  .controls button:hover { background:#101827; }
+  .legend { display:flex; flex-wrap:wrap; gap:6px; }
+  .legend .chip { padding:4px 8px; border-radius:999px; font-size:12px; border:1px solid #1b2433; background:#0b1119; }
+  .main { flex:1; position:relative; overflow:hidden; }
+  #stage { width:100%; height:100%; background:radial-gradient(1200px 800px at 30% 20%, #121a26, #0b0f14); cursor:grab; }
+  #stage.grabbing { cursor:grabbing; }
+  svg text { user-select:none; }
+  .node { transition: filter .15s ease; }
+  .node:hover { filter:drop-shadow(0 0 6px rgba(255,255,255,.12)); }
+  .node circle { stroke-width:2; }
+  .edge { stroke:#2a3952; stroke-width:1.2; opacity:.9; }
+  .edge.hidden, .node.hidden { display:none; }
+  .node.selected circle { stroke:#ffffff; stroke-width:3; }
+  .drawer { position:absolute; right:16px; bottom:16px; width:420px; max-height:60%; overflow:auto; background:#0f1621; border:1px solid #1b2433; border-radius:12px; padding:12px; box-shadow:0 0 0 1px rgba(0,0,0,.2), 0 12px 30px rgba(0,0,0,.35); }
+  .drawer h2 { margin:0 0 6px 0; font-size:18px; }
+  .drawer .meta { font-size:12px; opacity:.75; margin-bottom:8px; }
+  .drawer p { margin:8px 0; line-height:1.4; }
+  .path-panel { margin-top:12px; border-top:1px solid #1b2433; padding-top:10px; }
+  .path-panel input, .path-panel select { width:100%; padding:8px 10px; border-radius:8px; border:1px solid #1b2433; background:#0b1119; color:#e9eef5; margin-bottom:8px; }
+  .path-panel button { width:100%; padding:8px 10px; border-radius:8px; border:1px solid #1b2433; background:#101827; color:#e9eef5; cursor:pointer; }
+  .footer-note { font-size:11px; opacity:.6; margin-top:8px; }
+  .badge { display:inline-block; padding:2px 6px; border-radius:6px; font-size:11px; border:1px solid #1b2433; background:#0b1119; margin-right:6px; }
+  .soft { opacity:.8; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Dojo-Map — Live Cinematic Universe <span class="sub">• generated 2025-10-31 07:11</span></h1>
+</header>
+<div class="container">
+  <aside class="leftbar">
+    <div class="panel">
+      <h3>Layers</h3>
+      <div class="checkboxes">
+        <label><input type="checkbox" data-layer="Characters" checked/> Characters</label>
+        <label><input type="checkbox" data-layer="Systems" checked/> Systems</label>
+        <label><input type="checkbox" data-layer="Books & Arcs" checked/> Books & Arcs</label>
+        <label><input type="checkbox" data-layer="Events" checked/> Events</label>
+        <label><input type="checkbox" data-layer="Tech/Infra" checked/> Tech/Infra</label>
+      </div>
+    </div>
+    <div class="panel search">
+      <h3>Search</h3>
+      <input id="search" type="text" placeholder="Find a node… (e.g., Ferocity, Dojo Points)"/>
+      <small>Tip: Click a node to see details. Shift+Click to select as A/B for pathfinding.</small>
+    </div>
+    <div class="panel controls">
+      <h3>Quick Controls</h3>
+      <button id="fit">Fit to screen</button>
+      <button id="reset">Reset pan/zoom</button>
+      <div class="legend" style="margin-top:8px;">
+        <span class="chip">Characters = teal</span>
+        <span class="chip">Systems = purple</span>
+        <span class="chip">Books/Arcs = amber</span>
+        <span class="chip">Events = pink</span>
+        <span class="chip">Tech = blue</span>
+      </div>
+    </div>
+    <div class="panel">
+      <h3>Notes</h3>
+      <div class="soft" style="font-size:13px;">
+        • Shift+Click two nodes to compute path (“Intelligence Path”).<br/>
+        • Toggle layers to declutter.<br/>
+        • Drag empty space to pan. Scroll to zoom.<br/>
+        • Data lives inline (editable JSON in source).
+      </div>
+    </div>
+  </aside>
+  <main class="main">
+    <div id="stage"></div>
+    <div class="drawer" id="drawer" style="display:none;">
+      <h2 id="d-title"></h2>
+      <div class="meta"><span class="badge" id="d-group"></span><span class="badge" id="d-tier"></span></div>
+      <p id="d-blurb"></p>
+      <div class="path-panel">
+        <h3>Intelligence Path</h3>
+        <select id="path-a"></select>
+        <select id="path-b"></select>
+        <button id="compute">Compute Shortest Path</button>
+        <div id="path-result" class="soft" style="margin-top:8px;"></div>
+      </div>
+      <div class="footer-note">Pro tip: Use this to show how Systems connect to Events or Books — e.g., “Channel Points → Dojo Points → Redemption Sets → Student of the Month”.</div>
+    </div>
+  </main>
+</div>
+
+<script>
+const DATA = {
+  nodes: [{"id": "Sensei Tenacity", "group": "Characters", "tier": "Main", "blurb": "The sensei of the dojo; central protagonist; becomes Grandmaster in future timeline; blue sunglasses; 'Spirit of Tenacity'.", "x": 200, "y": 200}, {"id": "Ferocity the Ronin", "group": "Characters", "tier": "Villain", "blurb": "Former student turned antagonist; black-and-red multi-layer armor; red katana; seeks the Core of Streaming.", "x": 340, "y": 200}, {"id": "Kuma", "group": "Characters", "tier": "Companion", "blurb": "Small spirit bear with gold sunglasses; guardian; sacrifices himself in Book Two penultimate arc.", "x": 480, "y": 200}, {"id": "Kiba", "group": "Characters", "tier": "Crew", "blurb": "Horse-headed chef; wears chef outfit; knives; chaotic energy; has minigame & stinger.", "x": 620, "y": 200}, {"id": "Grandmaster", "group": "Characters", "tier": "Mentor", "blurb": "Founder of the dojo; long beard and gold sunglasses; sacrifices himself to protect Sensei (Book One climax).", "x": 760, "y": 200}, {"id": "Bob", "group": "Characters", "tier": "Crew", "blurb": "Great warrior bound to a punching dummy; playable as an alt controller in Elden Ring 'Bob Run'.", "x": 200, "y": 320}, {"id": "DojoGPT", "group": "Characters", "tier": "AI", "blurb": "Cybernetic AI sensei; narrates pulls, tracks dojo points, announces progress and completions.", "x": 340, "y": 320}, {"id": "Shiro the Lion", "group": "Characters", "tier": "Guardian", "blurb": "Guardian of the White Gem; stone-textured lion mask; fierce yet noble.", "x": 480, "y": 320}, {"id": "Dojo Points", "group": "Systems", "tier": "Economy", "blurb": "Primary loyalty currency earned via lurking, chat, minigames. Spent on redemption pulls & other actions.", "x": 700, "y": 250}, {"id": "Channel Points", "group": "Systems", "tier": "Economy", "blurb": "Native Twitch currency; can map to Dojo Points via conversion/redemption gates.", "x": 840, "y": 250}, {"id": "Redemption Sets", "group": "Systems", "tier": "Collection", "blurb": "Themed sets (e.g., Halloween 12-pull). Each pull triggers SFX/VFX/toggles; tracks duplicates and completion.", "x": 980, "y": 250}, {"id": "Mini-Games", "group": "Systems", "tier": "Gameplay", "blurb": "Kiba\u2019s Cooking, Bob\u2019s Punch-Out/Controller, Kuma Hide-and-Seek, Wheel with Kuma, Grandmaster gags, etc.", "x": 1120, "y": 250}, {"id": "Background Wanderers", "group": "Systems", "tier": "Presence", "blurb": "Characters roam backgrounds during gameplay to keep the world alive between major events.", "x": 1260, "y": 250}, {"id": "Student of the Month", "group": "Systems", "tier": "Recognition", "blurb": "Top point earners celebrated on-stream; curtain reveal with framed picture in virtual trophy room.", "x": 700, "y": 370}, {"id": "Boss Battles", "group": "Systems", "tier": "Gameplay", "blurb": "Multi-phase Ferocity boss with live chat interaction; health bars; stingers; lines; damage from chat.", "x": 840, "y": 370}, {"id": "Completion Tracker", "group": "Systems", "tier": "Meta", "blurb": "Per-user collection status for each set; DojoGPT announces 1/12...12/12 with themed emotes.", "x": 980, "y": 370}, {"id": "Leaderboards", "group": "Systems", "tier": "Meta", "blurb": "Tracks dojo point ranks; ties into Student of the Month and seasonal events.", "x": 1120, "y": 370}, {"id": "Stingers", "group": "Systems", "tier": "Presentation", "blurb": "Unique transition art & motion for each character and theme.", "x": 1260, "y": 370}, {"id": "VTuber Models", "group": "Systems", "tier": "Presentation", "blurb": "Full models for every character; toggles and costumes for seasons (e.g., Halloween).", "x": 700, "y": 490}, {"id": "OBS + Streamer.bot", "group": "Systems", "tier": "Infra", "blurb": "Automation backbone; triggers, RNG, storage variables, scene switching, SFX/VFX, toggles.", "x": 840, "y": 490}, {"id": "Points \u2194 Channel Points Bridge", "group": "Systems", "tier": "Economy", "blurb": "Conversion or gated redemption where Channel Points can award Dojo Points (rate configurable).", "x": 980, "y": 490}, {"id": "Book One: The Dojo", "group": "Books & Arcs", "tier": "Book", "blurb": "Chaptered saga beginning with Dojo 2.0; quest to collect 9 legendary gems to open the Door of Legend.", "x": 300, "y": 600}, {"id": "Quest for the White Gem", "group": "Books & Arcs", "tier": "Chapter", "blurb": "Introduction of Shiro the Lion as White Gem guardian.", "x": 440, "y": 600}, {"id": "Door of Legend", "group": "Books & Arcs", "tier": "Artifact", "blurb": "Central gateway; requires all gems; ends Book One by pulling heroes into new realm.", "x": 580, "y": 600}, {"id": "Master Gem & Sacrifice", "group": "Books & Arcs", "tier": "Climax", "blurb": "Grandmaster sacrifices himself; Ferocity escapes with gem; major turning point.", "x": 720, "y": 600}, {"id": "Book Two: Midnight City", "group": "Books & Arcs", "tier": "Book", "blurb": "Dark city hub with 6 side doors plus central door; Sensei colder; vengeance arc; path to Core of Streaming.", "x": 860, "y": 600}, {"id": "Six Side Doors", "group": "Books & Arcs", "tier": "Chapter", "blurb": "Each door leads to a distinct world with unique villains and themed outfits for Sensei/Kuma.", "x": 300, "y": 720}, {"id": "Core of Streaming", "group": "Books & Arcs", "tier": "Mythos", "blurb": "Ferocity\u2019s goal; central metaphysical hub of all streams.", "x": 440, "y": 720}, {"id": "Cycle & Transformation", "group": "Books & Arcs", "tier": "Mythos", "blurb": "Sensei\u2019s repeated transformations into Ferocity; golden crystal wall; breaking the cycle to become Grandmaster.", "x": 580, "y": 720}, {"id": "Dojo 2.0 Event", "group": "Events", "tier": "Milestone", "blurb": "Opening flashforward, big fight vs Ferocity; VTuber unlock sequence; set tone for Book One.", "x": 800, "y": 600}, {"id": "Valkyrae Collab", "group": "Events", "tier": "Collab", "blurb": "Cinematic minigames + Ferocity boss; community saves guest; gratitude closing.", "x": 940, "y": 600}, {"id": "Halloween Set", "group": "Events", "tier": "Seasonal", "blurb": "12-pull spooky set (Jumpscare, Spooky, Kiba, Ferocity, Kuma, Workout, Grandmaster, Bob, Sensei).", "x": 1080, "y": 600}, {"id": "Bob Controller Run (Elden Ring)", "group": "Events", "tier": "Challenge", "blurb": "Alt controller showcase using Bob; strong clip potential and unique identity.", "x": 1220, "y": 600}, {"id": "Sony FX3 + Lenses", "group": "Tech/Infra", "tier": "Gear", "blurb": "High-quality camera setup (14mm GM etc.) for green screen and live-action scenes.", "x": 1100, "y": 400}, {"id": "Dual-PC + OBS Pipeline", "group": "Tech/Infra", "tier": "Gear", "blurb": "Gaming + streaming PCs; optimized scenes; stingers; audio routing.", "x": 1240, "y": 400}, {"id": "Audio Chain (TLM 103 / Rodecaster)", "group": "Tech/Infra", "tier": "Gear", "blurb": "Studio-grade voice; character VO lines; live effects.", "x": 1380, "y": 400}],
+  edges: [["Dojo Points", "Redemption Sets"], ["Dojo Points", "Mini-Games"], ["Dojo Points", "Leaderboards"], ["Leaderboards", "Student of the Month"], ["Redemption Sets", "Completion Tracker"], ["Completion Tracker", "DojoGPT"], ["DojoGPT", "Leaderboards"], ["DojoGPT", "Student of the Month"], ["Channel Points", "Points \u2194 Channel Points Bridge"], ["Points \u2194 Channel Points Bridge", "Dojo Points"], ["OBS + Streamer.bot", "Redemption Sets"], ["OBS + Streamer.bot", "Mini-Games"], ["OBS + Streamer.bot", "Background Wanderers"], ["OBS + Streamer.bot", "Boss Battles"], ["OBS + Streamer.bot", "Stingers"], ["OBS + Streamer.bot", "VTuber Models"], ["Boss Battles", "Ferocity the Ronin"], ["Mini-Games", "Kiba"], ["Mini-Games", "Bob"], ["Mini-Games", "Kuma"], ["Background Wanderers", "Sensei Tenacity"], ["Background Wanderers", "Kuma"], ["Background Wanderers", "Kiba"], ["Background Wanderers", "Bob"], ["Stingers", "Sensei Tenacity"], ["Stingers", "Ferocity the Ronin"], ["Stingers", "Kuma"], ["Stingers", "Kiba"], ["Stingers", "Grandmaster"], ["Stingers", "Bob"], ["VTuber Models", "Sensei Tenacity"], ["VTuber Models", "Ferocity the Ronin"], ["VTuber Models", "Kiba"], ["VTuber Models", "Kuma"], ["VTuber Models", "Grandmaster"], ["VTuber Models", "Bob"], ["Valkyrae Collab", "Boss Battles"], ["Valkyrae Collab", "Mini-Games"], ["Valkyrae Collab", "Dojo Points"], ["Valkyrae Collab", "Stingers"], ["Halloween Set", "Redemption Sets"], ["Bob Controller Run (Elden Ring)", "Mini-Games"], ["Book One: The Dojo", "Dojo 2.0 Event"], ["Book One: The Dojo", "Door of Legend"], ["Book One: The Dojo", "Quest for the White Gem"], ["Quest for the White Gem", "Shiro the Lion"], ["Door of Legend", "Book Two: Midnight City"], ["Master Gem & Sacrifice", "Door of Legend"], ["Cycle & Transformation", "Core of Streaming"], ["Book Two: Midnight City", "Six Side Doors"], ["Book Two: Midnight City", "Core of Streaming"], ["Sensei Tenacity", "Grandmaster"], ["Sensei Tenacity", "Ferocity the Ronin"], ["Grandmaster", "Master Gem & Sacrifice"], ["Ferocity the Ronin", "Core of Streaming"], ["Sony FX3 + Lenses", "OBS + Streamer.bot"], ["Dual-PC + OBS Pipeline", "OBS + Streamer.bot"], ["Audio Chain (TLM 103 / Rodecaster)", "OBS + Streamer.bot"]]
+};
+
+const COLORS = {
+  "Characters":"#16bdca",
+  "Systems":"#a78bfa",
+  "Books & Arcs":"#f59e0b",
+  "Events":"#f472b6",
+  "Tech/Infra":"#60a5fa"
+};
+
+const stage = document.getElementById('stage');
+const svgNS = "http://www.w3.org/2000/svg";
+const svg = document.createElementNS(svgNS, "svg");
+svg.setAttribute("width","100%");
+svg.setAttribute("height","100%");
+svg.setAttribute("viewBox","0 0 1400 900");
+svg.style.touchAction = "none";
+stage.appendChild(svg);
+
+const grid = document.createElementNS(svgNS, "g");
+for(let x=0;x<=1400;x+=100){
+  const line = document.createElementNS(svgNS, "line");
+  line.setAttribute("x1",x); line.setAttribute("y1",0);
+  line.setAttribute("x2",x); line.setAttribute("y2",900);
+  line.setAttribute("stroke","#0f1a28"); line.setAttribute("stroke-width","1");
+  grid.appendChild(line);
+}
+for(let y=0;y<=900;y+=100){
+  const line = document.createElementNS(svgNS, "line");
+  line.setAttribute("x1",0); line.setAttribute("y1",y);
+  line.setAttribute("x2",1400); line.setAttribute("y2",y);
+  line.setAttribute("stroke","#0f1a28"); line.setAttribute("stroke-width","1");
+  grid.appendChild(line);
+}
+svg.appendChild(grid);
+
+const edgeLayer = document.createElementNS(svgNS, "g");
+const nodeLayer = document.createElementNS(svgNS, "g");
+svg.appendChild(edgeLayer);
+svg.appendChild(nodeLayer);
+
+const nodeMap = new Map();
+DATA.nodes.forEach(n => nodeMap.set(n.id, n));
+
+const edges = DATA.edges.map(e => ({source: nodeMap.get(e[0]), target: nodeMap.get(e[1])}));
+const edgeEls = [];
+edges.forEach((e,i)=>{
+  const line = document.createElementNS(svgNS, "line");
+  line.classList.add("edge");
+  line.setAttribute("x1", e.source.x);
+  line.setAttribute("y1", e.source.y);
+  line.setAttribute("x2", e.target.x);
+  line.setAttribute("y2", e.target.y);
+  edgeLayer.appendChild(line);
+  edgeEls.push({el:line, edge:e});
+});
+
+const nodeEls = [];
+DATA.nodes.forEach(n => {
+  const g = document.createElementNS(svgNS, "g");
+  g.classList.add("node");
+  g.setAttribute("data-id", n.id);
+  g.setAttribute("data-group", n.group);
+  const circle = document.createElementNS(svgNS, "circle");
+  circle.setAttribute("cx", n.x);
+  circle.setAttribute("cy", n.y);
+  circle.setAttribute("r", 22);
+  circle.setAttribute("fill", COLORS[n.group] || "#94a3b8");
+  circle.setAttribute("stroke", "#1b2433");
+  g.appendChild(circle);
+  const label = document.createElementNS(svgNS, "text");
+  label.setAttribute("x", n.x);
+  label.setAttribute("y", n.y + 42);
+  label.setAttribute("text-anchor", "middle");
+  label.setAttribute("font-size","11");
+  label.setAttribute("fill","#cbd5e1");
+  label.textContent = n.id;
+  g.appendChild(label);
+  nodeLayer.appendChild(g);
+  nodeEls.push({el:g, node:n});
+});
+
+const drawer = document.getElementById('drawer');
+const dTitle = document.getElementById('d-title');
+const dGroup = document.getElementById('d-group');
+const dTier  = document.getElementById('d-tier');
+const dBlurb = document.getElementById('d-blurb');
+const pathA = document.getElementById('path-a');
+const pathB = document.getElementById('path-b');
+const computeBtn = document.getElementById('compute');
+const pathResult = document.getElementById('path-result');
+
+DATA.nodes.forEach(n => {
+  const optA = document.createElement('option'); optA.value = n.id; optA.textContent = n.id; pathA.appendChild(optA);
+  const optB = document.createElement('option'); optB.value = n.id; optB.textContent = n.id; pathB.appendChild(optB);
+});
+pathA.value = "Channel Points";
+pathB.value = "Student of the Month";
+
+function openDrawer(n){
+  dTitle.textContent = n.id;
+  dGroup.textContent = n.group;
+  dTier.textContent  = n.tier || "";
+  dBlurb.textContent = n.blurb || "";
+  drawer.style.display = "block";
+}
+
+let selected = [];
+nodeEls.forEach(({el, node})=>{
+  el.addEventListener('click', (ev)=>{
+    if(ev.shiftKey){
+      if(!selected.find(id => id===node.id)){
+        selected.push(node.id);
+        el.classList.add('selected');
+        if(selected.length>2){
+          const first = selected.shift();
+          document.querySelector('[data-id="'+first+'"]')?.classList.remove('selected');
+        }
+      }
+      if(selected.length===2){
+        pathA.value = selected[0];
+        pathB.value = selected[1];
+        computePath();
+      }
+    }else{
+      document.querySelectorAll('.node.selected').forEach(n=>n.classList.remove('selected'));
+      selected = [node.id];
+      el.classList.add('selected');
+      openDrawer(node);
+    }
+  });
+});
+
+document.querySelectorAll('[data-layer]').forEach(cb=>{
+  cb.addEventListener('change', applyLayerVisibility);
+});
+function applyLayerVisibility(){
+  const enabled = new Set(Array.from(document.querySelectorAll('[data-layer]')).filter(cb=>cb.checked).map(cb=>cb.getAttribute('data-layer')));
+  nodeEls.forEach(({el,node})=>{
+    if(enabled.has(node.group)) el.classList.remove('hidden'); else el.classList.add('hidden');
+  });
+  edgeEls.forEach(({el,edge})=>{
+    const show = enabled.has(edge.source.group) && enabled.has(edge.target.group);
+    if(show) el.classList.remove('hidden'); else el.classList.add('hidden');
+  });
+}
+applyLayerVisibility();
+
+document.getElementById('search').addEventListener('input', (e)=>{
+  const q = e.target.value.toLowerCase().trim();
+  nodeEls.forEach(({el,node})=>{
+    if(!q) { el.style.opacity = 1; return; }
+    el.style.opacity = node.id.toLowerCase().includes(q) ? 1 : 0.2;
+  });
+  edgeEls.forEach(({el,edge})=>{
+    if(!q) { el.style.opacity = .9; return; }
+    const hit = edge.source.id.toLowerCase().includes(q) || edge.target.id.toLowerCase().includes(q);
+    el.style.opacity = hit ? .9 : 0.1;
+  });
+});
+
+let isPanning=false, startX=0, startY=0, viewBox={x:0,y:0,w:1400,h:900};
+function updateViewBox(){
+  svg.setAttribute("viewBox", viewBox.x+" "+viewBox.y+" "+viewBox.w+" "+viewBox.h);
+}
+stage.addEventListener('mousedown', (e)=>{ isPanning=true; stage.classList.add('grabbing'); startX=e.clientX; startY=e.clientY; });
+window.addEventListener('mouseup', ()=>{ isPanning=false; stage.classList.remove('grabbing'); });
+window.addEventListener('mousemove', (e)=>{
+  if(!isPanning) return;
+  const dx = (startX - e.clientX) * (viewBox.w / stage.clientWidth);
+  const dy = (startY - e.clientY) * (viewBox.h / stage.clientHeight);
+  viewBox.x += dx; viewBox.y += dy; startX=e.clientX; startY=e.clientY; updateViewBox();
+});
+stage.addEventListener('wheel', (e)=>{
+  e.preventDefault();
+  const scale = e.deltaY>0 ? 1.1 : 0.9;
+  const mx = e.offsetX / stage.clientWidth;
+  const my = e.offsetY / stage.clientHeight;
+  const cx = viewBox.x + viewBox.w * mx;
+  const cy = viewBox.y + viewBox.h * my;
+  viewBox.w *= scale; viewBox.h *= scale;
+  viewBox.x = cx - viewBox.w * mx;
+  viewBox.y = cy - viewBox.h * my;
+  updateViewBox();
+}, {passive:false});
+
+document.getElementById('fit').addEventListener('click', ()=>{
+  viewBox = {x:0,y:0,w:1400,h:900}; updateViewBox();
+});
+document.getElementById('reset').addEventListener('click', ()=>{
+  viewBox = {x:0,y:0,w:1400,h:900}; updateViewBox();
+  document.getElementById('search').value="";
+});
+
+const graph = new Map();
+DATA.nodes.forEach(n=>graph.set(n.id, []));
+DATA.edges.forEach(e=>{
+  const a=e[0], b=e[1];
+  graph.get(a).push(b);
+  graph.get(b).push(a);
+});
+
+function bfs(start, goal){
+  const q = [[start]];
+  const seen = new Set([start]);
+  while(q.length){
+    const path = q.shift();
+    const cur = path[path.length-1];
+    if(cur === goal) return path;
+    for(const nxt of graph.get(cur) || []){
+      if(!seen.has(nxt)){
+        seen.add(nxt);
+        q.push([...path, nxt]);
+      }
+    }
+  }
+  return null;
+}
+
+function computePath(){
+  const a = pathA.value, b = pathB.value;
+  const path = bfs(a,b);
+  nodeEls.forEach(({el})=>el.style.filter="");
+  edgeEls.forEach(({el})=>el.setAttribute("stroke","#2a3952"));
+  if(!path){
+    pathResult.textContent = "No path found.";
+    return;
+  }
+  pathResult.textContent = "Path: " + path.join(" → ");
+  const setNodes = new Set(path);
+  nodeEls.forEach(({el,node})=>{
+    if(setNodes.has(node.id)) el.style.filter="drop-shadow(0 0 6px rgba(255,255,255,.35))";
+  });
+  for(let i=0;i<path.length-1;i++){
+    const a = path[i], b = path[i+1];
+    edgeEls.forEach(({el,edge})=>{
+      if( (edge.source.id===a && edge.target.id===b) || (edge.source.id===b && edge.target.id===a) ){
+        el.setAttribute("stroke","#eab308");
+      }
+    });
+  }
+}
+computeBtn.addEventListener('click', computePath);
+
+openDrawer(DATA.nodes[0]);
+</script>
+</body>
+</html>
