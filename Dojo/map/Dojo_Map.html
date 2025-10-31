@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The Dojo Codex — Shadow Network v2</title>
+<style>
+/* ====== Core Styles (inlined; you can move to dojo_styles.css) ====== */
+:root{
+--bg1:#070a0f; --bg2:#0b0f14; --bg3:#0e1420; --line:#192537; --grid:#0e1a2a; --ink:#e7eef7;
+--teal:#16bdca; --violet:#a78bfa; --gold:#f59e0b; --pink:#f472b6; --blue:#60a5fa; --muted:#94a3b8;
+--pulse: drop-shadow(0 0 10px rgba(245,158,11,.45)) drop-shadow(0 0 20px rgba(245,158,11,.25));
+}
+html,body{margin:0;padding:0;height:100%;background:radial-gradient(1800px 1100px at 25% 25%, #10172a, var(--bg1));color:var(--ink);font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;padding:14px 18px;background:linear-gradient(90deg,var(--bg2),var(--bg3));border-bottom:1px solid var(--line)}
+header h1{margin:0;font-size:18px;letter-spacing:.4px}
+.container{display:flex;height:calc(100% - 58px)}
+.leftbar{width:380px;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:10px;padding:12px;background:#0c1220}
+.panel{background:#0e1526;border:1px solid #1a2740;border-radius:12px;padding:12px}
+.panel h3{margin:0 0 8px 0;font-size:13px;letter-spacing:.2px}
+input[type=text],textarea,select,button{background:#0a121d;color:var(--ink);border:1px solid #1a2740;border-radius:8px}
+input[type=text]{padding:8px 10px;width:100%}
+button{padding:6px 10px;cursor:pointer;font-size:12px}
+button:hover{background:#121d30}
+.legend .chip{display:inline-block;padding:4px 8px;border-radius:999px;font-size:12px;border:1px solid #1a2740;background:#0a121d;margin:2px}
+.main{flex:1;position:relative;overflow:hidden}
+#stage{width:100%;height:100%;background:radial-gradient(2000px 1200px at 20% 20%, #0f172a, #070a0f);cursor:grab}
+#stage.grabbing{cursor:grabbing}
+svg text{user-select:none}
+.node{transition:filter .15s ease;cursor:grab}
+.node circle{stroke-width:2}
+.node:hover{filter:drop-shadow(0 0 6px rgba(255,255,255,.12))}
+.node.future-on{filter:var(--pulse)}
+.edge{stroke:#233452;stroke-width:1.3;opacity:.9}
+.edge.hidden,.node.hidden{display:none}
+.node.selected circle{stroke:#ffffff;stroke-width:3}
+.drawer{position:absolute;right:16px;bottom:16px;width:560px;max-height:72%;overflow:auto;background:#0f1627;border:1px solid #1a2740;border-radius:12px;padding:14px;box-shadow:0 10px 28px rgba(0,0,0,.35)}
+.drawer h2{margin:0 0 6px 0;font-size:18px}
+.badge{display:inline-block;padding:2px 6px;border-radius:6px;font-size:11px;border:1px solid #1a2740;background:#0a121d;margin-right:6px}
+.tabs{display:flex;gap:6px;margin:8px 0 0}
+.tabbtn{padding:6px 10px;border-radius:8px;border:1px solid #1a2740;background:#0a121d;color:var(--ink);cursor:pointer;font-size:12px}
+.tabbtn.active{background:#15213a}
+.tabcontent{display:none;margin-top:8px;font-size:14px}
+.tabcontent.active{display:block}
+.notes-area{width:100%;min-height:120px;padding:8px}
+.small{font-size:12px;opacity:.75}
+hr.soft{border:none;border-top:1px solid #20304b;margin:8px 0}
+/* Future glow animation */
+@keyframes glow{0%{filter:drop-shadow(0 0 0 rgba(255,255,255,0))}50%{filter:var(--pulse)}100%{filter:drop-shadow(0 0 0 rgba(255,255,255,0))}}
+.node.future-pulse{animation:glow 2.4s ease-in-out infinite}
+</style>
+</head>
+<body>
+<header>
+<h1>The Dojo Codex — Shadow Network v2 <span style="opacity:.7;font-size:12px">• interactive map • drag nodes • future glow • notes • path reasoning</span></h1>
+</header>
+<div class="container">
+<aside class="leftbar">
+<div class="panel">
+<h3>Layers</h3>
+<label><input type="checkbox" data-layer="Characters" checked> Characters</label>
+<label><input type="checkbox" data-layer="Systems" checked> Systems</label>
+<label><input type="checkbox" data-layer="Books & Arcs" checked> Books & Arcs</label>
+<label><input type="checkbox" data-layer="Events" checked> Events</label>
+<label><input type="checkbox" data-layer="Tech/Infra" checked> Tech/Infra</label>
+<label><input type="checkbox" data-layer="Meta" checked> Meta</label>
+</div>
+<div class="panel">
+<h3>Search</h3>
+<input id="search" type="text" placeholder="Find a node… (e.g., Ferocity, Dojo Points)"/>
+<div class="small">Click a node to open details. Shift+Click two nodes for shortest path + reasoning.</div>
+</div>
+<div class="panel">
+<h3>Tools</h3>
+<button id="fit">Fit to screen</button>
+<button id="reset">Reset pan/zoom</button>
+<button id="toggle-future">Future Mode: OFF</button>
+<button id="export-layout">Export Layout</button>
+<input id="import-layout" type="file" accept=".json"/>
+<button id="export-notes">Export Notes</button>
+<input id="import-notes" type="file" accept=".json"/>
+</html>
