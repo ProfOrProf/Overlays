@@ -1,0 +1,14 @@
+{
+"nodes": [
+{"id":"Sensei Tenacity","group":"Characters","tier":"Main","blurb":"Mentor-hero anchoring tone and ethics.","longform":"Sensei Tenacity is the moral and structural spine of the Dojo Universe…","future":"Way of Tenacity trials extend to partner channels.","funfacts":["Blue sunglasses as totem","EQ baseline for cast"]},
+{"id":"Ferocity the Ronin","group":"Characters","tier":"Villain","blurb":"Philosophical antagonist.","longform":"Ferocity is the dojo’s negative mirror…","future":"Echo Shards corrupt allied channels.","funfacts":["Four-horn silhouette","7–12s clip pacing"]}
+],
+"edges": [
+["Dojo Points","Redemption Sets"],
+["OBS + Streamer.bot","DojoGPT"],
+["Valkyrae Collab","Ferocity the Ronin"]
+],
+"reason": {
+"Dojo Points|Redemption Sets": "Points → pulls → moments → retention."
+}
+}
