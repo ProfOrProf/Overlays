@@ -43,90 +43,90 @@ svg text{user-select:none}
 </head>
 <body>
 <header>
-  <h1>The Dojo Codex — Shadow Network v2 <span style=\"opacity:.7;font-size:12px\">• dojo_map triplet loader</span></h1>
+  <h1>The Dojo Codex — Shadow Network v2 <span style="opacity:.7;font-size:12px">• dojo_map triplet loader</span></h1>
 </header>
-<div class=\"container\">
-  <aside class=\"leftbar\">
-    <div class=\"panel\">
+<div class="container">
+  <aside class="leftbar">
+    <div class="panel">
       <h3>Layers</h3>
-      <label><input type=\"checkbox\" data-layer=\"Characters\" checked> Characters</label>
-      <label><input type=\"checkbox\" data-layer=\"Systems\" checked> Systems</label>
-      <label><input type=\"checkbox\" data-layer=\"Books & Arcs\" checked> Books & Arcs</label>
-      <label><input type=\"checkbox\" data-layer=\"Events\" checked> Events</label>
-      <label><input type=\"checkbox\" data-layer=\"Tech/Infra\" checked> Tech/Infra</label>
-      <label><input type=\"checkbox\" data-layer=\"Meta\" checked> Meta</label>
+      <label><input type="checkbox" data-layer="Characters" checked> Characters</label>
+      <label><input type="checkbox" data-layer="Systems" checked> Systems</label>
+      <label><input type="checkbox" data-layer="Books & Arcs" checked> Books & Arcs</label>
+      <label><input type="checkbox" data-layer="Events" checked> Events</label>
+      <label><input type="checkbox" data-layer="Tech/Infra" checked> Tech/Infra</label>
+      <label><input type="checkbox" data-layer="Meta" checked> Meta</label>
     </div>
-    <div class=\"panel\">
+    <div class="panel">
       <h3>Search</h3>
-      <input id=\"search\" type=\"text\" placeholder=\"Find a node… (e.g., Ferocity, Dojo Points)\"/>
-      <div class=\"small\">Click a node to open details. Shift+Click two nodes for shortest path + reasoning.</div>
+      <input id="search" type="text" placeholder="Find a node… (e.g., Ferocity, Dojo Points)"/>
+      <div class="small">Click a node to open details. Shift+Click two nodes for shortest path + reasoning.</div>
     </div>
-    <div class=\"panel\">
+    <div class="panel">
       <h3>Tools</h3>
-      <button id=\"fit\">Fit to screen</button>
-      <button id=\"reset\">Reset pan/zoom</button>
-      <button id=\"toggle-future\">Future Mode: OFF</button>
-      <button id=\"export-layout\">Export Layout</button>
-      <input id=\"import-layout\" type=\"file\" accept=\".json\"/>
-      <button id=\"export-notes\">Export Notes</button>
-      <input id=\"import-notes\" type=\"file\" accept=\".json\"/>
-      <hr class=\"soft\"/>
-      <button id=\"reload-json\">Reload dojo_map.json</button>
-      <div class=\"legend\" style=\"margin-top:6px\">
-        <span class=\"chip\">Characters = teal</span>
-        <span class=\"chip\">Systems = violet</span>
-        <span class=\"chip\">Books/Arcs = gold</span>
-        <span class=\"chip\">Events = pink</span>
-        <span class=\"chip\">Tech = blue</span>
-        <span class=\"chip\">Meta = slate</span>
+      <button id="fit">Fit to screen</button>
+      <button id="reset">Reset pan/zoom</button>
+      <button id="toggle-future">Future Mode: OFF</button>
+      <button id="export-layout">Export Layout</button>
+      <input id="import-layout" type="file" accept=".json"/>
+      <button id="export-notes">Export Notes</button>
+      <input id="import-notes" type="file" accept=".json"/>
+      <hr class="soft"/>
+      <button id="reload-json">Reload dojo_map.json</button>
+      <div class="legend" style="margin-top:6px">
+        <span class="chip">Characters = teal</span>
+        <span class="chip">Systems = violet</span>
+        <span class="chip">Books/Arcs = gold</span>
+        <span class="chip">Events = pink</span>
+        <span class="chip">Tech = blue</span>
+        <span class="chip">Meta = slate</span>
       </div>
     </div>
-    <div class=\"panel small\">
+    <div class="panel small">
       <h3>Notes</h3>
       Dual fields per node: <b>Sensei</b> & <b>Prof</b>. Autosaves. Export to share.
     </div>
   </aside>
-  <main class=\"main\">
-    <div id=\"stage\"></div>
-    <div class=\"drawer\" id=\"drawer\" style=\"display:none\">
-      <h2 id=\"d-title\"></h2>
-      <div class=\"meta\"><span class=\"badge\" id=\"d-group\"></span><span class=\"badge\" id=\"d-tier\"></span></div>
-      <div class=\"tabs\">
-        <button class=\"tabbtn active\" data-tab=\"overview\">Overview</button>
-        <button class=\"tabbtn\" data-tab=\"longform\">Longform</button>
-        <button class=\"tabbtn\" data-tab=\"future\">Shadow of the Future</button>
-        <button class=\"tabbtn\" data-tab=\"facts\">Fun Facts</button>
-        <button class=\"tabbtn\" data-tab=\"notes\">Notes</button>
-        <button class=\"tabbtn\" data-tab=\"path\">Path & Reasoning</button>
+  <main class="main">
+    <div id="stage"></div>
+    <div class="drawer" id="drawer" style="display:none">
+      <h2 id="d-title"></h2>
+      <div class="meta"><span class="badge" id="d-group"></span><span class="badge" id="d-tier"></span></div>
+      <div class="tabs">
+        <button class="tabbtn active" data-tab="overview">Overview</button>
+        <button class="tabbtn" data-tab="longform">Longform</button>
+        <button class="tabbtn" data-tab="future">Shadow of the Future</button>
+        <button class="tabbtn" data-tab="facts">Fun Facts</button>
+        <button class="tabbtn" data-tab="notes">Notes</button>
+        <button class="tabbtn" data-tab="path">Path & Reasoning</button>
       </div>
-      <div id=\"tab-overview\" class=\"tabcontent active\"><p id=\"d-blurb\"></p></div>
-      <div id=\"tab-longform\" class=\"tabcontent\"><p id=\"d-longform\"></p></div>
-      <div id=\"tab-future\" class=\"tabcontent\"><p id=\"d-future\"></p></div>
-      <div id=\"tab-facts\" class=\"tabcontent\"><ul id=\"d-facts\"></ul></div>
-      <div id=\"tab-notes\" class=\"tabcontent\">
-        <label class=\"small\">Sensei Notes</label>
-        <textarea id=\"d-notes-sensei\" class=\"notes-area\" placeholder=\"Sensei notes…\"></textarea>
-        <label class=\"small\">Prof Notes</label>
-        <textarea id=\"d-notes-prof\" class=\"notes-area\" placeholder=\"Prof notes…\"></textarea>
-        <div class=\"small\">Notes auto-save locally. Use Export/Import to sync.</div>
+      <div id="tab-overview" class="tabcontent active"><p id="d-blurb"></p></div>
+      <div id="tab-longform" class="tabcontent"><p id="d-longform"></p></div>
+      <div id="tab-future" class="tabcontent"><p id="d-future"></p></div>
+      <div id="tab-facts" class="tabcontent"><ul id="d-facts"></ul></div>
+      <div id="tab-notes" class="tabcontent">
+        <label class="small">Sensei Notes</label>
+        <textarea id="d-notes-sensei" class="notes-area" placeholder="Sensei notes…"></textarea>
+        <label class="small">Prof Notes</label>
+        <textarea id="d-notes-prof" class="notes-area" placeholder="Prof notes…"></textarea>
+        <div class="small">Notes auto-save locally. Use Export/Import to sync.</div>
       </div>
-      <div id=\"tab-path\" class=\"tabcontent\">
-        <div style=\"display:flex; gap:6px; margin-bottom:8px; flex-wrap:wrap\">
-          <select id=\"path-a\"></select>
-          <select id=\"path-b\"></select>
-          <button id=\"compute\">Compute</button>
+      <div id="tab-path" class="tabcontent">
+        <div style="display:flex; gap:6px; margin-bottom:8px; flex-wrap:wrap">
+          <select id="path-a"></select>
+          <select id="path-b"></select>
+          <button id="compute">Compute</button>
         </div>
-        <div id=\"path-result\" class=\"small\" style=\"margin:6px 0\"></div>
-        <div id=\"path-reason\" class=\"small\" style=\"white-space:pre-line\"></div>
+        <div id="path-result" class="small" style="margin:6px 0"></div>
+        <div id="path-reason" class="small" style="white-space:pre-line"></div>
       </div>
     </div>
   </main>
 </div>
 
 <!-- SFX — change to assets/sfx/*.wav if you add real files -->
-<audio id=\"sfx-future\" preload=\"auto\" src=\"assets/sfx/sfx-future.wav\"></audio>
-<audio id=\"sfx-select\" preload=\"auto\" src=\"assets/sfx/sfx-select.wav\"></audio>
-<audio id=\"sfx-path\" preload=\"auto\" src=\"assets/sfx/sfx-path.wav\"></audio>
+<audio id="sfx-future" preload="auto" src="assets/sfx/sfx-future.wav"></audio>
+<audio id="sfx-select" preload="auto" src="assets/sfx/sfx-select.wav"></audio>
+<audio id="sfx-path" preload="auto" src="assets/sfx/sfx-path.wav"></audio>
 
 <script>
 // ===== Triplet URL resolver (same basename in the same folder) =====
@@ -137,27 +137,27 @@ svg text{user-select:none}
   const cssName  = htmlName.replace(/\.html$/i, '.css');  // dojo_map.css
 
   // Swap CSS href to ensure it loads alongside the HTML (cache bust)
-  const link = document.querySelector('link[rel=\"stylesheet\"]');
+  const link = document.querySelector('link[rel="stylesheet"]');
   if (link) link.href = cssName + '?v=' + (Date.now()%1e7);
 
   // Expose resolved names to loader
   window.__DOJO_MAP_TRIPLET__ = { jsonName, cssName };
 })();
 
-const COLORS = {\"Characters\":\"#16bdca\",\"Systems\":\"#a78bfa\",\"Books & Arcs\":\"#f59e0b\",\"Events\":\"#f472b6\",\"Tech/Infra\":\"#60a5fa\",\"Meta\":\"#94a3b8\"};
+const COLORS = {"Characters":"#16bdca","Systems":"#a78bfa","Books & Arcs":"#f59e0b","Events":"#f472b6","Tech/Infra":"#60a5fa","Meta":"#94a3b8"};
 let FUTURE_MODE=false;
 
 // Embedded minimal dataset as fallback
 let DATA_FALLBACK={
   nodes:[
-    {id:\"Sensei Tenacity\",group:\"Characters\",tier:\"Main\",blurb:\"Mentor-hero anchoring tone and ethics.\",longform:\"Sensei Tenacity is the moral and structural spine of the Dojo…\",future:\"Trials extend to partner channels.\",funfacts:[\"Blue shades totem\",\"EQ baseline\"]},
-    {id:\"Ferocity the Ronin\",group:\"Characters\",tier:\"Villain\",blurb:\"Philosophical antagonist.\",longform:\"Ferocity is the dojo’s negative mirror…\",future:\"Echo Shards corrupt allied channels.\",funfacts:[\"Four-horn silhouette\"]},
-    {id:\"Dojo Points\",group:\"Systems\",tier:\"\",blurb:\"Unified currency → progress.\",longform:\"Dojo Points are the bloodstream…\"},
-    {id:\"Redemption Sets\",group:\"Systems\",tier:\"\",blurb:\"Collectible storytelling.\",longform:\"Sets turn generic ‘redeem’ into narrative…\"},
-    {id:\"Valkyrae Collab\",group:\"Events\",tier:\"\",blurb:\"Cinematic rescue.\",longform:\"Rae’s appearance is thesis-in-action…\"}
+    {id:"Sensei Tenacity",group:"Characters",tier:"Main",blurb:"Mentor-hero anchoring tone and ethics.",longform:"Sensei Tenacity is the moral and structural spine of the Dojo…",future:"Trials extend to partner channels.",funfacts:["Blue shades totem","EQ baseline"]},
+    {id:"Ferocity the Ronin",group:"Characters",tier:"Villain",blurb:"Philosophical antagonist.",longform:"Ferocity is the dojo’s negative mirror…",future:"Echo Shards corrupt allied channels.",funfacts:["Four-horn silhouette"]},
+    {id:"Dojo Points",group:"Systems",tier:"",blurb:"Unified currency → progress.",longform:"Dojo Points are the bloodstream…"},
+    {id:"Redemption Sets",group:"Systems",tier:"",blurb:"Collectible storytelling.",longform:"Sets turn generic ‘redeem’ into narrative…"},
+    {id:"Valkyrae Collab",group:"Events",tier:"",blurb:"Cinematic rescue.",longform:"Rae’s appearance is thesis-in-action…"}
   ],
-  edges:[[\"Dojo Points\",\"Redemption Sets\"],[\"Valkyrae Collab\",\"Ferocity the Ronin\"]],
-  reason:{\"Dojo Points|Redemption Sets\":\"Points → pulls → moments → retention.\"}
+  edges:[["Dojo Points","Redemption Sets"],["Valkyrae Collab","Ferocity the Ronin"]],
+  reason:{"Dojo Points|Redemption Sets":"Points → pulls → moments → retention."}
 };
 
 async function loadDataset(){
@@ -203,7 +203,7 @@ async function loadDataset(){
   const edges=DATA.edges.map(e=>({source:nodeMap.get(e[0]),target:nodeMap.get(e[1])}));
   const edgeEls=[]; edges.forEach(e=>{const line=document.createElementNS(NS,'line'); line.classList.add('edge'); edgeLayer.appendChild(line); edgeEls.push({el:line,edge:e});});
   const nodeEls=[]; DATA.nodes.forEach(n=>{const g=document.createElementNS(NS,'g'); g.classList.add('node'); g.setAttribute('data-id',n.id); g.setAttribute('data-group',n.group);
-    const c=document.createElementNS(NS,'circle'); c.setAttribute('r',30); c.setAttribute('fill', COLORS[n.group]||'#94a3b8'); c.setAttribute('stroke','#1a2740'); g.appendChild(c);
+    const c=document.createElementNS(NS,'circle'); c.setAttribute('r',30); c.setAttribute('fill[n.group]||"#94a3b8"); c.setAttribute('stroke','#1a2740'); g.appendChild(c);
     const t=document.createElementNS(NS,'text'); t.setAttribute('text-anchor','middle'); t.setAttribute('font-size','11'); t.setAttribute('fill','#cbd5e1'); t.textContent=n.id; t.setAttribute('y',48); g.appendChild(t);
     nodeLayer.appendChild(g); nodeEls.push({el:g,node:n}); });
   function layout(){ nodeEls.forEach(({el,node})=>{el.setAttribute('transform',`translate(${node.x},${node.y})`)}); edgeEls.forEach(({el,edge})=>{el.setAttribute('x1',edge.source.x);el.setAttribute('y1',edge.source.y);el.setAttribute('x2',edge.target.x);el.setAttribute('y2',edge.target.y);}); }
@@ -214,11 +214,10 @@ async function loadDataset(){
 
   // Pan/Zoom
   let isP=false,sx=0,sy=0,vb={x:0,y:0,w:4000,h:2400}; const updateVB=()=>svg.setAttribute('viewBox',`${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
-  const stageEl=document.getElementById('stage');
-  stageEl.addEventListener('mousedown',e=>{if(e.target.tagName==='circle'||e.target.tagName==='text')return; isP=true; sx=e.clientX; sy=e.clientY; stageEl.classList.add('grabbing');});
-  window.addEventListener('mouseup',()=>{isP=false;stageEl.classList.remove('grabbing')});
-  window.addEventListener('mousemove',e=>{if(!isP)return; const dx=(sx-e.clientX)*(vb.w/stageEl.clientWidth), dy=(sy-e.clientY)*(vb.h/stageEl.clientHeight); vb.x+=dx; vb.y+=dy; sx=e.clientX; sy=e.clientY; updateVB();});
-  stageEl.addEventListener('wheel',e=>{e.preventDefault(); const sc=e.deltaY>0?1.1:0.9; const mx=e.offsetX/stageEl.clientWidth, my=e.offsetY/stageEl.clientHeight; const cx=vb.x+vb.w*mx, cy=vb.y+vb.h*my; vb.w*=sc; vb.h*=sc; vb.x=cx-vb.w*mx; vb.y=cy-vb.h*my; updateVB();},{passive:false});
+  stage.addEventListener('mousedown',e=>{if(e.target.tagName==='circle'||e.target.tagName==='text')return; isP=true; sx=e.clientX; sy=e.clientY; stage.classList.add('grabbing');});
+  window.addEventListener('mouseup',()=>{isP=false;stage.classList.remove('grabbing')});
+  window.addEventListener('mousemove',e=>{if(!isP)return; const dx=(sx-e.clientX)*(vb.w/stage.clientWidth), dy=(sy-e.clientY)*(vb.h/stage.clientHeight); vb.x+=dx; vb.y+=dy; sx=e.clientX; sy=e.clientY; updateVB();});
+  stage.addEventListener('wheel',e=>{e.preventDefault(); const sc=e.deltaY>0?1.1:0.9; const mx=e.offsetX/stage.clientWidth, my=e.offsetY/stage.clientHeight; const cx=vb.x+vb.w*mx, cy=vb.y+vb.h*my; vb.w*=sc; vb.h*=sc; vb.x=cx-vb.w*mx; vb.y=cy-vb.h*my; updateVB();},{passive:false});
   document.getElementById('fit').addEventListener('click',()=>{vb={x:0,y:0,w:4000,h:2400}; updateVB();});
   document.getElementById('reset').addEventListener('click',()=>{vb={x:0,y:0,w:4000,h:2400}; updateVB(); document.getElementById('search').value='';});
 
@@ -226,8 +225,16 @@ async function loadDataset(){
   function applyLayers(){const on=new Set(Array.from(document.querySelectorAll('[data-layer]')).filter(cb=>cb.checked).map(cb=>cb.getAttribute('data-layer'))); nodeEls.forEach(({el,node})=>el.classList.toggle('hidden',!on.has(node.group))); edgeEls.forEach(({el,edge})=>el.classList.toggle('hidden', !(on.has(edge.source.group)&&on.has(edge.target.group)))); }
   document.querySelectorAll('[data-layer]').forEach(cb=>cb.addEventListener('change',applyLayers)); applyLayers();
 
-  // Search
-  document.getElementById('search').addEventListener('input',e=>{const q=e.target.value.toLowerCase().trim(); nodeEls.forEach(({el,node})=>el.style.opacity=(!q||node.id.toLowerCase().includes(q))?1:0.2); edgeEls.forEach(({el,edge})=>{if(!q){el.style.opacity=.9;return;} const hit=edge.source.id.toLowerCase().includes(q)||edge.target.id.toLowerCase().includes(q); el.style.opacity=hit?.9:0.1;});});
+  // Search (fixed ternary usage)
+  document.getElementById('search').addEventListener('input',e=>{
+    const q=e.target.value.toLowerCase().trim();
+    nodeEls.forEach(({el,node})=>el.style.opacity=(!q||node.id.toLowerCase().includes(q))?1:0.2);
+    edgeEls.forEach(({el,edge})=>{
+      if(!q){el.style.opacity=.9;return;}
+      const hit=edge.source.id.toLowerCase().includes(q)||edge.target.id.toLowerCase().includes(q);
+      el.style.opacity = hit ? 0.9 : 0.1;
+    });
+  });
 
   // Drawer
   const d=document; const drawer=d.getElementById('drawer'); const title=d.getElementById('d-title'), grp=d.getElementById('d-group'), tier=d.getElementById('d-tier');
@@ -237,7 +244,7 @@ async function loadDataset(){
   function lsSetNotes(x){try{localStorage.setItem('dojo_notes_v2',JSON.stringify(x))}catch(e){}}
   function openDrawer(n){ title.textContent=n.id; grp.textContent=n.group; tier.textContent=n.tier||''; blurb.textContent=n.blurb||''; longf.textContent=n.longform||''; fut.textContent=FUTURE_MODE?(n.future||''):'Future Mode is OFF.'; facts.innerHTML=''; (n.funfacts||[]).forEach(f=>{const li=d.createElement('li'); li.textContent=f; facts.appendChild(li)}); const notes=lsGetNotes(); noteS.value=notes[n.id]?.sensei||''; noteP.value=notes[n.id]?.prof||''; drawer.style.display='block'; }
   let sel=[]; const sfxSelect=()=>{try{const a=document.getElementById('sfx-select'); a.currentTime=0; a.play();}catch{}};
-  nodeEls.forEach(({el,node})=>{ el.addEventListener('click',ev=>{ if(ev.shiftKey){ if(!sel.includes(node.id)){ sel.push(node.id); el.classList.add('selected'); if(sel.length>2){ const first=sel.shift(); d.querySelector(`[data-id=\"${first}\"]`)?.classList.remove('selected'); } } if(sel.length===2){ pathA.value=sel[0]; pathB.value=sel[1]; computePath(); } } else { d.querySelectorAll('.node.selected').forEach(n=>n.classList.remove('selected')); sel=[node.id]; el.classList.add('selected'); openDrawer(node); sfxSelect(); } }); });
+  nodeEls.forEach(({el,node})=>{ el.addEventListener('click',ev=>{ if(ev.shiftKey){ if(!sel.includes(node.id)){ sel.push(node.id); el.classList.add('selected'); if(sel.length>2){ const first=sel.shift(); d.querySelector(`[data-id="${first}"]`)?.classList.remove('selected'); } } if(sel.length===2){ pathA.value=sel[0]; pathB.value=sel[1]; computePath(); } } else { d.querySelectorAll('.node.selected').forEach(n=>n.classList.remove('selected')); sel=[node.id]; el.classList.add('selected'); openDrawer(node); sfxSelect(); } }); });
 
   // Tabs
   Array.from(d.querySelectorAll('.tabbtn')).forEach(btn=>btn.addEventListener('click',()=>{ d.querySelectorAll('.tabbtn').forEach(b=>b.classList.remove('active')); d.querySelectorAll('.tabcontent').forEach(c=>c.classList.remove('active')); btn.classList.add('active'); d.getElementById('tab-'+btn.dataset.tab).classList.add('active'); }));
