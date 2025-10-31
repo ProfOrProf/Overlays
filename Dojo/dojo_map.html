@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+// ===== Core engine (SVG graph, drag, pan/zoom, drawer, notes, path) =====
+(async function init(){
+const DATA = await loadDataset();
+const stage=document.getElementById('stage');
+const NS='http://www.w3.org/2000/svg';
+const svg=document.createElementNS(NS,'svg'); svg.setAttribute('width','100%'); svg.setAttribute('height','100%'); svg.setAttribute('viewBox','0 0 4000 2400'); stage.appendChild(svg);
+const grid=document.createElementNS(NS,'g');
+for(let x=0;x<=4000;x+=160){const l=document.createElementNS(NS,'line'); l.setAttribute('x1',x); l.setAttribute('y1',0); l.setAttribute('x2',x); l.setAttribute('y2',2400); l.setAttribute('stroke','#0e1a2a'); l.setAttribute('stroke-width','1'); grid.appendChild(l);}
+for(let y=0;y<=2400;y+=160){const l=document.createElementNS(NS,'line'); l.setAttribute('x1',0); l.setAttribute('y1',y); l.setAttribute('x2',4000); l.setAttribute('y2',y); l.setAttribute('stroke','#0e1a2a'); l.setAttribute('stroke-width','1'); grid.appendChild(l);}
+svg.appendChild(grid);
+const edgeLayer=document.createElementNS(NS,'g'); const nodeLayer=document.createElementNS(NS,'g'); svg.appendChild(edgeLayer); svg.appendChild(nodeLayer);
+
+
+const lsGet=(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch(e){return f}};
+const lsSet=(k,val)=>{try{localStorage.setItem(k,JSON.stringify(val))}catch(e){}};
+const storedPositions=lsGet('dojo_layout_v2',{});
+
+
+const nodeMap=new Map();
+DATA.nodes.forEach((n,i)=>{
+const zone={ 'Characters':[160,160],'Systems':[1200,160],'Books & Arcs':[160,1200],'Events':[2000,1200],'Tech/Infra':[3000,480],'Meta':[3200,1400] }[n.group]||[400,400];
+const col=i%8,row=Math.floor(i/8);
+n.x=(storedPositions[n.id]?.x)??(zone[0]+col*220);
+n.y=(storedPositions[n.id]?.y)??(zone[1]+row*160);
+nodeMap.set(n.id,n);
+});
+
+
+const edges=DATA.edges.map(e=>({source:nodeMap.get(e[0]),target:nodeMap.get(e[1])}));
+const edgeEls=[]; edges.forEach(e=>{const line=document.createElementNS(NS,'line'); line.classList.add('edge'); edgeLayer.appendChild(line); edgeEls.push({el:line,edge:e});});
+const nodeEls=[]; DATA.nodes.forEach(n=>{const g=document.createElementNS(NS,'g'); g.classList.add('node'); g.setAttribute('data-id',n.id); g.setAttribute('data-group',n.group);
+const c=document.createElementNS(NS,'circle'); c.setAttribute('r',30); c.setAttribute('fill', COLORS[n.group]||'#94a3b8'); c.setAttribute('stroke','#1a2740'); g.appendChild(c);
+const t=document.createElementNS(NS,'text'); t.setAttribute('text-anchor','middle'); t.setAttribute('font-size','11'); t.setAttribute('fill','#cbd5e1'); t.textContent=n.id; t.setAttribute('y',48); g.appendChild(t);
+nodeLayer.appendChild(g); nodeEls.push({el:g,node:n}); });
+function layout(){ nodeEls.forEach(({el,node})=>{el.setAttribute('transform',`translate(${node.x},${node.y})`)}); edgeEls.forEach(({el,edge})=>{el.setAttribute('x1',edge.source.x);el.setAttribute('y1',edge.source.y);el.setAttribute('x2',edge.target.x);el.setAttribute('y2',edge.target.y);}); }
+layout();
+
+
+// Drag
+nodeEls.forEach(({el,node})=>{let drag=false,ox=0,oy=0; el.addEventListener('mousedown',e=>{drag=true;ox=e.clientX-node.x;oy=e.clientY-node.y;}); window.addEventListener('mousemove',e=>{if(!drag)return; node.x=e.clientX-ox; node.y=e.clientY-oy; storedPositions[node.id]={x:node.x,y:node.y}; lsSet('dojo_layout_v2',storedPositions); layout();}); window.addEventListener('mouseup',()=>drag=false);});
+
+
+// Pan/Zoom
+let isP=false,sx=0,sy=0,vb={x:0,y:0,w:4000,h:2400}; const updateVB=()=>svg.setAttribute('viewBox',`${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
+stage.addEventListener('mousedown',e=>{if(e.target.tagName==='circle'||e.target.tagName==='text')return; isP=true; sx=e.clientX; sy=e.clientY; stage.classList.add('grabbing');});
+window.addEventListener('mouseup',()=>{isP=false;stage.classList.remove('grabbing')});
+window.addEventListener('mousemove',e=>{if(!isP)return; const dx=(sx-e.clientX)*(vb.w/stage.clientWidth), dy=(sy-e.clientY)*(vb.h/stage.clientHeight); vb.x+=dx; vb.y+=dy; sx=e.clientX; sy=e.clientY; updateVB();});
+stage.addEventListener('wheel',e=>{e.preventDefault(); const sc=e.deltaY>0?1.1:0.9; const mx=e.offsetX/stage.clientWidth, my=e.offsetY/stage.clientHeight; const cx=vb.x+vb.w*mx, cy=vb.y+vb.h*my; vb.w*=sc; vb.h*=sc; vb.x=cx-vb.w*mx; vb.y=cy-vb.h*my; updateVB();},{passive:false});
+document.getElementById('fit').addEventListener('click',()=>{vb={x:0,y:0,w:4000,h:2400}; updateVB();});
+document.getElementById('reset').addEventListener('click',()=>{vb={x:0,y:0,w:4000,h:2400}; updateVB(); document.getElementById('search').value='';});
+
+
+// Layers
+function applyLayers(){const on=new Set(Array.from(document.querySelectorAll('[data-layer]')).filter(cb=>cb.checked).map(cb=>cb.getAttribute('data-layer'))); nodeEls.forEach(({el,node})=>el.classList.toggle('hidden',!on.has(node.group))); edgeEls.forEach(({el,edge})=>el.classList.toggle('hidden', !(on.has(edge.source.group)&&on.has(edge.target.group)))); }
+document.querySelectorAll('[data-layer]').forEach(cb=>cb.addEventListener('change',applyLayers)); applyLayers();
+
+
+// Search
+document.getElementById('search').addEventListener('input',e=>{const q=e.target.value.toLowerCase().trim(); nodeEls.forEach(({el,node})=>el.style.opacity=(!q||node.id.toLowerCase().includes(q))?1:0.2); edgeEls.forEach(({el,edge})=>{if(!q){el.style.opacity=.9;return;} const hit=edge.source.id.toLowerCase().includes(q)||edge.target.id.toLowerCase().includes(q); el.style.opacity=hit?.9:0.1;});});
+
+
+// Drawer
+const d=document; const drawer=d.getElementById('drawer'); const title=d.getElementById('d-title'), grp=d.getElementById('d-group'), tier=d.getElementById('d-tier');
+const blurb=d.getElementById('d-blurb'), longf=d.getElementById('d-longform'), fut=d.getElementById('d-future'), facts=d.getElementById('d-facts');
+const noteS=d.getElementById('d-notes-sensei'), noteP=d.getElementById('d-notes-prof');
+function openDrawer(n){ title.textContent=n.id; grp.textContent=n.group; tier.textContent=n.tier||''; blurb.textContent=n.blurb||''; longf.textContent=n.longform||''; fut.textContent=FUTURE_MODE?(n.future||''):'Future Mode is OFF.'; facts.innerHTML=''; (n.funfacts||[]).forEach(f=>{const li=d.createElement('li'); li.textContent=f; facts.appendChild(li)}); const notes=lsGet('dojo_notes_v2',{}); noteS.value=notes[n.id]?.sensei||''; noteP.value=notes[n.id]?.prof||''; drawer.style.display='block'; }
+let sel=[]; nodeEls.forEach(({el,node})=>{ el.addEventListener('click',ev=>{ if(ev.shiftKey){ if(!sel.includes(node.id)){ sel.push(node.id); el.classList.add('selected'); if(sel.length>2){ const first=sel.shift(); d.querySelector(`[data-id="${first}"]`)?.classList.remove('selected'); } } if(sel.length===2){ pathA.value=sel[0]; pathB.value=sel[1]; computePath(); } } else { d.querySelectorAll('.node.selected').forEach(n=>n.classList.remove('selected')); sel=[node.id]; el.classList.add('selected'); openDrawer(node); } }); });
+
+
+// Tabs
+Array.from(d.querySelectorAll('.tabbtn')).forEach(btn=>btn.addEventListener('click',()=>{ d.querySelectorAll('.tabbtn').forEach(b=>b.classList.remove('active')); d.querySelectorAll('.tabcontent').forEach(c=>c.classList.remove('active')); btn.classList.add('active'); d.getElementById('tab-'+btn.dataset.tab).classList.add('active'); }));
+;[noteS,noteP].forEach(el=>el.addEventListener('input',()=>{const id=title.textContent; const notes=lsGet('dojo_notes_v2',{}); notes[id]={sensei:noteS.value,prof:noteP.value}; lsSet('dojo_notes_v2',notes);}));
+
+
+// Future toggle
+document.getElementById('toggle-future').addEventListener('click',e=>{FUTURE_MODE=!FUTURE_MODE; e.target.textContent='Future Mode: '+(FUTURE_MODE?'ON':'OFF'); nodeEls.forEach(({el,node})=>{ el.classList.toggle('future-pulse',FUTURE_MODE && !!node.future); el.classList.toggle('future-on',FUTURE_MODE && !!node.future); }); const current=nodeMap.get(title.textContent); if(current){ fut.textContent=FUTURE_MODE?(current.future||''):'Future Mode is OFF.' }});
+
+
+// Pathfinding
+const pathA=d.getElementById('path-a'), pathB=d.getElementById('path-b'), compute=document.getElementById('compute'); const pRes=d.getElementById('path-result'), pWhy=d.getElementById('path-reason');
+DATA.nodes.forEach(n=>{ const o1=d.createElement('option'); o1.value=n.id; o1.textContent=n.id; pathA.appendChild(o1); const o2=o1.cloneNode(true); pathB.appendChild(o2); });
+const graph=new Map(); DATA.nodes.forEach(n=>graph.set(n.id,[])); DATA.edges.forEach(([a,b])=>{graph.get(a).push(b); graph.get(b).push(a)});
+function bfs(s,g){const q=[[s]],seen=new Set([s]); while(q.length){const path=q.shift(); const cur=path[path.length-1]; if(cur===g) return path; for(const nx of graph.get(cur)||[]){ if(!seen.has(nx)){seen.add(nx); q.push([...path,nx]); } } } return null}
+function explain(p){ if(!p||p.length<2) return ''; const r=DATA.reason||{}; const out=[]; for(let i=0;i<p.length-1;i++){ const a=p[i],b=p[i+1],k1=a+'|'+b,k2=b+'|'+a; out.push('• '+a+' → '+b+': '+(r[k1]||r[k2]||'Adjacent systems share state, stakes, or style.')); } return out.join('
+'); }
+function computePath(){ const a=pathA.value, b=pathB.value; const p=bfs(a,b); nodeEls.forEach(({el})=>el.style.filter=''); edgeEls.forEach(({el})=>el.setAttribute('stroke','#233452')); if(!p){ pRes.textContent='No path found.'; pWhy.textContent=''; return;} pRes.textContent='Path: '+p.join(' → '); const set=new Set(p); nodeEls.forEach(({el,node})=>{ if(set.has(node.id)) el.style.filter='drop-shadow(0 0 6px rgba(255,255,255,.35))'; }); for(let i=0;i<p.length-1;i++){const a=p[i],b=p[i+1]; edgeEls.forEach(({el,edge})=>{ if((edge.source.id===a&&edge.target.id===b)||(edge.source.id===b&&edge.target.id===a)){ el.setAttribute('stroke','#eab308'); }});} pWhy.textContent=explain(p); try{document.getElementById('sfx-path').currentTime=0; document.getElementById('sfx-path').play();}catch{} }
+compute.addEventListener('click',computePath);
+
+
+// Init
+if(DATA.nodes[0]) openDrawer(DATA.nodes[0]);
+})();
+</script>
+</body>
+</html>
