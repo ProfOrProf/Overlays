@@ -1,16 +1,636 @@
 {
   "nodes": [
-    {"id":"Sensei Tenacity","group":"Characters","tier":"Main","blurb":"Mentor-hero anchoring tone and ethics.","longform":"Sensei Tenacity is the moral and structural spine of the Dojo Universe. Conceptually, he converts raw viewer attention into narrative purpose. In production, he’s your primary on-camera anchor and tonal meter—calm, resolute, occasionally playful, but always guiding. Every system routes through Tenacity’s ethos: dojo points reflect training; mini-games become trials; redemption pulls become rituals; Student of the Month becomes a rite of recognition.","future":"Way of Tenacity trials extend to partner channels.","funfacts":["Blue sunglasses as totem","EQ baseline for cast"]},
-    {"id":"Ferocity the Ronin","group":"Characters","tier":"Villain","blurb":"Philosophical antagonist.","longform":"Ferocity is the dojo’s negative mirror and a thesis: that streaming has drifted from meaning.","future":"Echo Shards corrupt allied channels.","funfacts":["Four-horn silhouette","7–12s clip pacing"]},
-    {"id":"Dojo Points","group":"Systems","tier":"","blurb":"Unified currency → progress.","longform":"Dojo Points are the bloodstream: a unifying currency converting time, skill, and participation into narrative momentum."},
-    {"id":"Redemption Sets","group":"Systems","tier":"","blurb":"Collectible storytelling.","longform":"Sets turn generic ‘redeem’ into collectible narrative moments."},
-    {"id":"Valkyrae Collab","group":"Events","tier":"","blurb":"Cinematic rescue.","longform":"Rae’s appearance is thesis-in-action: the dojo restores joy and wonder to streaming."}
+    {
+      "id": "Sensei Tenacity",
+      "slug": "sensei-tenacity",
+      "group": "Characters",
+      "tier": "Main",
+      "blurb": "The resilient leader of the Dojo who guides viewers through a mixed-reality saga and ultimately confronts his shadow—Ferocity—to save, reshape, and question the future of live streaming.",
+      "longform": "Sensei Tenacity is the audience’s guide into the Dojo’s evolving mythos, a streamer-sensei whose personality and choices bridge cinematic live-action, VTuber performance, and game-driven spectacle. Within the story, he mentors the community, organizes quests, and stands against the creeping nihilism represented by Ferocity. Outside the fiction, Sensei is the creative conductor: coordinating camera, set design, post-production, code, and on-air performance to deliver a seamless ‘cinestream’ that treats chat as a first-class cast member. Book One positions him as the student-hero whose grit holds the crew together; Book Two darkens his path, testing his identity, his loyalties, and his certainty in the value of streaming itself. Those tests deepen into a meta-mystery: is saving streaming even possible—or desirable—when spectacle consumes sincerity? Sensei’s journey answers through action. He frames the dojo’s currency loops, redemption sets, and boss raids as rituals of belonging, not mere grind. He invites guest creators, lets chat dictate pivotal moments, and turns setbacks into canon. His signature is tenacity—failing forward, iterating live, and honoring the audience’s agency. Pivotal scenes include the Dojo 2.0 relaunch, the Valkyrae collaboration, and the climactic confrontations with Ferocity that remix game boss tropes into participatory theater. In practice, Sensei’s scenes hinge on fast costume and scene swaps, Streamer.bot automation, and the ‘Dojo Map’ as a navigational HUD for lore and systems. The character’s utility is twofold: a narrative anchor the casual viewer can immediately recognize, and a production persona that rationalizes the Dojo’s high-concept format. Thematically, Sensei embodies the belief that skill, kindness, and craft can outlast cycles of hype and backlash—and that a community can write itself into legend, one interactive beat at a time.",
+      "funfacts": [
+        "Wears blue reflective wraparound sunglasses.",
+        "Often introduces scenes with bespoke stinger art.",
+        "Uses chat actions as ‘dojo techniques.’"
+      ],
+      "future": "Sensei refines the codex as an in-universe artifact and delegates more control to chat via map nodes. A late-arc choice will force him to fuse or sever from Ferocity. The audience will influence the outcome.",
+      "future_horizon": "Medium",
+      "future_signals": [
+        "Codex map adoption",
+        "Higher chat command usage",
+        "Successful multi-creator arcs"
+      ],
+      "future_risks": [
+        "Overcomplexity for new viewers",
+        "Burnout from multi-role performance"
+      ],
+      "confidence": 0.92,
+      "aliases": [
+        "Tenacity",
+        "Sensei"
+      ],
+      "owners": [
+        "Sensei"
+      ],
+      "status": "Active",
+      "tags": [
+        "cinestream",
+        "VTubing",
+        "boss-fight",
+        "narrative"
+      ],
+      "links": {
+        "obs_scenes": [
+          "Sensei_Live",
+          "Sensei_Story_Stage"
+        ],
+        "streamerbot_actions": [
+          "sensei-intro",
+          "scene-swap-sensei"
+        ],
+        "docs": [
+          "file://dojo-codex"
+        ]
+      },
+      "source_threads": [
+        "Dojo 2.0 relaunch",
+        "Books 1–2 plan",
+        "Valkyrae collab outline"
+      ],
+      "last_seen": "2025-10-31",
+      "version": 1
+    },
+    {
+      "id": "Ferocity the Ronin",
+      "slug": "ferocity-the-ronin",
+      "group": "Characters",
+      "tier": "Main",
+      "blurb": "Sensei’s shadow and rival: a masked ronin who argues that live streaming has become hollow spectacle and must end. He hijacks interfaces, turns boss fights into philosophy, and tests the Dojo’s purpose.",
+      "longform": "Ferocity the Ronin is both villain and thesis. Cloaked in multi-layered armor with a red katana, he interrupts ceremonies, corrupts UIs, and transforms the broadcast itself into a contested space. His monologues indict the medium: endless performance, feedback loops of outrage, and metrics as masks. Yet Ferocity’s power comes from intimacy with the craft he despises—he stage-manages like a producer and exploits affordances of overlays, hotkeys, and chat actions better than anyone. The Ronin is not the end-boss in a simple sense; he is the recurring adversary whose returns chart the Dojo’s maturation. In Book One he murders hope, separating the crew and stealing the Master Gem; in Book Two he metastasizes into systems and worlds, making nihilism procedural. Ferocity’s lines—delivered over cut-ins, stingers, and health bar resets—weaponize rhythm: pull the rug, restore life, make chat doubt the efficacy of their actions, then dare them to act anyway. The Valkyrae collaboration highlights this dynamic: he hijacks DojoGPT, threatens to erase a beloved creator, and forces an impossible choice only the collective can answer. Design-wise, Ferocity frames interactions as boss mechanics: bursts, invulnerable phases, feints, and punish windows mapped onto chat inputs. Each defeat ‘teaches’ the Dojo something new: about timing, about morale, about how spectacle can be redeemed by building together. Lore reveals imply Ferocity and Sensei are bound across loops; sometimes Sensei becomes the Ferocity of another cycle, and the act of breaking that pattern becomes the real victory. As a character, Ferocity ensures the Dojo’s story asks real questions while staying electric. He keeps the show dangerous, making every triumph earned rather than scripted.",
+      "funfacts": [
+        "Armor has four top helmet extensions.",
+        "Often restores his HP mid-fight to taunt chat.",
+        "Hacks UI elements like DojoGPT."
+      ],
+      "future": "Ferocity will coordinate with new villains in Starborn and turn systems against the crew. A reveal will tie his origin to Sensei’s past decision. He may demand a price from the audience to spare an ally.",
+      "future_horizon": "Medium",
+      "future_signals": [
+        "Interface hijacks",
+        "HP restore phases",
+        "Meta-monologues trend"
+      ],
+      "future_risks": [
+        "Tone too grim for sponsors",
+        "Villain fatigue if overused"
+      ],
+      "confidence": 0.9,
+      "aliases": [
+        "The Ronin",
+        "Oni of Death (title variant)"
+      ],
+      "owners": [
+        "Sensei"
+      ],
+      "status": "Active",
+      "tags": [
+        "villain",
+        "boss-fight",
+        "meta"
+      ],
+      "links": {
+        "obs_scenes": [
+          "Ferocity_Throne",
+          "Ferocity_BossArena"
+        ],
+        "streamerbot_actions": [
+          "ferocity-hijack",
+          "hp-restore-phase"
+        ],
+        "docs": [
+          "file://ferocity-lines"
+        ]
+      },
+      "source_threads": [
+        "Boss monologues",
+        "Valkyrae event outline",
+        "Book Two Ronin realm"
+      ],
+      "last_seen": "2025-10-31",
+      "version": 1
+    },
+    {
+      "id": "Dojo Points",
+      "slug": "dojo-points",
+      "group": "Systems",
+      "tier": "Main",
+      "blurb": "A channel-native economy earned via lurking, redemptions, and minigames; it fuels recognition loops (Student of the Month), unlocks effects, and binds viewers to the unfolding story.",
+      "longform": "Dojo Points are the circulatory system of the Dojo. They produce momentum between sessions, giving casual viewers a reason to return and core fans a ladder of mastery. The economy accrues through watch time, chat engagement, and specific in-show actions such as minigame participation or boss fight mechanics. Redemptions convert points into visible power: cosmetic scene changes, character quips, item pulls, and temporary mechanical advantages during fights. Critically, the system is narratively justified—Sensei treats points as a training regimen, a ledger of effort that the dojo recognizes in-world. Student of the Month formalizes that recognition with ritual: framed portraits, trophy room placement, and callouts that reward consistency and care, not just spend. On the back-end, Streamer.bot orchestrates accrual, thresholds, and redemptions; OBS reflects outcomes across scenes, stingers, and layered VFX. The economy is tuned to avoid pay-to-win vibes: rarity tables, cooldowns, and audience-wide milestones encourage collective rather than extractive play. During collaborations, Dojo Points become diplomatic currency—guest audiences convert or ‘dual-allegiance’ into the dojo, then immediately feel efficacy when their actions shift the battlefield. Over time, the system graduates into a light metagame: seasonal resets aligned to arcs; prestige tracks that unlock cosmetic titles; and lore-bound items that persist as mementos. Telemetry from point sinks and surges informs pacing for future events, creating a virtuous loop between design and story. In sum, Dojo Points turn attention into agency and narrative texture, ensuring the dojo feels like a place where effort is seen and remembered.",
+      "funfacts": [
+        "Points visibly ‘spark’ UI nodes on the Dojo Map.",
+        "Student of the Month crowns the top earner monthly.",
+        "Guest chats can be ‘adopted’ into the dojo economy."
+      ],
+      "future": "Add seasonal prestige tracks and cross-stream bridges so allied channels can share limited-time bonuses. Tie point thresholds to codex node reveals during arcs.",
+      "future_horizon": "Short",
+      "future_signals": [
+        "Point surge during collabs",
+        "Prestige interest in chat",
+        "Higher redemption diversity"
+      ],
+      "future_risks": [
+        "Economy inflation",
+        "New viewer overwhelm"
+      ],
+      "confidence": 0.88,
+      "aliases": [
+        "Dojo Currency",
+        "DP"
+      ],
+      "owners": [
+        "Sensei",
+        "Prof"
+      ],
+      "status": "Active",
+      "tags": [
+        "economy",
+        "engagement",
+        "recognition"
+      ],
+      "links": {
+        "obs_scenes": [
+          "Trophy_Room",
+          "Redemption_Overlay"
+        ],
+        "streamerbot_actions": [
+          "add-points",
+          "redeem-effect",
+          "sotm-award"
+        ],
+        "docs": [
+          "file://economy-design"
+        ]
+      },
+      "source_threads": [
+        "Economy loops",
+        "Student of the Month"
+      ],
+      "last_seen": "2025-10-31",
+      "version": 1
+    },
+    {
+      "id": "Redemption Sets",
+      "slug": "redemption-sets",
+      "group": "Systems",
+      "tier": "Supporting",
+      "blurb": "Curated packs of themed redemptions (e.g., Halloween, Kiba Pull) that deliver collectible moments, scene swaps, and character gags while advancing seasonal narrative beats.",
+      "longform": "Redemption Sets bundle the best of the dojo’s showmanship into patterned, limited-time menus. Each set aligns to a theme—Halloween spooks, Kiba’s culinary chaos, Ferocity taunts—and acts like a collectible playlist of moments the audience can trigger. Mechanically, sets diversify point sinks and keep the economy fresh; narratively, they give season arcs a rhythm that casuals can immediately read. Sets often add a completion chase, awarding a cosmetic badge or a one-off scene when viewers fire each unique redemption within a window. Execution relies on Streamer.bot action trees mapped to OBS scene collections and audio SFX banks. Sets are calibrated to avoid spam fatigue: per-item cooldowns, escalating costs, and reactive lines from characters ensure each fire feels authored. The sets also double as tutorial scaffolding. New viewers see a curated ‘best hits’ of interactions without needing to parse deep commands. During collabs, the host can temporarily load a guest set—e.g., Rae-themed stingers—so imported audiences recognize themselves on arrival. Over time, redemption sets create memory palaces: people recall Halloween’s pumpkin wipe, Kiba’s knife flourish, or Bob’s stoic wobble as signature dojo sensations. Analytics on set usage guide future content investment, tying creative appetite to live impact.",
+      "funfacts": [
+        "Completion can unlock a secret scene.",
+        "Per-item cooldowns protect pacing.",
+        "Sets teach newcomers by example."
+      ],
+      "future": "Introduce rotating ‘Vault’ sets that return for one week with boosted odds. Add cross-channel sets for Starborn events.",
+      "future_horizon": "Short",
+      "future_signals": [
+        "Set completion rates",
+        "Clip spikes on set moments",
+        "Cooldown adjustments"
+      ],
+      "future_risks": [
+        "Overlapping SFX fatigue",
+        "UI complexity creep"
+      ],
+      "confidence": 0.84,
+      "aliases": [
+        "Set Pulls",
+        "Seasonal Redemptions"
+      ],
+      "owners": [
+        "Sensei",
+        "Prof"
+      ],
+      "status": "Active",
+      "tags": [
+        "collectibles",
+        "seasonal",
+        "engagement"
+      ],
+      "links": {
+        "obs_scenes": [
+          "Seasonal_Set",
+          "Set_SecretScene"
+        ],
+        "streamerbot_actions": [
+          "set-pull",
+          "set-complete-reward"
+        ],
+        "docs": [
+          "file://redemption-design"
+        ]
+      },
+      "source_threads": [
+        "Halloween set",
+        "Kiba Pull",
+        "Ferocity Pull"
+      ],
+      "last_seen": "2025-10-31",
+      "version": 1
+    },
+    {
+      "id": "Boss Battle Engine",
+      "slug": "boss-battle-engine",
+      "group": "Systems",
+      "tier": "Main",
+      "blurb": "A live, chat-driven combat framework with invuln phases, punish windows, stingers, HP bars, and monologues—turning viewer actions into raid-like mechanics against on-screen villains.",
+      "longform": "The Boss Battle Engine transforms a broadcast into a live game encounter. Under the hood, Streamer.bot listens for chat commands, redemptions, and thresholds; OBS animates state changes with layered bars, wipes, and stingers; and the performer executes blocking that sells each phase as if choreographed. Mechanics include burst windows, damage gates, invulnerability restores, and environmental hazards mapped to redemption sets. ‘Teach’ moments are embedded—first wipes and failures are designed to be dramatic and instructive, so attempts two and three land as communal triumphs. The engine’s signature move is the meta-monologue: play halts while Ferocity restores HP and questions the value of the fight, then the dojo answers by acting, not arguing. The system supports guest integration: a cameo creator can anchor a phase, contribute VA, or provide a bespoke mechanic that their audience learns instantly. Telemetry drives balancing—if chat fails to break shields, widen windows; if phases melt, tighten timings. Importantly, the engine preserves narrative stakes. Defeat states forward time: a lost fight might fracture the map or cost a relic, shifting future scenes rather than resetting. Camera grammar—tight shots for taunts, wide for arena moves—and character stingers add cinematic clarity. As a format, the engine lets the Dojo hybridize theater and raiding, rewarding coordination and elevating chat from commenters to co-combatants. It is the crucible where the show’s thesis—that community can write reality—becomes provably true on screen.",
+      "funfacts": [
+        "HP bars are scene-aware and persist across wipes.",
+        "‘Teach’ wipes are intentionally scripted failures.",
+        "Meta-monologues pause time but advance story."
+      ],
+      "future": "Add difficulty bands, accessibility toggles, and a ‘training mode’ with DojoGPT callouts. Expose a mini-API so allies can plug in mechanics for cross-raids.",
+      "future_horizon": "Medium",
+      "future_signals": [
+        "First-try kill rates",
+        "Clip volume on wipes",
+        "Cameo mechanic adoption"
+      ],
+      "future_risks": [
+        "Overtuning frustrates newcomers",
+        "Latency desync in large raids"
+      ],
+      "confidence": 0.9,
+      "aliases": [
+        "Raid Engine",
+        "Boss Framework"
+      ],
+      "owners": [
+        "Sensei",
+        "Prof"
+      ],
+      "status": "Active",
+      "tags": [
+        "boss-fight",
+        "systems",
+        "live-design"
+      ],
+      "links": {
+        "obs_scenes": [
+          "Boss_Arena",
+          "Monologue_Freeze"
+        ],
+        "streamerbot_actions": [
+          "phase-start",
+          "hp-restore",
+          "shield-break"
+        ],
+        "docs": [
+          "file://boss-spec"
+        ]
+      },
+      "source_threads": [
+        "Ferocity phases",
+        "Valkyrae boss plan"
+      ],
+      "last_seen": "2025-10-31",
+      "version": 1
+    },
+    {
+      "id": "Dojo Map & Shadow Network",
+      "slug": "dojo-map-shadow-network",
+      "group": "Systems",
+      "tier": "Main",
+      "blurb": "A visual codex and node map that tracks characters, arcs, systems, and signals. It doubles as a UI HUD for viewers and an ops brain for the production team.",
+      "longform": "The Dojo Map—paired with the Shadow Network—organizes an ever-growing universe into an explorable interface. Each node represents a character, system, book, or event; edges encode causal relations with verbs like unlocks, feeds, and conflicts-with. For viewers, the map is an in-story artifact, a living scroll that updates as quests complete and secrets surface. For the team, it’s an ops layer: linking nodes to OBS scenes, Streamer.bot actions, assets, and documentation. The map solves onboarding by letting newcomers click a face or system and read a concise blurb before diving deeper into a longform entry. It also powers future-facing play: certain thresholds in Dojo Points or redemption completions can ‘reveal’ hidden nodes, foreshadowing twists or announcing a guest creator. The Shadow Network extends this into backstage tooling: versioned JSONs (dojo_map.json and dojo_shadow_scrolls.json) validated against a strict schema, plus provenance to show what thread or stream last touched an entity. In show flow, the map can pinch-hit as a layout—a quick pan across the board to recap where we are before jumping back into the arena. In production, it reduces cognitive load by making ownership, status, and links explicit. The ultimate aim is to turn the codex into a ‘scriptable world’: nodes that accept triggers, send webhooks, and externalize live show control. As the Dojo scales, this artifact keeps coherence without flattening the magic.",
+      "funfacts": [
+        "Edges use a limited verb set for clarity.",
+        "Hidden nodes can unlock via point thresholds.",
+        "Doubles as a backstage run-of-show."
+      ],
+      "future": "Expose node triggers to allies for Starborn cross-overs. Add viewer heatmaps to see which nodes attract attention and where to simplify.",
+      "future_horizon": "Medium",
+      "future_signals": [
+        "JSON schema stability",
+        "Node reveal moments",
+        "Partner integrations"
+      ],
+      "future_risks": [
+        "Editor UX bloat",
+        "Data drift without discipline"
+      ],
+      "confidence": 0.91,
+      "aliases": [
+        "Codex",
+        "Shadow Scrolls"
+      ],
+      "owners": [
+        "Sensei",
+        "Prof"
+      ],
+      "status": "Active",
+      "tags": [
+        "knowledge-graph",
+        "ui",
+        "ops"
+      ],
+      "links": {
+        "obs_scenes": [
+          "Codex_View",
+          "Shadow_Network"
+        ],
+        "streamerbot_actions": [
+          "node-reveal",
+          "node-focus"
+        ],
+        "docs": [
+          "file://contract",
+          "file://dojo_map.json",
+          "file://dojo_shadow_scrolls.json"
+        ]
+      },
+      "source_threads": [
+        "Codex contract",
+        "Map UI feedback"
+      ],
+      "last_seen": "2025-10-31",
+      "version": 1
+    },
+    {
+      "id": "Book One: The Dojo",
+      "slug": "book-one-the-dojo",
+      "group": "Books & Arcs",
+      "tier": "Main",
+      "blurb": "The origin arc establishing the Dojo crew, Ferocity’s threat, the Master Gem sacrifice, and the portal pull into a wider multirealm war for the future of streaming.",
+      "longform": "Book One charts the dojo’s genesis and its first cataclysms. We meet Sensei Tenacity, the Grandmaster, Kuma, Kiba, Bob, and DojoGPT as a found family bound by craft and humor. Early victories entice the community into believing in ritual—points, redemptions, and minigames as training—but Ferocity’s arrival reframes the stakes. He asserts streaming is a cage of performance and punishes the dojo for its hope. The Grandmaster’s sacrifice to wield the Master Gem crystallizes the theme that legacy costs life; Kiba’s desperate ultimate form buys seconds but ends in tragedy. The book culminates in the Door of Legend ripping the cast into elsewhere. Formally, the arc prototyped the cinestream grammar: fast stingers, lore cut-ins, and boss mechanics mapped to chat action. It also solidified the recognition loop of Student of the Month and the trophy room as canon. Book One’s emotional spine is Sensei’s promise to carry memory forward, even as he doubts whether spectacle can be redeemed. These contradictions—laughter and grief, levity and dread—become the dojo’s meter. The close of Book One commits the crew to a journey with no safe reset: every fight counts, every loss persists, and every viewer is implicated. Thematically, hope is not naïve; it is stubborn and skilled. This arc leaves the dojo scattered, but not severed. It teaches that the Dojo is the actions we take together, not the room we occupy.",
+      "funfacts": [
+        "Introduced the trophy room as canon.",
+        "First appearance of Ferocity’s HP restore.",
+        "Grandmaster’s sacrifice defined the Master Gem."
+      ],
+      "future": "Future flashbacks will reframe choices made here, revealing foreshadowed links to Ferocity’s origin. Expect a Book One ‘redux’ recap episode.",
+      "future_horizon": "Long",
+      "future_signals": [
+        "Fan theories on the Master Gem",
+        "Clip revivals",
+        "Codex node revisit votes"
+      ],
+      "future_risks": [
+        "Retcon fatigue",
+        "Over-indexing on nostalgia"
+      ],
+      "confidence": 0.89,
+      "aliases": [
+        "The Dojo (Book 1)"
+      ],
+      "owners": [
+        "Sensei"
+      ],
+      "status": "Active",
+      "tags": [
+        "origin",
+        "sacrifice",
+        "portal"
+      ],
+      "links": {
+        "obs_scenes": [
+          "Door_of_Legend",
+          "Master_Gem_Scene"
+        ],
+        "streamerbot_actions": [
+          "gem-ignite",
+          "door-open"
+        ],
+        "docs": [
+          "file://book-one-outline"
+        ]
+      },
+      "source_threads": [
+        "Book One plan",
+        "Master Gem scene"
+      ],
+      "last_seen": "2025-10-31",
+      "version": 1
+    },
+    {
+      "id": "Book Two: Midnight City",
+      "slug": "book-two-midnight-city",
+      "group": "Books & Arcs",
+      "tier": "Main",
+      "blurb": "A noir-realm of seven doors where Sensei grows colder, tackles Ronin power structures, and edges toward becoming the very Ferocity he opposes.",
+      "longform": "Midnight City opens with displacement and dread. Sensei rescues a kidnapped girl in a Gotham-like sprawl, returning to a hideout where Kuma and Bob await. Flashbacks reveal that the Door of Legend exited into a hub of seven doors—three on each side and a central gate—each world requiring power to open the core. Ferocity is missing but his influence hangs over alleys and thrones. Sensei’s strikes are angrier and more efficient, telegraphing a drift toward ruthlessness. The Ronin realm becomes the book’s crucible: a society armored like Ferocity, led by an Oni of Death distinct from the Ronin we know. Sensei infiltrates in blue-black armor; Kuma sacrifices himself to save him, detonating the last innocence Sensei held. Grief flips his palette red in a moment that makes the audience complicit: our cheers become the beat to a transformation we fear. Mechanically, Book Two scales the Boss Engine with heavier gates, faction systems, and undercover segments where chat supports stealth rather than DPS. Thematically, it interrogates cycles—how often has Sensei become Ferocity, and what would it take to break the loop? The city’s doors promise answers at a price. By mapping each world to a tonal experiment, Book Two treats variety as structure: culinary chaos, cosmic silence, archival horrors, and more. Its question is not whether streaming can be saved; it is whether we should want it saved in its existing form—and whether the dojo can make a new one.",
+      "funfacts": [
+        "Sensei dons blue-black Ronin armor.",
+        "Kuma’s sacrifice triggers the red aura.",
+        "Seven-door hub functions as a meta-map."
+      ],
+      "future": "Unlock the central door with consequences that force a Sensei/Ferocity decision. Introduce Shiro the Lion as a gatekeeper to a white-gem trial.",
+      "future_horizon": "Long",
+      "future_signals": [
+        "Door power trackers",
+        "Stealth segment success",
+        "Armor color discourse"
+      ],
+      "future_risks": [
+        "Tone drift too dark",
+        "Complexity for casuals"
+      ],
+      "confidence": 0.87,
+      "aliases": [
+        "Midnight City (Book 2)"
+      ],
+      "owners": [
+        "Sensei"
+      ],
+      "status": "Active",
+      "tags": [
+        "noir",
+        "stealth",
+        "transformation"
+      ],
+      "links": {
+        "obs_scenes": [
+          "Midnight_City_Streets",
+          "Ronin_Stronghold"
+        ],
+        "streamerbot_actions": [
+          "door-power-up",
+          "stealth-phase"
+        ],
+        "docs": [
+          "file://book-two-outline"
+        ]
+      },
+      "source_threads": [
+        "Book Two plan",
+        "Ronin realm arc"
+      ],
+      "last_seen": "2025-10-31",
+      "version": 1
+    },
+    {
+      "id": "Starborn Saga",
+      "slug": "starborn-saga",
+      "group": "Books & Arcs",
+      "tier": "Supporting",
+      "blurb": "A shared-universe expansion with allied creators (e.g., KhloeCosmos, ProforProf) and a villain trio—Ferocity, Ecliptora, and Malgrin—testing cross-channel systems.",
+      "longform": "Starborn is the next-horizon experiment: turn the dojo’s cinestream craft into a federation. The saga links multiple mixed-reality creators into a shared continuity where scenes can bridge across channels and Streamer.bot instances. Thematically, it asks whether communities can be interoperable without losing identity. Villains escalate to ‘Avengers-scale’: Ferocity returns as the strategist; Ecliptora embodies cosmic silence, a threat to signal itself; and Malgrin the Archivist hunts Prof across timelines and code bases. Technically, Starborn stress-tests chat-bridging, synchronized redemptions, and cross-economy bonuses. Narratively, it sets traps: what if a win on one channel is a wound on another? The saga promises landmark events—multi-POV raids, shared boss meters, and doors that open only when several communities act in concert. It preserves the dojo’s heart by keeping Sensei the main streamer but widens the stage so allies can express their own myths while borrowing the codex grammar. Telemetry, schema discipline, and clear in-world rules will decide success. If it works, Starborn proves cinestream is a format, not just a show.",
+      "funfacts": [
+        "Introduces cross-channel boss meters.",
+        "Malgrin is Prof’s bespoke nemesis.",
+        "Ecliptora weaponizes silence."
+      ],
+      "future": "Pilot a small cross-raid with shared node triggers. If stable, schedule a three-villain finale that requires inter-channel cooperation to resolve.",
+      "future_horizon": "Long",
+      "future_signals": [
+        "Stable chat bridges",
+        "Shared API for nodes",
+        "Ally retention"
+      ],
+      "future_risks": [
+        "Tooling fragility",
+        "Scheduling overhead"
+      ],
+      "confidence": 0.8,
+      "aliases": [
+        "Starborn"
+      ],
+      "owners": [
+        "Sensei",
+        "Team Starborn"
+      ],
+      "status": "Proposed",
+      "tags": [
+        "crossover",
+        "federation",
+        "multi-channel"
+      ],
+      "links": {
+        "obs_scenes": [
+          "Starborn_Gateway"
+        ],
+        "streamerbot_actions": [
+          "bridge-connect",
+          "shared-meter-sync"
+        ],
+        "docs": [
+          "file://starborn-saga"
+        ]
+      },
+      "source_threads": [
+        "Starborn concept",
+        "Villain trio plan"
+      ],
+      "last_seen": "2025-10-31",
+      "version": 1
+    },
+    {
+      "id": "Valkyrae Collaboration (Oct 2025)",
+      "slug": "valkyrae-collaboration-oct-2025",
+      "group": "Events",
+      "tier": "Main",
+      "blurb": "A showcase collab where Rae is welcomed into the Dojo, Ferocity hijacks the interface, and chat fights to ‘save’ a beloved creator—framed as a live raid-theater boss.",
+      "longform": "The Valkyrae collaboration synthesizes everything the dojo has been building: bespoke stingers, character entrances, minigames as prologue trials, and a climactic boss where chat’s timing changes the outcome. Structurally, the event opens with dojo crew welcome beats, then a glitch as DojoGPT is ‘hacked’—Ferocity cuts through ceremony with a taunting thesis that the age of streaming must end. The arena loads: HP bars, phases, and punish windows layered over Rae-themed VFX. Redemptions map to mechanics that feel like gifts: chat’s loyalty turns into damage, shields, or taunt breaks. Between phases, meta-monologues challenge not just the dojo but streaming’s value to Rae herself; the show answers by letting her community directly act in her defense. The top five students are revealed after the battle (not before) so point swings remain meaningful through the end. Production readiness includes pre-filmed B-roll for stingers, flexible boss pacing, and emergency out-routes to protect vibes if fatigue or tech issues emerge. The event’s goal is not only spectacle but healing—arriving during turbulence in Rae’s public sphere, the dojo positions itself as a place where kindness is a mechanic. For the dojo, the collab is a moonshot proof of format: a public demonstration that cinestream can host, uplift, and make legends together.",
+      "funfacts": [
+        "Top five reveal is post-fight to avoid scoring spoilers.",
+        "DojoGPT acts as the ‘hacked’ inciting incident.",
+        "Rae-themed stingers brand each phase."
+      ],
+      "future": "Cut a short-film edit and a mechanics explainer. Package a collab toolkit for future guests with skinnable boss modules.",
+      "future_horizon": "Short",
+      "future_signals": [
+        "Average viewer lift",
+        "Clip virality",
+        "Guest conversion to dojo points"
+      ],
+      "future_risks": [
+        "Backlash spillover",
+        "Live tech instability"
+      ],
+      "confidence": 0.86,
+      "aliases": [
+        "Rae Collab"
+      ],
+      "owners": [
+        "Sensei"
+      ],
+      "status": "Active",
+      "tags": [
+        "collab",
+        "boss-fight",
+        "showcase"
+      ],
+      "links": {
+        "obs_scenes": [
+          "Rae_Welcome",
+          "Boss_Arena_Rae"
+        ],
+        "streamerbot_actions": [
+          "hijack-dgjpt",
+          "rae-boss-phase"
+        ],
+        "docs": [
+          "file://rae-collab-rundown"
+        ]
+      },
+      "source_threads": [
+        "Rae collab plan",
+        "Event run-of-show"
+      ],
+      "last_seen": "2025-10-31",
+      "version": 1
+    }
   ],
   "edges": [
-    ["Dojo Points","Redemption Sets"],
-    ["Valkyrae Collab","Ferocity the Ronin"]
+    [
+      "Sensei Tenacity",
+      "Ferocity the Ronin"
+    ],
+    [
+      "Dojo Points",
+      "Redemption Sets"
+    ],
+    [
+      "Redemption Sets",
+      "Boss Battle Engine"
+    ],
+    [
+      "Boss Battle Engine",
+      "Valkyrae Collaboration (Oct 2025)"
+    ],
+    [
+      "Dojo Map & Shadow Network",
+      "Dojo Points"
+    ],
+    [
+      "Book One: The Dojo",
+      "Sensei Tenacity"
+    ],
+    [
+      "Book One: The Dojo",
+      "Ferocity the Ronin"
+    ],
+    [
+      "Book Two: Midnight City",
+      "Sensei Tenacity"
+    ],
+    [
+      "Starborn Saga",
+      "Ferocity the Ronin"
+    ],
+    [
+      "Dojo Map & Shadow Network",
+      "Starborn Saga"
+    ]
   ],
   "reason": {
-    "Dojo Points|Redemption Sets": "Points → pulls → moments → retention."
+    "Sensei Tenacity|Ferocity the Ronin": "They are narrative foils; clashes explore whether streaming can be redeemed or must end.",
+    "Dojo Points|Redemption Sets": "Points convert into themed activations that drive on-screen effects.",
+    "Redemption Sets|Boss Battle Engine": "Set items are wired to fight mechanics, enriching phase variety.",
+    "Boss Battle Engine|Valkyrae Collaboration (Oct 2025)": "The collab showcases the engine in a high-stakes rescue scenario.",
+    "Dojo Map & Shadow Network|Dojo Points": "The map reveals economy structure and unlock paths.",
+    "Book One: The Dojo|Sensei Tenacity": "Book One establishes Sensei’s role and ethos.",
+    "Book One: The Dojo|Ferocity the Ronin": "Ferocity’s theft and the portal event happen here.",
+    "Book Two: Midnight City|Sensei Tenacity": "This arc tests Sensei’s identity and methods.",
+    "Starborn Saga|Ferocity the Ronin": "Ferocity anchors the villain coalition across channels.",
+    "Dojo Map & Shadow Network|Starborn Saga": "Shared triggers and schema are needed for federation."
   }
 }
