@@ -25,79 +25,91 @@ h1 {
 
 #headerBar {
   background:#ffb9e9;
-  padding:14px 28px;
+  padding:10px 22px;
   border-radius:20px;
-  font-size:20px;
+  font-size:18px;
   box-shadow:0 0 20px rgba(255,0,200,0.25);
 }
 
-#uiRow {
+#topRow {
   display:flex;
+  gap:14px;
   align-items:center;
-  gap:10px;
-  flex-wrap:wrap;
-  justify-content:center;
 }
 
-select,
-input[type=date],
-input[type=text] {
-  font-size:16px;
-  padding:6px 10px;
+select, input[list] {
+  font-size:18px;
+  padding:6px 12px;
   border-radius:10px;
   border:2px solid #ff7cd4;
   background:#fff;
   color:#72206f;
 }
 
-#userSearch { width:160px; }
-
-.frameShell {
+#viewerRow {
   display:flex;
   align-items:center;
-  justify-content:center;
   gap:18px;
 }
 
 .navBtn {
-  width:42px;
-  height:42px;
-  border-radius:50%;
-  border:2px solid #ff7cd4;
-  background:#ffb9e9;
-  font-size:22px;
-  font-weight:bold;
-  color:#72206f;
+  width:50px;
+  height:50px;
+  border-radius:999px;
+  border:none;
+  background:#ff7cd4;
+  color:#fff;
+  font-size:26px;
   cursor:pointer;
   box-shadow:0 0 10px rgba(255,0,200,0.4);
 }
 
-.navBtn:active { transform:scale(.94); }
+.navBtn:active {
+  transform:scale(0.96);
+}
 
-.frame {
+.frameWrap {
   position:relative;
-  width:600px;
-  height:600px;
+  width:650px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
 }
 
-.frame img {
-  position:absolute;
-  top:0;
-  left:0;
+.frameImg {
   width:100%;
-  height:100%;
-  object-fit:contain;
+  height:auto;
+  display:block;
 }
 
-#meta {
-  margin-top:12px;
-  text-align:center;
+.catImg {
+  position:absolute;
+  width:48%;
+  height:auto;
+  top:42%;
+  left:26%;
+  transform:translateY(-40%);
+  animation:pop 0.8s ease-out forwards;
+}
+
+@keyframes pop {
+  0% { transform:translateY(-40%) scale(0.7) rotate(-6deg); opacity:0; }
+  100% { transform:translateY(-40%) scale(1) rotate(0deg); opacity:1; }
+}
+
+#metaBox {
+  margin-top:10px;
+  background:#ffe2f7;
+  padding:12px 18px;
+  border-radius:16px;
+  box-shadow:0 0 12px rgba(255,0,200,0.3);
   font-size:18px;
 }
 
-#meta span { display:block; }
+#metaBox span.label {
+  font-weight:bold;
+}
 
-/* blossoms */
 .blossom {
   position:fixed;
   width:30px;
@@ -120,126 +132,137 @@ input[type=text] {
 <h1>Cat-A-Log</h1>
 <div id="headerBar">HTML-Based Cat-A-Log by Exzerothree</div>
 
-<div id="uiRow">
-  <input id="userSearch" type="text" placeholder="Search user…">
+<div id="topRow">
+  <div>
+    <input id="userInput" list="userList" value="ProfOrProf">
+    <datalist id="userList">
+      <option value="ProfOrProf">
+      <option value="exzerothree">
+      <option value="KelpTV">
+    </datalist>
+  </div>
 
-  <select id="userSelect">
-    <option selected>ProfOrProf</option>
-    <option>exzerothree</option>
-    <option>KelpTV</option>
-  </select>
-
-  <select id="catSelect">
-    <option value="PB" selected>PB</option>
-    <option value="Marathon">???</option>
-    <option value="Scadu">???</option>
-    <option value="Splits">???</option>
-    <option value="Timesave">???</option>
-    <option value="Snowball">???</option>
-    <option value="Mikiri">???</option>
-    <option value="Baseline">???</option>
-    <option value="MisterCat">???</option>
-    <option value="Speedrun">???</option>
-    <option value="Pinky">???</option>
-    <option value="Calp">???</option>
-    <option value="CatOrCat">???</option>
-    <option value="Metacat">???</option>
-  </select>
-
-  <input id="fromDate" type="date" value="2024-11-22">
-  <input id="toDate" type="date" value="2025-11-24">
+  <select id="catSelect"></select>
 </div>
 
-<div class="frameShell">
+<div id="viewerRow">
   <button class="navBtn" id="prevBtn">&#9664;</button>
-  <div class="frame">
-    <img id="catImage" src="clip.png">
-    <img id="frameImage" src="FrameC1.png">
+
+  <div class="frameWrap">
+    <img id="frameImg" class="frameImg" src="FrameC1.png">
+    <img id="catImg" class="catImg" src="clip.png">
   </div>
+
   <button class="navBtn" id="nextBtn">&#9654;</button>
 </div>
 
-<div id="meta">
-  <span id="firstSpan">First Clipped: 11/22/2024</span>
-  <span id="currentSpan">Current CatClip: 11/24/2024</span>
-  <span id="gameSpan">Game: Bloodborne</span>
-  <span id="indexSpan">1 / 7</span>
+<div id="metaBox">
+  <div><span class="label">First Clipped:</span> <span id="firstClipped">11/22/2024</span></div>
+  <div><span class="label">Current CatClip:</span> <span id="currentClipDate">11/24/2024</span></div>
+  <div><span class="label">Game:</span> <span id="currentGame">Bloodborne</span></div>
+  <div><span class="label">Clip:</span> <span id="clipIndex">1/7</span></div>
 </div>
 
 <script>
-const users = ["ProfOrProf","exzerothree","KelpTV"];
+const cats = [
+  { id:"PB", label:"PB", seen:true },
+  { id:"Marathon", label:"???", seen:false },
+  { id:"Scadu", label:"???", seen:false },
+  { id:"Splits", label:"???", seen:false },
+  { id:"Timesave", label:"???", seen:false },
+  { id:"Snowball", label:"???", seen:false },
+  { id:"Mikiri", label:"???", seen:false },
+  { id:"Baseline", label:"???", seen:false },
+  { id:"MisterCat", label:"???", seen:false },
+  { id:"Speedrun", label:"???", seen:false },
+  { id:"Pinky", label:"???", seen:false },
+  { id:"Calp", label:"???", seen:false },
+  { id:"CatOrCat", label:"???", seen:false },
+  { id:"Metacat", label:"???", seen:false }
+];
 
-const catData = {
-  PB:        { frame:"FrameC1.png", clip:"clip.png",       first:"11/22/2024", current:"11/24/2024", game:"Bloodborne", total:7 },
-  Marathon:  { frame:"FrameC2.png", clip:"BlackClip.png",  first:"???", current:"???", game:"???", total:1 },
-  Scadu:     { frame:"FrameC2.png", clip:"BlackClip.png",  first:"???", current:"???", game:"???", total:1 },
-  Splits:    { frame:"FrameC2.png", clip:"BlackClip.png",  first:"???", current:"???", game:"???", total:1 },
-  Timesave:  { frame:"FrameC2.png", clip:"BlackClip.png",  first:"???", current:"???", game:"???", total:1 },
-  Snowball:  { frame:"FrameC2.png", clip:"BlackClip.png",  first:"???", current:"???", game:"???", total:1 },
-  Mikiri:    { frame:"FrameC2.png", clip:"BlackClip.png",  first:"???", current:"???", game:"???", total:1 },
-  Baseline:  { frame:"FrameC2.png", clip:"BlackClip.png",  first:"???", current:"???", game:"???", total:1 },
-  MisterCat: { frame:"FrameC2.png", clip:"BlackClip.png",  first:"???", current:"???", game:"???", total:1 },
-  Speedrun:  { frame:"FrameC2.png", clip:"BlackClip.png",  first:"???", current:"???", game:"???", total:1 },
-  Pinky:     { frame:"FrameC2.png", clip:"BlackClip.png",  first:"???", current:"???", game:"???", total:1 },
-  Calp:      { frame:"FrameC2.png", clip:"BlackClip.png",  first:"???", current:"???", game:"???", total:1 },
-  CatOrCat:  { frame:"FrameC2.png", clip:"BlackClip.png",  first:"???", current:"???", game:"???", total:1 },
-  Metacat:   { frame:"FrameC2.png", clip:"BlackClip.png",  first:"???", current:"???", game:"???", total:1 }
-};
+const pbClips = [
+  { src:"clip.png", date:"11/24/2024", game:"Bloodborne" },
+  { src:"clip.png", date:"11/24/2024", game:"Bloodborne" },
+  { src:"clip.png", date:"11/24/2024", game:"Bloodborne" },
+  { src:"clip.png", date:"11/24/2024", game:"Bloodborne" },
+  { src:"clip.png", date:"11/24/2024", game:"Bloodborne" },
+  { src:"clip.png", date:"11/24/2024", game:"Bloodborne" },
+  { src:"clip.png", date:"11/24/2024", game:"Bloodborne" }
+];
 
-const userSearch=document.getElementById("userSearch");
-const userSelect=document.getElementById("userSelect");
-const catSelect=document.getElementById("catSelect");
-const frameImage=document.getElementById("frameImage");
-const catImage=document.getElementById("catImage");
-const firstSpan=document.getElementById("firstSpan");
-const currentSpan=document.getElementById("currentSpan");
-const gameSpan=document.getElementById("gameSpan");
-const indexSpan=document.getElementById("indexSpan");
-const prevBtn=document.getElementById("prevBtn");
-const nextBtn=document.getElementById("nextBtn");
+const catSelect = document.getElementById("catSelect");
+const frameImg = document.getElementById("frameImg");
+const catImg = document.getElementById("catImg");
+const firstClipped = document.getElementById("firstClipped");
+const currentClipDate = document.getElementById("currentClipDate");
+const currentGame = document.getElementById("currentGame");
+const clipIndex = document.getElementById("clipIndex");
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
 
-let currentIndex=1;
-let currentTotal=7;
+cats.forEach((c, i) => {
+  const opt = document.createElement("option");
+  opt.value = c.id;
+  opt.textContent = c.label;
+  if (i === 0) opt.selected = true;
+  catSelect.appendChild(opt);
+});
 
-function updateCat(catId){
-  const d=catData[catId];
-  frameImage.src=d.frame;
-  catImage.src=d.clip;
-  firstSpan.textContent="First Clipped: "+d.first;
-  currentSpan.textContent="Current CatClip: "+d.current;
-  gameSpan.textContent="Game: "+d.game;
-  currentTotal=d.total;
-  currentIndex=1;
-  indexSpan.textContent=currentIndex+" / "+currentTotal;
+let currentCatIdx = 0;
+let currentClipIdx = 0;
+
+function render() {
+  const cat = cats[currentCatIdx];
+  if (cat.id === "PB") {
+    frameImg.src = "FrameC1.png";
+    catImg.src = pbClips[currentClipIdx].src;
+    firstClipped.textContent = "11/22/2024";
+    currentClipDate.textContent = pbClips[currentClipIdx].date;
+    currentGame.textContent = pbClips[currentClipIdx].game;
+    clipIndex.textContent = (currentClipIdx + 1) + "/" + pbClips.length;
+  } else {
+    frameImg.src = "FrameC2.png";
+    catImg.src = "BlackClip.png";
+    firstClipped.textContent = "--";
+    currentClipDate.textContent = "--";
+    currentGame.textContent = "--";
+    clipIndex.textContent = "1/1";
+  }
+  catImg.style.animation = "none";
+  void catImg.offsetWidth;
+  catImg.style.animation = "pop 0.8s ease-out forwards";
 }
 
-prevBtn.onclick=()=>{
-  currentIndex--;
-  if(currentIndex<1) currentIndex=currentTotal;
-  indexSpan.textContent=currentIndex+" / "+currentTotal;
-};
+catSelect.addEventListener("change", () => {
+  const selectedId = catSelect.value;
+  currentCatIdx = cats.findIndex(c => c.id === selectedId);
+  if (currentCatIdx < 0) currentCatIdx = 0;
+  currentClipIdx = 0;
+  render();
+});
 
-nextBtn.onclick=()=>{
-  currentIndex++;
-  if(currentIndex>currentTotal) currentIndex=1;
-  indexSpan.textContent=currentIndex+" / "+currentTotal;
-};
+prevBtn.addEventListener("click", () => {
+  if (cats[currentCatIdx].id === "PB") {
+    currentClipIdx = (currentClipIdx - 1 + pbClips.length) % pbClips.length;
+  }
+  render();
+});
 
-catSelect.onchange=()=>updateCat(catSelect.value);
+nextBtn.addEventListener("click", () => {
+  if (cats[currentCatIdx].id === "PB") {
+    currentClipIdx = (currentClipIdx + 1) % pbClips.length;
+  }
+  render();
+});
 
-userSearch.oninput=()=>{
-  const v=userSearch.value.toLowerCase();
-  const match=users.find(u=>u.toLowerCase().includes(v));
-  if(match) userSelect.value=match;
-};
+render();
 
-updateCat("PB");
-
-for(let i=0;i<12;i++){
-  const b=document.createElement("div");
-  b.className="blossom";
-  b.style.left=Math.random()*100+"vw";
-  b.style.animationDelay=(Math.random()*5)+"s";
+for (let i = 0; i < 10; i++) {
+  const b = document.createElement("div");
+  b.className = "blossom";
+  b.style.left = Math.random()*100 + "vw";
+  b.style.animationDelay = (Math.random()*5) + "s";
   document.body.appendChild(b);
 }
 </script>
