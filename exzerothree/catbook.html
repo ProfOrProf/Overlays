@@ -2,41 +2,155 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Catbook</title>
+<title>Cat-A-Log</title>
 <style>
-  html,body,#root { margin:0; height:100%; width:100%; overflow:hidden; background:transparent; }
-  .stack { position:relative; height:100%; width:100%; }
-  .stack img { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }
-  /* bottom cat image */
-  #cat { z-index:0; }
-  /* top frame (transparent hole) */
-  #frame { z-index:1; }
+body {
+  background:#ffd9f2;
+  font-family:"Comic Sans MS","Arial Rounded MT",sans-serif;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:25px;
+  padding:30px;
+  color:#72206f;
+}
+
+h1 {
+  font-size:42px;
+  font-weight:900;
+  color:#ff4dc4;
+  text-shadow:0 0 8px #fff,0 0 14px #ff9ce8;
+  margin:0;
+}
+
+#headerBar {
+  background:#ffb9e9;
+  padding:14px 28px;
+  border-radius:20px;
+  font-size:20px;
+  box-shadow:0 0 20px rgba(255,0,200,0.25);
+}
+
+select,
+input[type=date] {
+  font-size:18px;
+  padding:6px 12px;
+  border-radius:10px;
+  border:2px solid #ff7cd4;
+  background:#fff;
+  color:#72206f;
+  margin-right:10px;
+}
+
+#uiRow {
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.frameWrapper {
+  margin-top:10px;
+}
+
+.frame {
+  position:relative;
+  display:inline-block;
+}
+
+.frame-bg {
+  display:block;
+  width:512px;
+  max-width:80vw;
+  height:auto;
+}
+
+.cat {
+  position:absolute;
+  width:55%;
+  left:22%;
+  top:32%;
+  object-fit:contain;
+  animation:pop 0.8s ease-out forwards;
+}
+
+@keyframes pop {
+  0% { transform:scale(0.6) rotate(-10deg); opacity:0; }
+  100% { transform:scale(1) rotate(0deg); opacity:1; }
+}
+
+.blossom {
+  position:fixed;
+  width:30px;
+  height:30px;
+  top:-40px;
+  background:url("https://proforprof.com/shared/blossom.png") center/contain no-repeat;
+  animation:fall 8s linear infinite;
+  pointer-events:none;
+  opacity:0.8;
+}
+
+@keyframes fall {
+  0%   { transform:translateY(-40px) rotate(0deg); }
+  100% { transform:translateY(110vh) rotate(360deg); }
+}
 </style>
 </head>
 <body>
-<div id="root" class="stack">
-  <img id="cat"   alt="cat">
-  <img id="frame" alt="frame">
+
+<h1>Cat-A-Log</h1>
+<div id="headerBar">HTML-Based Cat-A-Log by Exzerothree</div>
+
+<div id="uiRow">
+<select id="userSelect">
+  <option selected>ProfOrProf</option>
+  <option>exzerothree</option>
+  <option>KelpTV</option>
+</select>
+
+<select id="catSelect">
+  <option selected>PB (C1)</option>
+  <option>Marathon (C2)</option>
+  <option>Scadu (C3)</option>
+  <option>Splits (C4)</option>
+  <option>Timesave (C5)</option>
+  <option>Snowball (C6)</option>
+  <option>Mikiri (C7)</option>
+  <option>Baseline (C8)</option>
+  <option>Mister Cat (C9)</option>
+  <option>Speedrun (C10)</option>
+  <option>Pinky (R1)</option>
+  <option>Calp (R2)</option>
+  <option>CatOrCat (R3)</option>
+  <option>Metacat (R4)</option>
+</select>
+
+<input id="fromDate" type="date">
+<input id="toDate" type="date">
+</div>
+
+<div class="frameWrapper">
+  <div class="frame">
+    <img class="frame-bg" src="FrameC1.png" alt="CatBook Frame">
+    <img class="cat" src="clip.png" alt="Cat Snapshot">
+  </div>
 </div>
 
 <script>
-  const params = new URLSearchParams(location.search);
-  const user = (params.get('user') || 'someone').replace(/[^a-zA-Z0-9_\-]/g,'');
-  const n    = (params.get('n')    || '1').replace(/[^0-9]/g,'') || '1';
-  const cb   = Date.now(); // cache-buster
+(function setToday() {
+  const today = new Date();
+  const iso = today.toISOString().slice(0,10);
+  document.getElementById("fromDate").value = iso;
+  document.getElementById("toDate").value = iso;
+})();
 
-  // Local file URLs must use file:// and forward slashes
-  const base = 'file:///E:/DojoGames/Exzerothree';
-  const catURL   = `${base}/${user}/${n}.png?cb=${cb}`;
-  const frameURL = `${base}/CatTest/catbook.png?cb=${cb}`;
-
-  document.getElementById('cat').src = catURL;
-  document.getElementById('frame').src = frameURL;
-
-  // Optional: fallback if the cat image is missing
-  document.getElementById('cat').addEventListener('error', () => {
-    document.getElementById('cat').style.display = 'none';
-  });
+for (let i = 0; i < 10; i++) {
+  const b = document.createElement("div");
+  b.className = "blossom";
+  b.style.left = Math.random() * 100 + "vw";
+  b.style.animationDelay = (Math.random() * 5) + "s";
+  document.body.appendChild(b);
+}
 </script>
+
 </body>
 </html>
