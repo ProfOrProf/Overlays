@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Catbook</title>
+<style>
+  html,body,#root { margin:0; height:100%; width:100%; overflow:hidden; background:transparent; }
+  .stack { position:relative; height:100%; width:100%; }
+  .stack img { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }
+  /* bottom cat image */
+  #cat { z-index:0; }
+  /* top frame (transparent hole) */
+  #frame { z-index:1; }
+</style>
+</head>
+<body>
+<div id="root" class="stack">
+  <img id="cat"   alt="cat">
+  <img id="frame" alt="frame">
+</div>
+
+<script>
+  const params = new URLSearchParams(location.search);
+  const user = (params.get('user') || 'someone').replace(/[^a-zA-Z0-9_\-]/g,'');
+  const n    = (params.get('n')    || '1').replace(/[^0-9]/g,'') || '1';
+  const cb   = Date.now(); // cache-buster
+
+  // Local file URLs must use file:// and forward slashes
+  const base = 'file:///E:/DojoGames/Exzerothree';
+  const catURL   = `${base}/${user}/${n}.png?cb=${cb}`;
+  const frameURL = `${base}/CatTest/catbook.png?cb=${cb}`;
+
+  document.getElementById('cat').src = catURL;
+  document.getElementById('frame').src = frameURL;
+
+  // Optional: fallback if the cat image is missing
+  document.getElementById('cat').addEventListener('error', () => {
+    document.getElementById('cat').style.display = 'none';
+  });
+</script>
+</body>
+</html>
