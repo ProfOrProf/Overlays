@@ -1,0 +1,248 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Cat-A-Log</title>
+<style>
+body {
+  background:#ffd9f2;
+  font-family:"Comic Sans MS","Arial Rounded MT",sans-serif;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:25px;
+  padding:30px;
+  color:#72206f;
+}
+
+h1 {
+  font-size:42px;
+  font-weight:900;
+  color:#ff4dc4;
+  text-shadow:0 0 8px #fff,0 0 14px #ff9ce8;
+  margin:0;
+}
+
+#headerBar {
+  background:#ffb9e9;
+  padding:14px 28px;
+  border-radius:20px;
+  font-size:20px;
+  box-shadow:0 0 20px rgba(255,0,200,0.25);
+}
+
+#uiRow {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  justify-content:center;
+}
+
+select,
+input[type=date],
+input[type=text] {
+  font-size:16px;
+  padding:6px 10px;
+  border-radius:10px;
+  border:2px solid #ff7cd4;
+  background:#fff;
+  color:#72206f;
+}
+
+#userSearch { width:160px; }
+
+.frameShell {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:18px;
+}
+
+.navBtn {
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  border:2px solid #ff7cd4;
+  background:#ffb9e9;
+  font-size:22px;
+  font-weight:bold;
+  color:#72206f;
+  cursor:pointer;
+  box-shadow:0 0 10px rgba(255,0,200,0.4);
+}
+
+.navBtn:active { transform:scale(.94); }
+
+.frame {
+  position:relative;
+  width:600px;
+  height:600px;
+}
+
+.frame img {
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+}
+
+#meta {
+  margin-top:12px;
+  text-align:center;
+  font-size:18px;
+}
+
+#meta span { display:block; }
+
+/* blossoms */
+.blossom {
+  position:fixed;
+  width:30px;
+  height:30px;
+  top:-40px;
+  background:url('https://proforprof.com/shared/blossom.png') center/contain no-repeat;
+  animation:fall 8s linear infinite;
+  pointer-events:none;
+  opacity:0.8;
+}
+
+@keyframes fall {
+  0% { transform:translateY(-40px) rotate(0deg); }
+  100% { transform:translateY(110vh) rotate(360deg); }
+}
+</style>
+</head>
+<body>
+
+<h1>Cat-A-Log</h1>
+<div id="headerBar">HTML-Based Cat-A-Log by Exzerothree</div>
+
+<div id="uiRow">
+  <input id="userSearch" type="text" placeholder="Search user…">
+
+  <select id="userSelect">
+    <option selected>ProfOrProf</option>
+    <option>exzerothree</option>
+    <option>KelpTV</option>
+  </select>
+
+  <select id="catSelect">
+    <option value="PB" selected>PB</option>
+    <option value="Marathon">???</option>
+    <option value="Scadu">???</option>
+    <option value="Splits">???</option>
+    <option value="Timesave">???</option>
+    <option value="Snowball">???</option>
+    <option value="Mikiri">???</option>
+    <option value="Baseline">???</option>
+    <option value="MisterCat">???</option>
+    <option value="Speedrun">???</option>
+    <option value="Pinky">???</option>
+    <option value="Calp">???</option>
+    <option value="CatOrCat">???</option>
+    <option value="Metacat">???</option>
+  </select>
+
+  <input id="fromDate" type="date" value="2024-11-22">
+  <input id="toDate" type="date" value="2025-11-24">
+</div>
+
+<div class="frameShell">
+  <button class="navBtn" id="prevBtn">&#9664;</button>
+  <div class="frame">
+    <img id="catImage" src="clip.png">
+    <img id="frameImage" src="FrameC1.png">
+  </div>
+  <button class="navBtn" id="nextBtn">&#9654;</button>
+</div>
+
+<div id="meta">
+  <span id="firstSpan">First Clipped: 11/22/2024</span>
+  <span id="currentSpan">Current CatClip: 11/24/2024</span>
+  <span id="gameSpan">Game: Bloodborne</span>
+  <span id="indexSpan">1 / 7</span>
+</div>
+
+<script>
+const users = ["ProfOrProf","exzerothree","KelpTV"];
+
+const catData = {
+  PB:        { frame:"FrameC1.png", clip:"clip.png",       first:"11/22/2024", current:"11/24/2024", game:"Bloodborne", total:7 },
+  Marathon:  { frame:"FrameC2.png", clip:"BlackClip.png",  first:"???", current:"???", game:"???", total:1 },
+  Scadu:     { frame:"FrameC2.png", clip:"BlackClip.png",  first:"???", current:"???", game:"???", total:1 },
+  Splits:    { frame:"FrameC2.png", clip:"BlackClip.png",  first:"???", current:"???", game:"???", total:1 },
+  Timesave:  { frame:"FrameC2.png", clip:"BlackClip.png",  first:"???", current:"???", game:"???", total:1 },
+  Snowball:  { frame:"FrameC2.png", clip:"BlackClip.png",  first:"???", current:"???", game:"???", total:1 },
+  Mikiri:    { frame:"FrameC2.png", clip:"BlackClip.png",  first:"???", current:"???", game:"???", total:1 },
+  Baseline:  { frame:"FrameC2.png", clip:"BlackClip.png",  first:"???", current:"???", game:"???", total:1 },
+  MisterCat: { frame:"FrameC2.png", clip:"BlackClip.png",  first:"???", current:"???", game:"???", total:1 },
+  Speedrun:  { frame:"FrameC2.png", clip:"BlackClip.png",  first:"???", current:"???", game:"???", total:1 },
+  Pinky:     { frame:"FrameC2.png", clip:"BlackClip.png",  first:"???", current:"???", game:"???", total:1 },
+  Calp:      { frame:"FrameC2.png", clip:"BlackClip.png",  first:"???", current:"???", game:"???", total:1 },
+  CatOrCat:  { frame:"FrameC2.png", clip:"BlackClip.png",  first:"???", current:"???", game:"???", total:1 },
+  Metacat:   { frame:"FrameC2.png", clip:"BlackClip.png",  first:"???", current:"???", game:"???", total:1 }
+};
+
+const userSearch=document.getElementById("userSearch");
+const userSelect=document.getElementById("userSelect");
+const catSelect=document.getElementById("catSelect");
+const frameImage=document.getElementById("frameImage");
+const catImage=document.getElementById("catImage");
+const firstSpan=document.getElementById("firstSpan");
+const currentSpan=document.getElementById("currentSpan");
+const gameSpan=document.getElementById("gameSpan");
+const indexSpan=document.getElementById("indexSpan");
+const prevBtn=document.getElementById("prevBtn");
+const nextBtn=document.getElementById("nextBtn");
+
+let currentIndex=1;
+let currentTotal=7;
+
+function updateCat(catId){
+  const d=catData[catId];
+  frameImage.src=d.frame;
+  catImage.src=d.clip;
+  firstSpan.textContent="First Clipped: "+d.first;
+  currentSpan.textContent="Current CatClip: "+d.current;
+  gameSpan.textContent="Game: "+d.game;
+  currentTotal=d.total;
+  currentIndex=1;
+  indexSpan.textContent=currentIndex+" / "+currentTotal;
+}
+
+prevBtn.onclick=()=>{
+  currentIndex--;
+  if(currentIndex<1) currentIndex=currentTotal;
+  indexSpan.textContent=currentIndex+" / "+currentTotal;
+};
+
+nextBtn.onclick=()=>{
+  currentIndex++;
+  if(currentIndex>currentTotal) currentIndex=1;
+  indexSpan.textContent=currentIndex+" / "+currentTotal;
+};
+
+catSelect.onchange=()=>updateCat(catSelect.value);
+
+userSearch.oninput=()=>{
+  const v=userSearch.value.toLowerCase();
+  const match=users.find(u=>u.toLowerCase().includes(v));
+  if(match) userSelect.value=match;
+};
+
+updateCat("PB");
+
+for(let i=0;i<12;i++){
+  const b=document.createElement("div");
+  b.className="blossom";
+  b.style.left=Math.random()*100+"vw";
+  b.style.animationDelay=(Math.random()*5)+"s";
+  document.body.appendChild(b);
+}
+</script>
+
+</body>
+</html>
