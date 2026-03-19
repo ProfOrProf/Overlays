@@ -39,25 +39,23 @@
     .gc .trigger.right { float: right; }
     .gc .trigger.pressed { opacity: 1; }
 
-    /* Bumpers */
-    .gc .bumpers {
-      position: absolute; width: 792px; height: 73px;
-      left: 103px; top: 138px;
-    }
+    /* Bumpers — absolutely positioned using exact Illustrator transform values */
     .gc .bumper {
-      width: 158px; height: 73px;
+      position: absolute;
+      width: 157px; height: 71px;
       opacity: 0;
       transition: opacity 0.04s;
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: contain;
     }
     .gc .bumper.left {
-      float: left;
-      background: url(https://proforprof.com/GhostieController/lbpress.svg) no-repeat center;
-      background-size: contain;
+      left: 84px; top: 138px;
+      background-image: url(https://proforprof.com/GhostieController/lbpress.svg);
     }
     .gc .bumper.right {
-      float: right;
-      background: url(https://proforprof.com/GhostieController/rbpress.svg) no-repeat center;
-      background-size: contain;
+      left: 738px; top: 138px;
+      background-image: url(https://proforprof.com/GhostieController/rbpress.svg);
     }
     .gc .bumper.pressed { opacity: 1; }
 
@@ -80,11 +78,7 @@
       filter: invert(1);
     }
 
-    /* ABXY */
-    .gc .abxy {
-      position: absolute; width: 288px; height: 230px;
-      top: 207px; left: 640px;
-    }
+    /* ABXY — absolutely positioned using Illustrator center coords */
     .gc .button {
       position: absolute;
       background-repeat: no-repeat;
@@ -97,22 +91,26 @@
     .gc .a {
       background-image: url(https://proforprof.com/GhostieController/apress.svg);
       width: 114px; height: 114px;
-      bottom: 35px; left: 91px;
+      left: 733px; top: 287px;
+      opacity: 0.7 !important;
     }
     .gc .b {
       background-image: url(https://proforprof.com/GhostieController/bpress.svg);
       width: 71px; height: 71px;
-      bottom: 0px; left: 1px;
+      left: 642px; top: 366px;
+      opacity: 0.7 !important;
     }
     .gc .x {
       background-image: url(https://proforprof.com/GhostieController/xpress.svg);
-      width: 66px; height: 103px;
-      top: 65px; right: 0px;
+      width: 63px; height: 104px;
+      left: 864px; top: 271px;
+      opacity: 0.7 !important;
     }
     .gc .y {
       background-image: url(https://proforprof.com/GhostieController/ypress.svg);
       width: 103px; height: 66px;
-      left: 67px; top: 2px;
+      left: 708px; top: 208px;
+      opacity: 0.7 !important;
     }
 
     /* Sticks */
@@ -135,12 +133,12 @@
     /* D-Pad */
     .gc .dpad {
       position: absolute; width: 130px; height: 130px;
-      top: 497px; left: 263px;
+      top: 496px; left: 261px;
     }
     .gc .face {
       background: url(https://proforprof.com/GhostieController/dpad.svg) no-repeat;
       position: absolute;
-      opacity: 0;
+      opacity: 0.7;
       transition: opacity 0.04s;
     }
     .gc .face.up,   .gc .face.down  { width: 44px; height: 65px; }
@@ -148,7 +146,7 @@
     .gc .face.up    { left: 42px; top: 0;    background-position: 0px 0px;  }
     .gc .face.down  { left: 42px; bottom: 0; background-position: -46px 0;  }
     .gc .face.left  { top: 43px;  left: 0;   background-position: -93px 0;  }
-    .gc .face.right { top: 43px;  right: 0;  background-position: -160px 0; }
+    .gc .face.right { top: 43px;  right: 1px;  background-position: -160px 0; }
     .gc .face.pressed { opacity: 1; }
   </style>
 </head>
@@ -160,20 +158,15 @@
       <div class="trigger right" id="rt"></div>
       <div style="clear:both"></div>
     </div>
-    <div class="bumpers">
-      <div class="bumper left"  id="lb"></div>
-      <div class="bumper right" id="rb"></div>
-      <div style="clear:both"></div>
-    </div>
+    <div class="bumper left"  id="lb"></div>
+    <div class="bumper right" id="rb"></div>
     <div class="arrows">
       <div class="start" id="btn-start"></div>
     </div>
-    <div class="abxy">
-      <span class="button a" id="btn-a"></span>
-      <span class="button b" id="btn-b"></span>
-      <span class="button x" id="btn-x"></span>
-      <span class="button y" id="btn-y"></span>
-    </div>
+    <span class="button a" id="btn-a"></span>
+    <span class="button b" id="btn-b"></span>
+    <span class="button x" id="btn-x"></span>
+    <span class="button y" id="btn-y"></span>
     <div class="sticks">
       <div class="stick left"  id="stick-left"></div>
       <div class="stick right" id="stick-right"></div>
