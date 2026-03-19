@@ -78,11 +78,7 @@
       filter: invert(1);
     }
 
-    /* ABXY */
-    .gc .abxy {
-      position: absolute; width: 288px; height: 230px;
-      top: 207px; left: 640px;
-    }
+    /* ABXY — absolutely positioned using Illustrator center coords */
     .gc .button {
       position: absolute;
       background-repeat: no-repeat;
@@ -95,22 +91,22 @@
     .gc .a {
       background-image: url(https://proforprof.com/GhostieController/apress.svg);
       width: 114px; height: 114px;
-      bottom: 35px; left: 91px;
+      left: 733px; top: 287px;
     }
     .gc .b {
       background-image: url(https://proforprof.com/GhostieController/bpress.svg);
       width: 71px; height: 71px;
-      bottom: 0px; left: 1px;
+      left: 643px; top: 366px;
     }
     .gc .x {
       background-image: url(https://proforprof.com/GhostieController/xpress.svg);
-      width: 66px; height: 103px;
-      top: 65px; right: 0px;
+      width: 63px; height: 104px;
+      left: 865px; top: 271px;
     }
     .gc .y {
       background-image: url(https://proforprof.com/GhostieController/ypress.svg);
       width: 103px; height: 66px;
-      left: 67px; top: 2px;
+      left: 709px; top: 208px;
     }
 
     /* Sticks */
@@ -133,7 +129,7 @@
     /* D-Pad */
     .gc .dpad {
       position: absolute; width: 130px; height: 130px;
-      top: 497px; left: 263px;
+      top: 493px; left: 259px;
     }
     .gc .face {
       background: url(https://proforprof.com/GhostieController/dpad.svg) no-repeat;
@@ -163,12 +159,10 @@
     <div class="arrows">
       <div class="start" id="btn-start"></div>
     </div>
-    <div class="abxy">
-      <span class="button a" id="btn-a"></span>
-      <span class="button b" id="btn-b"></span>
-      <span class="button x" id="btn-x"></span>
-      <span class="button y" id="btn-y"></span>
-    </div>
+    <span class="button a" id="btn-a"></span>
+    <span class="button b" id="btn-b"></span>
+    <span class="button x" id="btn-x"></span>
+    <span class="button y" id="btn-y"></span>
     <div class="sticks">
       <div class="stick left"  id="stick-left"></div>
       <div class="stick right" id="stick-right"></div>
