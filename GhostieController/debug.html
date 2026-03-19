@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      background: #1a1a1a;
+      color: #0f0;
+      font-family: monospace;
+      font-size: 13px;
+      padding: 10px;
+    }
+    h2 { color: #fff; margin-bottom: 8px; }
+    .grid { display: flex; gap: 20px; flex-wrap: wrap; }
+    .col h3 { color: #aaa; margin-bottom: 4px; }
+    .btn {
+      display: inline-block;
+      padding: 3px 6px;
+      margin: 2px;
+      background: #333;
+      border-radius: 3px;
+      min-width: 140px;
+    }
+    .btn.active { background: #0a0; color: #fff; }
+    .axis { margin: 2px 0; }
+    .bar {
+      display: inline-block;
+      width: 120px;
+      height: 10px;
+      background: #333;
+      vertical-align: middle;
+      position: relative;
+    }
+    .bar-fill {
+      position: absolute;
+      height: 100%;
+      background: #0af;
+      top: 0;
+    }
+    #status { color: #f80; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <h2>🎮 Gamepad Debug</h2>
+  <div id="status">Waiting for gamepad... (press a button)</div>
+  <div class="grid">
+    <div class="col">
+      <h3>Buttons</h3>
+      <div id="buttons"></div>
+    </div>
+    <div class="col">
+      <h3>Axes</h3>
+      <div id="axes"></div>
+    </div>
+  </div>
+
+  <script>
+    var btnContainer = document.getElementById('buttons');
+    var axisContainer = document.getElementById('axes');
+    var status = document.getElementById('status');
+
+    // Standard GPV label mapping for reference
+    var gpvNames = {
+      0: 'A / Cross',
+      1: 'B / Circle',
+      2: 'X / Square',
+      3: 'Y / Triangle',
+      4: 'LB / L1',
+      5: 'RB / R1',
+      6: 'LT / L2',
+      7: 'RT / R2',
+      8: 'Select / Back',
+      9: 'Start',
+      10: 'LS Click',
+      11: 'RS Click',
+      12: 'D-Up',
+      13: 'D-Down',
+      14: 'D-Left',
+      15: 'D-Right',
+      16: 'Home',
+      17: 'Touchpad'
+    };
+
+    function poll() {
+      var pads = navigator.getGamepads ? navigator.getGamepads() : [];
+      var gp = null;
+      for (var i = 0; i < pads.length; i++) {
+        if (pads[i]) { gp = pads[i]; break; }
+      }
+
+      if (!gp) {
+        requestAnimationFrame(poll);
+        return;
+      }
+
+      status.textContent = '✅ Connected: ' + gp.id;
+
+      // Buttons
+      btnContainer.innerHTML = '';
+      for (var b = 0; b < gp.buttons.length; b++) {
+        var val = typeof gp.buttons[b] === 'object' ? gp.buttons[b].value : gp.buttons[b];
+        var active = val > 0.1;
+        var label = gpvNames[b] ? gpvNames[b] : '?';
+        var el = document.createElement('div');
+        el.className = 'btn' + (active ? ' active' : '');
+        el.textContent = 'Btn ' + b + ' (' + label + '): ' + val.toFixed(3);
+        btnContainer.appendChild(el);
+      }
+
+      // Axes
+      axisContainer.innerHTML = '';
+      for (var a = 0; a < gp.axes.length; a++) {
+        var av = gp.axes[a];
+        var pct = ((av + 1) / 2 * 100).toFixed(1);
+        var el = document.createElement('div');
+        el.className = 'axis';
+        el.innerHTML = 'Axis ' + a + ': ' + av.toFixed(4) +
+          ' <span class="bar"><span class="bar-fill" style="left:' + (av >= 0 ? 50 : (50 + av*50)) + '%;width:' + Math.abs(av)*50 + '%"></span></span>';
+        axisContainer.appendChild(el);
+      }
+
+      requestAnimationFrame(poll);
+    }
+
+    poll();
+  </script>
+</body>
+</html>
