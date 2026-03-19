@@ -5,7 +5,7 @@
   <style>
     html, body {
       margin: 0; padding: 0;
-      background: #333;
+      background: transparent !important;
       overflow: hidden;
       width: 978px; height: 837px;
     }
@@ -19,6 +19,10 @@
       background: url(https://proforprof.com/GhostieController/base.svg) no-repeat;
       height: 837px; width: 978px;
     }
+    .gc.disconnected {
+      background: url(https://proforprof.com/GhostieController/disconnected.svg) no-repeat;
+    }
+    .gc.disconnected div { display: none; }
 
     /* Triggers */
     .gc .triggers {
@@ -28,30 +32,32 @@
     .gc .trigger {
       width: 131px; height: 100%;
       background: url(https://proforprof.com/GhostieController/trigger.svg) no-repeat;
-      opacity: 0.5;  /* FORCED VISIBLE */
+      opacity: 0;
+      transition: opacity 0.04s;
     }
     .gc .trigger.left  { float: left; }
     .gc .trigger.right { float: right; }
+    .gc .trigger.pressed { opacity: 1; }
 
-    /* Bumpers */
-    .gc .bumpers {
-      position: absolute; width: 792px; height: 73px;
-      left: 103px; top: 138px;
-    }
+    /* Bumpers — absolutely positioned using exact Illustrator transform values */
     .gc .bumper {
-      width: 158px; height: 73px;
-      opacity: 0.5;  /* FORCED VISIBLE */
+      position: absolute;
+      width: 157px; height: 71px;
+      opacity: 0;
+      transition: opacity 0.04s;
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: contain;
     }
     .gc .bumper.left {
-      float: left;
-      background: url(https://proforprof.com/GhostieController/lbpress.svg) no-repeat center;
-      background-size: contain;
+      left: 163px; top: 174px;
+      background-image: url(https://proforprof.com/GhostieController/lbpress.svg);
     }
     .gc .bumper.right {
-      float: right;
-      background: url(https://proforprof.com/GhostieController/rbpress.svg) no-repeat center;
-      background-size: contain;
+      left: 817px; top: 174px;
+      background-image: url(https://proforprof.com/GhostieController/rbpress.svg);
     }
+    .gc .bumper.pressed { opacity: 1; }
 
     /* Start */
     .gc .arrows {
@@ -64,7 +70,12 @@
       border-radius: 100%;
       border: solid 4.5px rgba(0,0,0,0.65);
       background-clip: content-box;
-      opacity: 0.5;  /* FORCED VISIBLE */
+      opacity: 0;
+      transition: opacity 0.04s;
+    }
+    .gc .start.pressed {
+      opacity: 1;
+      filter: invert(1);
     }
 
     /* ABXY */
@@ -76,8 +87,11 @@
       position: absolute;
       background-repeat: no-repeat;
       background-size: contain;
-      opacity: 0.6;  /* FORCED VISIBLE */
+      opacity: 0;
+      transition: opacity 0.04s;
     }
+    .gc .button.pressed { opacity: 1; }
+
     .gc .a {
       background-image: url(https://proforprof.com/GhostieController/apress.svg);
       width: 114px; height: 114px;
@@ -109,13 +123,11 @@
       top: 24px; left: 23px;
       background: url(https://proforprof.com/GhostieController/left-stick.svg) center no-repeat;
       height: 121px; width: 121px;
-      opacity: 0.5;
     }
     .gc .stick.right {
       top: calc(100% - 127px); left: calc(100% - 125px);
       background: url(https://proforprof.com/GhostieController/cstick.svg) center no-repeat;
       width: 84px; height: 84px;
-      opacity: 0.5;
     }
 
     /* D-Pad */
@@ -126,7 +138,8 @@
     .gc .face {
       background: url(https://proforprof.com/GhostieController/dpad.svg) no-repeat;
       position: absolute;
-      opacity: 0.5;  /* FORCED VISIBLE */
+      opacity: 0;
+      transition: opacity 0.04s;
     }
     .gc .face.up,   .gc .face.down  { width: 44px; height: 65px; }
     .gc .face.left, .gc .face.right { width: 65px; height: 44px; }
@@ -134,41 +147,120 @@
     .gc .face.down  { left: 42px; bottom: 0; background-position: -46px 0;  }
     .gc .face.left  { top: 43px;  left: 0;   background-position: -93px 0;  }
     .gc .face.right { top: 43px;  right: 0;  background-position: -160px 0; }
+    .gc .face.pressed { opacity: 1; }
   </style>
 </head>
 <body>
 
-  <div class="controller gc" id="controller">
+  <div class="controller gc disconnected" id="controller">
     <div class="triggers">
-      <div class="trigger left"></div>
-      <div class="trigger right"></div>
+      <div class="trigger left"  id="lt"></div>
+      <div class="trigger right" id="rt"></div>
       <div style="clear:both"></div>
     </div>
-    <div class="bumpers">
-      <div class="bumper left"></div>
-      <div class="bumper right"></div>
-      <div style="clear:both"></div>
-    </div>
+    <div class="bumper left"  id="lb"></div>
+    <div class="bumper right" id="rb"></div>
     <div class="arrows">
-      <div class="start"></div>
+      <div class="start" id="btn-start"></div>
     </div>
     <div class="abxy">
-      <span class="button a"></span>
-      <span class="button b"></span>
-      <span class="button x"></span>
-      <span class="button y"></span>
+      <span class="button a" id="btn-a"></span>
+      <span class="button b" id="btn-b"></span>
+      <span class="button x" id="btn-x"></span>
+      <span class="button y" id="btn-y"></span>
     </div>
     <div class="sticks">
-      <div class="stick left"></div>
-      <div class="stick right"></div>
+      <div class="stick left"  id="stick-left"></div>
+      <div class="stick right" id="stick-right"></div>
     </div>
     <div class="dpad">
-      <div class="face up"></div>
-      <div class="face down"></div>
-      <div class="face left"></div>
-      <div class="face right"></div>
+      <div class="face up"    id="d-up"></div>
+      <div class="face down"  id="d-down"></div>
+      <div class="face left"  id="d-left"></div>
+      <div class="face right" id="d-right"></div>
     </div>
   </div>
+
+  <script>
+    var BUTTON_MAP = [
+      { idx: 0,  el: 'btn-a',     type: 'press'   },
+      { idx: 1,  el: 'btn-b',     type: 'press'   },
+      { idx: 2,  el: 'btn-x',     type: 'press'   },
+      { idx: 3,  el: 'btn-y',     type: 'press'   },
+      { idx: 4,  el: 'lb',        type: 'press'   },
+      { idx: 5,  el: 'rb',        type: 'press'   },
+      { idx: 6,  el: 'lt',        type: 'trigger' },
+      { idx: 7,  el: 'rt',        type: 'trigger' },
+      { idx: 9,  el: 'btn-start', type: 'press'   },
+      { idx: 12, el: 'd-up',      type: 'press'   },
+      { idx: 13, el: 'd-down',    type: 'press'   },
+      { idx: 14, el: 'd-left',    type: 'press'   },
+      { idx: 15, el: 'd-right',   type: 'press'   },
+    ];
+
+    var STICK_OFFSET = 22;
+    var DEADZONE     = 0.25;
+    var PRESS_THRESH = 0.25;
+    var ctrl = document.getElementById('controller');
+
+    function setPressed(id, on) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      if (on) el.classList.add('pressed');
+      else     el.classList.remove('pressed');
+    }
+
+    function setTrigger(id, val) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      el.style.opacity = val;
+    }
+
+    function updateStick(id, x, y) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      var dist = Math.sqrt(x * x + y * y);
+      if (dist < DEADZONE) { x = 0; y = 0; }
+      el.style.marginLeft = (x * STICK_OFFSET) + 'px';
+      el.style.marginTop  = (y * STICK_OFFSET) + 'px';
+      el.style.transform  = 'rotateX(' + (y * -STICK_OFFSET) + 'deg) rotateY(' + (x * STICK_OFFSET) + 'deg)';
+    }
+
+    function poll() {
+      var pads = navigator.getGamepads ? navigator.getGamepads() : [];
+      var gp = null;
+      for (var i = 0; i < pads.length; i++) {
+        if (pads[i]) { gp = pads[i]; break; }
+      }
+
+      if (!gp) {
+        ctrl.classList.add('disconnected');
+        requestAnimationFrame(poll);
+        return;
+      }
+
+      ctrl.classList.remove('disconnected');
+
+      for (var i = 0; i < BUTTON_MAP.length; i++) {
+        var map = BUTTON_MAP[i];
+        var btn = gp.buttons[map.idx];
+        if (!btn) continue;
+        var val = typeof btn === 'object' ? btn.value : btn;
+        if (map.type === 'trigger') {
+          setTrigger(map.el, val);
+        } else {
+          setPressed(map.el, val > PRESS_THRESH);
+        }
+      }
+
+      updateStick('stick-left',  gp.axes[0] || 0, gp.axes[1] || 0);
+      updateStick('stick-right', gp.axes[2] || 0, gp.axes[3] || 0);
+
+      requestAnimationFrame(poll);
+    }
+
+    poll();
+  </script>
 
 </body>
 </html>
