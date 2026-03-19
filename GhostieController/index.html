@@ -18,172 +18,175 @@
     .controller.gc {
       background: url(https://proforprof.com/GhostieController/base.svg) no-repeat;
       height: 837px; width: 978px;
+      position: relative;
     }
     .gc.disconnected {
       background: url(https://proforprof.com/GhostieController/disconnected.svg) no-repeat;
     }
-    .gc.disconnected div { display: none; }
+    .gc.disconnected > div { display: none; }
 
-    /* Triggers */
-    .gc .triggers {
-      width: 775px; height: 95px;
-      position: absolute; left: 102px;
-    }
-    .gc .trigger {
-      width: 131px; height: 100%;
-      background: url(https://proforprof.com/GhostieController/trigger.svg) no-repeat;
-      opacity: 0;
-      transition: opacity 0.04s;
-    }
-    .gc .trigger.left  { float: left; }
-    .gc .trigger.right { float: right; }
-    .gc .trigger.pressed { opacity: 1; }
-
-    /* Bumpers */
-    .gc .bumpers {
-      position: absolute; width: 792px; height: 73px;
-      left: 103px; top: 138px;
-    }
-    .gc .bumper {
-      width: 158px; height: 73px;
-      opacity: 0;
-      transition: opacity 0.04s;
-    }
-    .gc .bumper.left {
-      float: left;
-      background: url(https://proforprof.com/GhostieController/lbpress.svg) no-repeat center;
+    /* ── A button: X:789.88 Y:344.19 W:114 H:114 ── */
+    #btn-a {
+      position: absolute;
+      left: 789px; top: 344px;
+      width: 114px; height: 114px;
+      background: url(https://proforprof.com/GhostieController/apress.svg) no-repeat center;
       background-size: contain;
+      opacity: 0; transition: opacity 0.04s;
     }
-    .gc .bumper.right {
-      float: right;
+
+    /* ── X button: X:895.94 Y:322.74 W:62.6 H:103.5 ── */
+    #btn-x {
+      position: absolute;
+      left: 896px; top: 323px;
+      width: 63px; height: 104px;
+      background: url(https://proforprof.com/GhostieController/xpress.svg) no-repeat center;
+      background-size: contain;
+      opacity: 0; transition: opacity 0.04s;
+    }
+
+    /* ── Y button: X:759.92 Y:240.89 W:102.56 H:65.6 ── */
+    #btn-y {
+      position: absolute;
+      left: 760px; top: 241px;
+      width: 103px; height: 66px;
+      background: url(https://proforprof.com/GhostieController/ypress.svg) no-repeat center;
+      background-size: contain;
+      opacity: 0; transition: opacity 0.04s;
+    }
+
+    /* ── B button: X:678.18 Y:401.19 W:71 H:71 ── */
+    #btn-b {
+      position: absolute;
+      left: 678px; top: 401px;
+      width: 71px; height: 71px;
+      background: url(https://proforprof.com/GhostieController/bpress.svg) no-repeat center;
+      background-size: contain;
+      opacity: 0; transition: opacity 0.04s;
+    }
+
+    /* ── RB: X:816.80 Y:173.54 W:157.43 H:71.30 ── */
+    #rb {
+      position: absolute;
+      left: 817px; top: 174px;
+      width: 157px; height: 71px;
       background: url(https://proforprof.com/GhostieController/rbpress.svg) no-repeat center;
       background-size: contain;
+      opacity: 0; transition: opacity 0.04s;
     }
-    .gc .bumper.pressed { opacity: 1; }
 
-    /* Start */
-    .gc .arrows {
-      position: absolute; width: 50px; height: 50px;
-      top: 324px; left: 465px;
+    /* ── LB: X:163.08 Y:174.23 W:157.43 H:71.30 ── */
+    #lb {
+      position: absolute;
+      left: 163px; top: 174px;
+      width: 157px; height: 71px;
+      background: url(https://proforprof.com/GhostieController/lbpress.svg) no-repeat center;
+      background-size: contain;
+      opacity: 0; transition: opacity 0.04s;
     }
-    .gc .start {
+
+    /* ── Triggers (keeping original positions) ── */
+    #lt {
+      position: absolute;
+      left: 102px; top: 0;
+      width: 131px; height: 95px;
+      background: url(https://proforprof.com/GhostieController/trigger.svg) no-repeat center;
+      background-size: contain;
+      opacity: 0; transition: opacity 0.04s;
+    }
+    #rt {
+      position: absolute;
+      right: 102px; top: 0;
+      width: 131px; height: 95px;
+      background: url(https://proforprof.com/GhostieController/trigger.svg) no-repeat center;
+      background-size: contain;
+      opacity: 0; transition: opacity 0.04s;
+    }
+
+    /* ── Start ── */
+    #btn-start {
+      position: absolute;
+      left: 465px; top: 324px;
       width: 43px; height: 43px;
       background: #e7e7e7;
       border-radius: 100%;
       border: solid 4.5px rgba(0,0,0,0.65);
       background-clip: content-box;
-      opacity: 0;
-      transition: opacity 0.04s;
-    }
-    .gc .start.pressed {
-      opacity: 1;
-      filter: invert(1);
+      opacity: 0; transition: opacity 0.04s;
     }
 
-    /* ABXY */
-    .gc .abxy {
-      position: absolute; width: 288px; height: 230px;
-      top: 207px; left: 640px;
-    }
-    .gc .button {
+    /* ── D-Pad: group X:327.9 Y:561.91 W:136.6 H:136.6
+       Single direction piece W:44.2 H:65.3 ── */
+    #d-up {
       position: absolute;
-      background-repeat: no-repeat;
-      background-size: contain;
-      opacity: 0;
-      transition: opacity 0.04s;
-    }
-    .gc .button.pressed { opacity: 1; }
-
-    .gc .a {
-      background-image: url(https://proforprof.com/GhostieController/apress.svg);
-      width: 114px; height: 114px;
-      bottom: 35px; left: 91px;
-    }
-    .gc .b {
-      background-image: url(https://proforprof.com/GhostieController/bpress.svg);
-      width: 71px; height: 71px;
-      bottom: 0px; left: 1px;
-    }
-    .gc .x {
-      background-image: url(https://proforprof.com/GhostieController/xpress.svg);
-      width: 66px; height: 103px;
-      top: 65px; right: 0px;
-    }
-    .gc .y {
-      background-image: url(https://proforprof.com/GhostieController/ypress.svg);
-      width: 103px; height: 66px;
-      left: 67px; top: 2px;
-    }
-
-    /* Sticks */
-    .gc .sticks {
-      position: absolute; width: 628px; height: 392px;
-      top: 258px; left: 106px;
-    }
-    .gc .stick { position: absolute; }
-    .gc .stick.left {
-      top: 24px; left: 23px;
-      background: url(https://proforprof.com/GhostieController/left-stick.svg) center no-repeat;
-      height: 121px; width: 121px;
-    }
-    .gc .stick.right {
-      top: calc(100% - 127px); left: calc(100% - 125px);
-      background: url(https://proforprof.com/GhostieController/cstick.svg) center no-repeat;
-      width: 84px; height: 84px;
-    }
-
-    /* D-Pad */
-    .gc .dpad {
-      position: absolute; width: 130px; height: 130px;
-      top: 497px; left: 263px;
-    }
-    .gc .face {
+      left: 374px; top: 562px; /* group X + (136.6-44.2)/2, group Y */
+      width: 44px; height: 65px;
       background: url(https://proforprof.com/GhostieController/dpad.svg) no-repeat;
-      position: absolute;
-      opacity: 0;
-      transition: opacity 0.04s;
+      background-position: 0px 0px;
+      opacity: 0; transition: opacity 0.04s;
     }
-    .gc .face.up,   .gc .face.down  { width: 44px; height: 65px; }
-    .gc .face.left, .gc .face.right { width: 65px; height: 44px; }
-    .gc .face.up    { left: 42px; top: 0;    background-position: 0px 0px;  }
-    .gc .face.down  { left: 42px; bottom: 0; background-position: -46px 0;  }
-    .gc .face.left  { top: 43px;  left: 0;   background-position: -93px 0;  }
-    .gc .face.right { top: 43px;  right: 0;  background-position: -160px 0; }
-    .gc .face.pressed { opacity: 1; }
+    #d-down {
+      position: absolute;
+      left: 374px; top: 634px; /* group Y + 136.6 - 65.3 */
+      width: 44px; height: 65px;
+      background: url(https://proforprof.com/GhostieController/dpad.svg) no-repeat;
+      background-position: -46px 0px;
+      opacity: 0; transition: opacity 0.04s;
+    }
+    #d-left {
+      position: absolute;
+      left: 328px; top: 597px; /* group X, group Y + (136.6-44)/2 */
+      width: 65px; height: 44px;
+      background: url(https://proforprof.com/GhostieController/dpad.svg) no-repeat;
+      background-position: -93px 0px;
+      opacity: 0; transition: opacity 0.04s;
+    }
+    #d-right {
+      position: absolute;
+      left: 400px; top: 597px; /* group X + 136.6 - 65, group Y + (136.6-44)/2 */
+      width: 65px; height: 44px;
+      background: url(https://proforprof.com/GhostieController/dpad.svg) no-repeat;
+      background-position: -160px 0px;
+      opacity: 0; transition: opacity 0.04s;
+    }
+
+    /* ── Sticks ── */
+    #stick-left {
+      position: absolute;
+      left: 129px; top: 282px;
+      width: 121px; height: 121px;
+      background: url(https://proforprof.com/GhostieController/left-stick.svg) center no-repeat;
+      background-size: contain;
+    }
+    #stick-right {
+      position: absolute;
+      left: 601px; top: 457px;
+      width: 84px; height: 84px;
+      background: url(https://proforprof.com/GhostieController/cstick.svg) center no-repeat;
+      background-size: contain;
+    }
+
+    .pressed { opacity: 1 !important; }
   </style>
 </head>
 <body>
 
   <div class="controller gc disconnected" id="controller">
-    <div class="triggers">
-      <div class="trigger left"  id="lt"></div>
-      <div class="trigger right" id="rt"></div>
-      <div style="clear:both"></div>
-    </div>
-    <div class="bumpers">
-      <div class="bumper left"  id="lb"></div>
-      <div class="bumper right" id="rb"></div>
-      <div style="clear:both"></div>
-    </div>
-    <div class="arrows">
-      <div class="start" id="btn-start"></div>
-    </div>
-    <div class="abxy">
-      <span class="button a" id="btn-a"></span>
-      <span class="button b" id="btn-b"></span>
-      <span class="button x" id="btn-x"></span>
-      <span class="button y" id="btn-y"></span>
-    </div>
-    <div class="sticks">
-      <div class="stick left"  id="stick-left"></div>
-      <div class="stick right" id="stick-right"></div>
-    </div>
-    <div class="dpad">
-      <div class="face up"    id="d-up"></div>
-      <div class="face down"  id="d-down"></div>
-      <div class="face left"  id="d-left"></div>
-      <div class="face right" id="d-right"></div>
-    </div>
+    <div id="lt"></div>
+    <div id="rt"></div>
+    <div id="lb"></div>
+    <div id="rb"></div>
+    <div id="btn-start"></div>
+    <div id="btn-a"></div>
+    <div id="btn-b"></div>
+    <div id="btn-x"></div>
+    <div id="btn-y"></div>
+    <div id="stick-left"></div>
+    <div id="stick-right"></div>
+    <div id="d-up"></div>
+    <div id="d-down"></div>
+    <div id="d-left"></div>
+    <div id="d-right"></div>
   </div>
 
   <script>
@@ -206,7 +209,6 @@
     var STICK_OFFSET = 22;
     var DEADZONE     = 0.25;
     var PRESS_THRESH = 0.25;
-
     var ctrl = document.getElementById('controller');
 
     function setPressed(id, on) {
