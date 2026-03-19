@@ -9,7 +9,6 @@
       overflow: hidden;
     }
 
-    /* === GC Controller CSS === */
     .controller {
       position: absolute;
       top: 50%;
@@ -36,9 +35,8 @@
       background: url(https://proforprof.com/GhostieController/trigger.svg);
       opacity: 0;
     }
-    .gc .trigger.left { float: left; }
+    .gc .trigger.left  { float: left; }
     .gc .trigger.right { float: right; }
-    .gc .trigger.pressed { opacity: 1; }
 
     /* Bumpers */
     .gc .bumpers {
@@ -77,7 +75,7 @@
       filter: invert(1);
       -webkit-filter: invert(1);
     }
-    .gc .back { display: none; }
+    .gc .back  { display: none; }
     .gc .start { float: right; }
 
     /* ABXY */
@@ -91,10 +89,10 @@
       opacity: 0;
     }
     .gc .button.pressed { opacity: 1; }
-    .gc .a { background-position: 0 0; width: 114px; height: 114px; bottom: 35px; left: 91px; }
-    .gc .b { width: 71px; height: 71px; background-position: -116px 0; bottom: 0px; left: 1px; }
-    .gc .x { width: 66px; height: 103px; background-position: -292px 0; top: 65px; right: 0px; }
-    .gc .y { width: 103px; height: 66px; background-position: -189px 0; left: 67px; top: 2px; }
+    .gc .a { background-position: 0 0;      width: 114px; height: 114px; bottom: 35px; left: 91px; }
+    .gc .b { background-position: -116px 0; width: 71px;  height: 71px;  bottom: 0px;  left: 1px;  }
+    .gc .x { background-position: -292px 0; width: 66px;  height: 103px; top: 65px;    right: 0px; }
+    .gc .y { background-position: -189px 0; width: 103px; height: 66px;  left: 67px;   top: 2px;   }
 
     /* Sticks */
     .gc .sticks {
@@ -122,12 +120,12 @@
       background: url(https://proforprof.com/GhostieController/dpad.svg) no-repeat;
       position: absolute; opacity: 0;
     }
-    .gc .face.up, .gc .face.down { width: 44px; height: 65px; }
-    .gc .face.left, .gc .face.right { width: 65px; height: 44px; }
-    .gc .face.up    { left: 42px; top: 0;    background-position: 0px 0px; }
-    .gc .face.down  { left: 42px; bottom: 0; background-position: -46px 0; }
-    .gc .face.left  { top: 43px; left: 0;    background-position: -93px 0; }
-    .gc .face.right { top: 43px; right: 0px; background-position: -160px 0; }
+    .gc .face.up,    .gc .face.down  { width: 44px; height: 65px; }
+    .gc .face.left,  .gc .face.right { width: 65px; height: 44px; }
+    .gc .face.up    { left: 42px; top: 0;    background-position: 0px 0px;  }
+    .gc .face.down  { left: 42px; bottom: 0; background-position: -46px 0;  }
+    .gc .face.left  { top: 43px;  left: 0;   background-position: -93px 0;  }
+    .gc .face.right { top: 43px;  right: 0;  background-position: -160px 0; }
     .gc .face.pressed { opacity: 1; }
   </style>
 </head>
@@ -135,75 +133,81 @@
 
   <div class="controller gc disconnected" id="controller">
     <div class="triggers">
-      <div class="trigger left"  data-name="lt"></div>
-      <div class="trigger right" data-name="rt"></div>
-      <span class="clear"></span>
+      <div class="trigger left"  id="lt"></div>
+      <div class="trigger right" id="rt"></div>
+      <span style="clear:both;display:block"></span>
     </div>
     <div class="bumpers">
-      <div class="bumper left"  data-name="lb"></div>
-      <div class="bumper right" data-name="rb"></div>
-      <span class="clear"></span>
+      <div class="bumper left"  id="lb"></div>
+      <div class="bumper right" id="rb"></div>
+      <span style="clear:both;display:block"></span>
     </div>
     <div class="arrows">
-      <div class="start" data-name="start"></div>
+      <div class="start" id="btn-start"></div>
     </div>
     <div class="abxy">
-      <div class="button a" data-name="a"></div>
-      <div class="button b" data-name="b"></div>
-      <div class="button x" data-name="x"></div>
-      <div class="button y" data-name="y"></div>
+      <span class="button a" id="btn-a"></span>
+      <span class="button b" id="btn-b"></span>
+      <span class="button x" id="btn-x"></span>
+      <span class="button y" id="btn-y"></span>
     </div>
     <div class="sticks">
       <div class="stick left"  id="stick-left"></div>
       <div class="stick right" id="stick-right"></div>
     </div>
     <div class="dpad">
-      <div class="face up"    data-name="dup"></div>
-      <div class="face down"  data-name="ddown"></div>
-      <div class="face left"  data-name="dleft"></div>
-      <div class="face right" data-name="dright"></div>
+      <div class="face up"    id="d-up"></div>
+      <div class="face down"  id="d-down"></div>
+      <div class="face left"  id="d-left"></div>
+      <div class="face right" id="d-right"></div>
     </div>
   </div>
 
   <script>
-    // GC button mapping (standard gamepad API layout)
-    // Buttons:  0=A  1=B  2=X  3=Y  4=LB  5=RB  6=LT  7=RT  8=back  9=start
-    //           12=dup  13=ddown  14=dleft  15=dright
-    // Axes:     0=LX  1=LY  2=RX  3=RY
-    var BUTTON_MAP = {
-      0:  'a',
-      1:  'b',
-      2:  'x',
-      3:  'y',
-      4:  'lb',
-      5:  'rb',
-      9:  'start',
-      12: 'dup',
-      13: 'ddown',
-      14: 'dleft',
-      15: 'dright'
-    };
+    // Standard Gamepad API layout — confirmed via PS5 debug:
+    // 0=A  1=B  2=X  3=Y  4=LB  5=RB  6=LT  7=RT  9=Start
+    // 12=D-Up  13=D-Down  14=D-Left  15=D-Right
+    var BUTTON_MAP = [
+      { idx: 0,  el: 'btn-a',     type: 'press'   },  // GC: A
+      { idx: 1,  el: 'btn-b',     type: 'press'   },  // GC: B
+      { idx: 2,  el: 'btn-x',     type: 'press'   },  // GC: X
+      { idx: 3,  el: 'btn-y',     type: 'press'   },  // GC: Y
+      { idx: 4,  el: 'lb',        type: 'press'   },  // GC: L (digital)
+      { idx: 5,  el: 'rb',        type: 'press'   },  // GC: R (digital)
+      { idx: 6,  el: 'lt',        type: 'trigger' },  // GC: L (analog)
+      { idx: 7,  el: 'rt',        type: 'trigger' },  // GC: R (analog)
+      { idx: 9,  el: 'btn-start', type: 'press'   },  // GC: Start
+      { idx: 12, el: 'd-up',      type: 'press'   },
+      { idx: 13, el: 'd-down',    type: 'press'   },
+      { idx: 14, el: 'd-left',    type: 'press'   },
+      { idx: 15, el: 'd-right',   type: 'press'   },
+    ];
 
-    var STICK_OFFSET   = 22;   // max px stick travel
+    var STICK_OFFSET   = 22;
     var DEADZONE       = 0.25;
-    var TRIGGER_THRESH = 0.1;  // analog threshold for LT/RT pressed class
+    var TRIGGER_THRESH = 0.1;
 
     var ctrl = document.getElementById('controller');
 
-    function q(name) {
-      return ctrl.querySelector('[data-name="' + name + '"]');
-    }
-
-    function setPressed(el, on) {
+    function setPressed(id, on) {
+      var el = document.getElementById(id);
       if (!el) return;
       if (on) el.classList.add('pressed');
       else     el.classList.remove('pressed');
     }
 
-    function updateStick(elId, x, y) {
-      var el = document.getElementById(elId);
+    function setTrigger(id, val) {
+      var el = document.getElementById(id);
       if (!el) return;
-      var dist = Math.sqrt(x*x + y*y);
+      el.style.opacity = val;
+      if (val > TRIGGER_THRESH) el.classList.add('pressed');
+      else                       el.classList.remove('pressed');
+    }
+
+    function updateStick(id, x, y) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      var dist = Math.sqrt(x * x + y * y);
       if (dist < DEADZONE) { x = 0; y = 0; }
       el.style.marginLeft = (x * STICK_OFFSET) + 'px';
       el.style.marginTop  = (y * STICK_OFFSET) + 'px';
@@ -225,37 +229,25 @@
 
       ctrl.classList.remove('disconnected');
 
-      // Regular buttons
-      for (var b in BUTTON_MAP) {
-        var btn = gp.buttons[b];
-        var val = btn ? (typeof btn === 'object' ? btn.value : btn) : 0;
-        setPressed(q(BUTTON_MAP[b]), val > 0.25);
+      for (var i = 0; i < BUTTON_MAP.length; i++) {
+        var map = BUTTON_MAP[i];
+        var btn = gp.buttons[map.idx];
+        if (!btn) continue;
+        var val = typeof btn === 'object' ? btn.value : btn;
+        if (map.type === 'trigger') {
+          setTrigger(map.el, val);
+        } else {
+          setPressed(map.el, val > 0.25);
+        }
       }
 
-      // Analog triggers — use opacity for visual depth, plus pressed class at threshold
-      var ltVal = gp.buttons[6] ? gp.buttons[6].value : 0;
-      var rtVal = gp.buttons[7] ? gp.buttons[7].value : 0;
-      var ltEl = q('lt');
-      var rtEl = q('rt');
-      if (ltEl) ltEl.style.opacity = ltVal;
-      if (rtEl) rtEl.style.opacity = rtVal;
-      setPressed(ltEl, ltVal > TRIGGER_THRESH);
-      setPressed(rtEl, rtVal > TRIGGER_THRESH);
-
-      // Analog sticks
+      // Axes: 0/1 = left stick X/Y, 2/3 = right stick X/Y
       updateStick('stick-left',  gp.axes[0] || 0, gp.axes[1] || 0);
       updateStick('stick-right', gp.axes[2] || 0, gp.axes[3] || 0);
 
       requestAnimationFrame(poll);
     }
 
-    // Start polling — gamepad only appears after first button press in browser,
-    // but OBS browser source gets it immediately on connect.
-    window.addEventListener('gamepadconnected', function() {
-      poll();
-    });
-
-    // Kick off loop anyway in case it's already connected
     poll();
   </script>
 
