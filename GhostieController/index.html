@@ -3,27 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <style>
-    /* === Eric Meyer's Reset CSS === */
-    html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p,
-    blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em,
-    img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u,
-    i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table,
-    caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details,
-    embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby,
-    section, summary, time, mark, audio, video {
-      margin: 0; padding: 0; border: 0; font-size: 100%; font: inherit;
-      vertical-align: baseline;
-    }
-    article, aside, details, figcaption, figure, footer, header, hgroup,
-    menu, nav, section { display: block; }
-    body { line-height: 1; }
-    ol, ul { list-style: none; }
-    blockquote, q { quotes: none; }
-    blockquote:before, blockquote:after, q:before, q:after { content: ''; content: none; }
-    table { border-collapse: collapse; border-spacing: 0; }
-
-    /* === OBS transparent background === */
     html, body {
+      margin: 0; padding: 0;
       background: transparent !important;
       overflow: hidden;
     }
@@ -143,78 +124,140 @@
     }
     .gc .face.up, .gc .face.down { width: 44px; height: 65px; }
     .gc .face.left, .gc .face.right { width: 65px; height: 44px; }
-    .gc .face.up { left: 42px; top: 0; background-position: 0px 0px; }
-    .gc .face.down { left: 42px; bottom: 0; background-position: -46px 0; }
-    .gc .face.left { top: 43px; left: 0; background-position: -93px 0; }
+    .gc .face.up    { left: 42px; top: 0;    background-position: 0px 0px; }
+    .gc .face.down  { left: 42px; bottom: 0; background-position: -46px 0; }
+    .gc .face.left  { top: 43px; left: 0;    background-position: -93px 0; }
     .gc .face.right { top: 43px; right: 0px; background-position: -160px 0; }
     .gc .face.pressed { opacity: 1; }
   </style>
 </head>
 <body>
 
-  <div id="gamepads">
-    <!-- Template: cloned by main.js at runtime -->
-    <div class="template">
-      <div class="triggers">
-        <span class="trigger left"        data-name="button-left-shoulder-bottom"></span>
-        <span class="trigger right"       data-name="button-right-shoulder-bottom"></span>
-        <span class="trigger-button left" data-name="button-left-shoulder-bottom-digital"></span>
-        <span class="trigger-button right"data-name="button-right-shoulder-bottom-digital"></span>
-        <span class="clear"></span>
-      </div>
-      <div class="bumpers">
-        <span class="bumper left"  data-name="button-left-shoulder-top"></span>
-        <span class="bumper right" data-name="button-right-shoulder-top"></span>
-        <span class="clear"></span>
-      </div>
-      <div class="touchpad" data-name="touch-pad"></div>
-      <div class="quadrant"></div>
-      <div class="meta"    data-name="button-meta"></div>
-      <div class="arrows">
-        <span class="back"  data-name="button-select"></span>
-        <span class="start" data-name="button-start"></span>
-        <span class="clear"></span>
-      </div>
-      <div class="abxy">
-        <span class="button a" data-name="button-1"></span>
-        <span class="button b" data-name="button-2"></span>
-        <span class="button x" data-name="button-3"></span>
-        <span class="button y" data-name="button-4"></span>
-      </div>
-      <div class="sticks">
-        <span class="stick left"  data-name="stick-1"></span>
-        <span class="stick right" data-name="stick-2"></span>
-      </div>
-      <div class="wheels">
-        <span class="wheel left"  data-name="stick-1-wheel"></span>
-        <span class="wheel right" data-name="stick-2-wheel"></span>
-      </div>
-      <div class="dpad">
-        <span class="face up"    data-name="button-dpad-top"></span>
-        <span class="face down"  data-name="button-dpad-bottom"></span>
-        <span class="face left"  data-name="button-dpad-left"></span>
-        <span class="face right" data-name="button-dpad-right"></span>
-      </div>
-      <div class="fstick" data-name="arcade-stick"></div>
+  <div class="controller gc disconnected" id="controller">
+    <div class="triggers">
+      <div class="trigger left"  data-name="lt"></div>
+      <div class="trigger right" data-name="rt"></div>
+      <span class="clear"></span>
     </div>
-
-    <!-- Four controller slots; main.js picks the right one via ?p= -->
-    <div class="controller gc disconnected" id="gamepad-0"></div>
-    <div class="controller gc disconnected" id="gamepad-1"></div>
-    <div class="controller gc disconnected" id="gamepad-2"></div>
-    <div class="controller gc disconnected" id="gamepad-3"></div>
+    <div class="bumpers">
+      <div class="bumper left"  data-name="lb"></div>
+      <div class="bumper right" data-name="rb"></div>
+      <span class="clear"></span>
+    </div>
+    <div class="arrows">
+      <div class="start" data-name="start"></div>
+    </div>
+    <div class="abxy">
+      <div class="button a" data-name="a"></div>
+      <div class="button b" data-name="b"></div>
+      <div class="button x" data-name="x"></div>
+      <div class="button y" data-name="y"></div>
+    </div>
+    <div class="sticks">
+      <div class="stick left"  id="stick-left"></div>
+      <div class="stick right" id="stick-right"></div>
+    </div>
+    <div class="dpad">
+      <div class="face up"    data-name="dup"></div>
+      <div class="face down"  data-name="ddown"></div>
+      <div class="face left"  data-name="dleft"></div>
+      <div class="face right" data-name="dright"></div>
+    </div>
   </div>
 
-  <!-- Load order matters: queue → gamepad → tester → jQuery → main -->
-  <script src="queue.js"></script>
-  <script src="gamepad.js"></script>
-  <script src="tester.js"></script>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-  <script src="main.js"></script>
-
   <script>
-    tester.init();
-    gamepadSupport.init();
+    // GC button mapping (standard gamepad API layout)
+    // Buttons:  0=A  1=B  2=X  3=Y  4=LB  5=RB  6=LT  7=RT  8=back  9=start
+    //           12=dup  13=ddown  14=dleft  15=dright
+    // Axes:     0=LX  1=LY  2=RX  3=RY
+    var BUTTON_MAP = {
+      0:  'a',
+      1:  'b',
+      2:  'x',
+      3:  'y',
+      4:  'lb',
+      5:  'rb',
+      9:  'start',
+      12: 'dup',
+      13: 'ddown',
+      14: 'dleft',
+      15: 'dright'
+    };
+
+    var STICK_OFFSET   = 22;   // max px stick travel
+    var DEADZONE       = 0.25;
+    var TRIGGER_THRESH = 0.1;  // analog threshold for LT/RT pressed class
+
+    var ctrl = document.getElementById('controller');
+
+    function q(name) {
+      return ctrl.querySelector('[data-name="' + name + '"]');
+    }
+
+    function setPressed(el, on) {
+      if (!el) return;
+      if (on) el.classList.add('pressed');
+      else     el.classList.remove('pressed');
+    }
+
+    function updateStick(elId, x, y) {
+      var el = document.getElementById(elId);
+      if (!el) return;
+      var dist = Math.sqrt(x*x + y*y);
+      if (dist < DEADZONE) { x = 0; y = 0; }
+      el.style.marginLeft = (x * STICK_OFFSET) + 'px';
+      el.style.marginTop  = (y * STICK_OFFSET) + 'px';
+      el.style.transform  = 'rotateX(' + (y * -STICK_OFFSET) + 'deg) rotateY(' + (x * STICK_OFFSET) + 'deg)';
+    }
+
+    function poll() {
+      var pads = navigator.getGamepads ? navigator.getGamepads() : [];
+      var gp = null;
+      for (var i = 0; i < pads.length; i++) {
+        if (pads[i]) { gp = pads[i]; break; }
+      }
+
+      if (!gp) {
+        ctrl.classList.add('disconnected');
+        requestAnimationFrame(poll);
+        return;
+      }
+
+      ctrl.classList.remove('disconnected');
+
+      // Regular buttons
+      for (var b in BUTTON_MAP) {
+        var btn = gp.buttons[b];
+        var val = btn ? (typeof btn === 'object' ? btn.value : btn) : 0;
+        setPressed(q(BUTTON_MAP[b]), val > 0.25);
+      }
+
+      // Analog triggers — use opacity for visual depth, plus pressed class at threshold
+      var ltVal = gp.buttons[6] ? gp.buttons[6].value : 0;
+      var rtVal = gp.buttons[7] ? gp.buttons[7].value : 0;
+      var ltEl = q('lt');
+      var rtEl = q('rt');
+      if (ltEl) ltEl.style.opacity = ltVal;
+      if (rtEl) rtEl.style.opacity = rtVal;
+      setPressed(ltEl, ltVal > TRIGGER_THRESH);
+      setPressed(rtEl, rtVal > TRIGGER_THRESH);
+
+      // Analog sticks
+      updateStick('stick-left',  gp.axes[0] || 0, gp.axes[1] || 0);
+      updateStick('stick-right', gp.axes[2] || 0, gp.axes[3] || 0);
+
+      requestAnimationFrame(poll);
+    }
+
+    // Start polling — gamepad only appears after first button press in browser,
+    // but OBS browser source gets it immediately on connect.
+    window.addEventListener('gamepadconnected', function() {
+      poll();
+    });
+
+    // Kick off loop anyway in case it's already connected
+    poll();
   </script>
+
 </body>
 </html>
