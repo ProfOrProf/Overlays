@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profagachi Damacy — P0 breadboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  html, body {
+    margin: 0; min-height: 100%;
+    background: #15171a;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 18px;
+    font-family: "Courier New", ui-monospace, monospace;
+    user-select: none;
+  }
+  .tapcap {
+    text-align: center; color: #9bbc0f; opacity: .9;
+    font-size: 15px; letter-spacing: 2px; text-transform: uppercase;
+  }
+  .gameboy {
+    background: #cfc9bb;
+    padding: 22px 24px 14px 24px;
+    border-radius: 12px 12px 74px 14px;
+    box-shadow: 0 22px 50px rgba(0,0,0,.55),
+                inset 0 2px 0 rgba(255,255,255,.6),
+                inset 0 -4px 8px rgba(0,0,0,.16);
+  }
+  .bezel {
+    position: relative;
+    background: #8e8d85;
+    padding: 16px 56px 58px 64px;
+    border-radius: 8px 8px 36px 8px;
+    box-shadow: inset 0 3px 9px rgba(0,0,0,.5), inset 0 -2px 3px rgba(255,255,255,.1);
+  }
+  .topbar {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 12px;
+  }
+  .stripes { flex: 1; height: 8px; position: relative; }
+  .stripes::before, .stripes::after {
+    content: ""; position: absolute; left: 0; right: 0; height: 2px;
+  }
+  .stripes::before { top: 1px; background: #3a3f7e; }
+  .stripes::after  { top: 5px; background: #8c3a5c; }
+  .dmt { font-size: 10px; letter-spacing: 1.5px; color: #5b5f86; white-space: nowrap; }
+  .battery {
+    position: absolute; left: 18px; top: 48%;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+  }
+  .led {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #ff8a78, #bf2729 70%);
+    box-shadow: 0 0 7px rgba(210,40,40,.7), inset 0 0 2px rgba(0,0,0,.45);
+  }
+  .batlabel { font-size: 8px; letter-spacing: 1px; color: #45453e; }
+  canvas {
+    display: block;
+    image-rendering: pixelated;
+    box-shadow: inset 0 0 0 2px rgba(15,56,15,.35);
+  }
+  .wordmark {
+    text-align: center; margin-top: 14px; color: #2c2c6e; white-space: nowrap;
+  }
+  .proftendo { font-family: "Press Start 2P", monospace; font-size: 13px; vertical-align: baseline; }
+  .dummy { font-size: 27px; font-weight: 800; font-style: italic; letter-spacing: 1px; margin-left: 12px; }
+  .tm { font-size: 11px; font-weight: 700; margin-left: 4px; vertical-align: baseline; }
+</style>
+</head>
+<body>
+  <div class="gameboy">
+    <div class="bezel">
+      <div class="topbar">
+        <span class="stripes"></span>
+        <span class="dmt">DOT MATRIX WITH STEREO SOUND</span>
+        <span class="stripes"></span>
+      </div>
+      <div class="battery"><span class="led"></span><span class="batlabel">BATTERY</span></div>
+      <canvas id="c"></canvas>
+    </div>
+    <div class="wordmark"><span class="proftendo">Proftendo</span> <span class="dummy">GAME&nbsp;DUMMY</span><span class="tm">TM</span></div>
+  </div>
+  <div class="tapcap">Just Tap Spacebar!</div>
+
+<script>
+(() => {
+  "use strict";
+
+  const VIS = 50;
+  const CELL = 12;
+  const HUD_H = 44;
+  const ORB_COUNT = 10;
+  const ORB_SPEED = 1.0;
+  const PTS_PER_SIZE = 5;
+
+  const REACH = 2;
+  const THWOMP_STEP = 2;
+  const TARGET_SWITCH = 1.6;
+  const MOVE_MS = 130;
+  const FLICK_OUT_MS = 90;
+  const FLICK_IN_MS = 130;
+
+  const SCREEN_R = 7;
+  const LOBES = 4;
+  const AMP_RATIO = 0.214;
+  const ROT_MS = 7000;
+  const BREATH_MS = 1600;
+  const BREATH_AMP = 0.25;
+  const REACH_BUMP = 3;
+  const BUMP_WIDTH = 0.45;
+  const EYE_GLYPH = [[1,0],[0,1],[1,1]];
+  const EYE_ANCHORS = [[-2,-1],[1,-1]];
+
+  const CLICKS_PER_AREA = 5;
+  const BUMP_FORCE = 6;
+  const FADE_IN_MS = 600;
+  const SPAWN_GAP = 3;
+  const CULL_R = 0.9;
+  const CULL_DIST = VIS * 0.9;
+  const FRAME_MS = 240;
+
+  const NONMETALS = new Set(["H","He","C","N","O","F","Ne","P","S","Cl","Ar","Se","Br","Kr","I","Xe","Rn","Og","At","Ts"]);
+  const PERIODIC = ["H","He","Li","Be","B","C","N","O","F","Ne","Na","Mg","Al","Si","P","S","Cl","Ar","K","Ca","Sc","Ti","V","Cr","Mn","Fe","Co","Ni","Cu","Zn","Ga","Ge","As","Se","Br","Kr","Rb","Sr","Y","Zr","Nb","Mo","Tc","Ru","Rh","Pd","Ag","Cd","In","Sn","Sb","Te","I","Xe","Cs","Ba","La","Ce","Pr","Nd","Pm","Sm","Eu","Gd","Tb","Dy","Ho","Er","Tm","Yb","Lu","Hf","Ta","W","Re","Os","Ir","Pt","Au","Hg","Tl","Pb","Bi","Po","At","Rn","Fr","Ra","Ac","Th","Pa","U","Np","Pu","Am","Cm","Bk","Cf","Es","Fm","Md","No","Lr","Rf","Db","Sg","Bh","Hs","Mt","Ds","Rg","Cn","Nh","Fl","Mc","Lv","Ts","Og"];
+  const STATIC_SPECIES = new Set(["bicycle","car","house","skyscraper","airplane"]);
+  const PULSE_SPECIES = new Set([
+    "atom",
+    "water","salt","bronze","co2","methane","ammonia","o2","n2","hcl","benzene",
+    "glucose","dna","ethanol","caffeine","sucrose","atp","hemoglobin",
+    "redBlood","whiteBlood","virus","bacterium",
+    "universe",
+  ]);
+  const SPIN_SPECIES = new Set([
+    "spinAmoeba",
+    "sun","galaxySpiral","galaxyBarred","galaxyElliptical","nebula","blackHole",
+  ]);
+  const SPIN_MS = { spinAmoeba: 9100, sun: 11000, blackHole: 3500, galaxySpiral: 14000, galaxyBarred: 14000, galaxyElliptical: 18000, nebula: 16000 };
+  const MOL_NAMES = ["water","salt","bronze","co2","methane","ammonia","o2","n2","hcl","benzene","glucose","dna","ethanol","caffeine","sucrose","atp","hemoglobin"];
+  const SPAWN_TIERS = [
+    { name:"atoms",      areaLo:0.02, areaHi:0.40, unlockSize:  1, ramp:  1, phaseOutSize: 80,  fadeOut:20, weight:1.00, species:["atom"], atomLabels:PERIODIC },
+    { name:"molecules",  areaLo:0.04, areaHi:0.55, unlockSize: 20, ramp: 10, phaseOutSize:100,  fadeOut:20, weight:0.90, species:MOL_NAMES },
+    { name:"cellular",   areaLo:0.05, areaHi:0.65, unlockSize: 40, ramp: 10, phaseOutSize:140,  fadeOut:30, weight:0.85, species:["spinAmoeba","amoeba","redBlood","whiteBlood","paramecium","bacterium","virus"] },
+    { name:"wigglies",   areaLo:0.08, areaHi:0.70, unlockSize: 60, ramp: 10, phaseOutSize:160,  fadeOut:30, weight:0.80, species:["worm","caterpillar","snake"] },
+    { name:"bugs",       areaLo:0.10, areaHi:0.75, unlockSize: 80, ramp: 10, phaseOutSize:180,  fadeOut:30, weight:0.75, species:["butterfly","spider","beetle","bee","dragonfly","ladybug","ant"] },
+    { name:"fruit",      areaLo:0.15, areaHi:0.80, unlockSize:100, ramp: 10, phaseOutSize:200,  fadeOut:30, weight:0.70, species:["apple","banana","cherries","grapes","strawberry","pear","orange","watermelon"] },
+    { name:"people",     areaLo:0.20, areaHi:0.85, unlockSize:120, ramp: 10, phaseOutSize:240,  fadeOut:40, weight:0.65, species:["personMan","personWoman"] },
+    { name:"humanmade",  areaLo:0.30, areaHi:0.90, unlockSize:140, ramp: 10, phaseOutSize:280,  fadeOut:40, weight:0.60, species:["bicycle","car","house","skyscraper","airplane"] },
+    { name:"planets",    areaLo:0.50, areaHi:1.00, unlockSize:180, ramp: 10, phaseOutSize:null, fadeOut:0,  weight:0.55, species:["planet1","planet2","planet3","planet4","planet5","planet6","planet7","planet8","planet9"] },
+    { name:"sun",        areaLo:0.80, areaHi:1.30, unlockSize:220, ramp: 10, phaseOutSize:null, fadeOut:0,  weight:0.45, species:["sun"] },
+    { name:"galaxies",   areaLo:1.20, areaHi:1.80, unlockSize:260, ramp: 20, phaseOutSize:null, fadeOut:0,  weight:0.35, species:["galaxySpiral","galaxyBarred","galaxyElliptical","nebula"] },
+    { name:"singular",   areaLo:1.50, areaHi:2.20, unlockSize:320, ramp: 30, phaseOutSize:null, fadeOut:0,  weight:0.25, species:["blackHole"] },
+    { name:"universe",   areaLo:2.50, areaHi:4.00, unlockSize:400, ramp: 40, phaseOutSize:null, fadeOut:0,  weight:0.20, species:["universe"] },
+  ];
+
+  const ZOOM_PER_EAT = 0.985;
+  const ZOOM_PUNCH = 0.94;
+  const ZOOM_EASE = 0.14;
+
+  const C = {
+    darkest:"#0f380f", d0:"#0f380f",
+    dark:"#306230",    d1:"#306230",
+    light:"#8bac0f",   d2:"#8bac0f",
+    lightest:"#9bbc0f",d3:"#9bbc0f",
+  };
+
+  const canvas = document.getElementById("c");
+  const ctx = canvas.getContext("2d");
+  ctx.imageSmoothingEnabled = false;
+  const W = VIS*CELL, H = HUD_H + VIS*CELL;
+  canvas.width = W; canvas.height = H;
+  const fieldTop = HUD_H;
+  const CX = VIS/2, CY = VIS/2;
+  const cellPx = (c) => c*CELL;
+  const rand = (lo,hi) => lo + Math.random()*(hi-lo);
+
+  function painter(ctxP, G, PIX) {
+    const f=(gx,gy,c)=>{ if(gx<0||gy<0||gx>=G||gy>=G) return; ctxP.fillStyle=c; ctxP.fillRect(Math.round(gx)*PIX, Math.round(gy)*PIX, PIX, PIX); };
+    const inTri=(px,py,ax,ay,bx,by,cx,cy)=>{ const s=(ax-cx)*(py-cy)-(ay-cy)*(px-cx); const t=(bx-ax)*(py-ay)-(by-ay)*(px-ax);
+      if ((s<0)!==(t<0) && s!==0 && t!==0) return false; const d=(cx-bx)*(py-by)-(cy-by)*(px-bx); return d===0 || (d<0)===(s+t<=0); };
+    return { G, PIX, px:f,
+      rect:(x,y,w,h,c)=>{ for(let j=0;j<h;j++)for(let i=0;i<w;i++) f(x+i,y+j,c); },
+      disc:(cx,cy,r,c)=>{ for(let y=0;y<G;y++)for(let x=0;x<G;x++){ const dx=x-cx,dy=y-cy; if(dx*dx+dy*dy<=r*r) f(x,y,c);} },
+      ring:(cx,cy,r,c,th=1)=>{ for(let y=0;y<G;y++)for(let x=0;x<G;x++){ const d=Math.hypot(x-cx,y-cy); if(d<=r&&d>r-th) f(x,y,c);} },
+      line:(x0,y0,x1,y1,c)=>{ x0=Math.round(x0);y0=Math.round(y0);x1=Math.round(x1);y1=Math.round(y1);
+        const dx=Math.abs(x1-x0),dy=Math.abs(y1-y0),sx=x0<x1?1:-1,sy=y0<y1?1:-1; let e=dx-dy;
+        for(;;){ f(x0,y0,c); if(x0===x1&&y0===y1) break; const e2=2*e; if(e2>-dy){e-=dy;x0+=sx;} if(e2<dx){e+=dx;y0+=sy;} } },
+      tri:(ax,ay,bx,by,cx,cy,c)=>{ for(let y=0;y<G;y++)for(let x=0;x<G;x++){ if(inTri(x,y,ax,ay,bx,by,cx,cy)) f(x,y,c);} },
+      outline:(test,c)=>{ for(let y=0;y<G;y++)for(let x=0;x<G;x++){ if(test(x,y) && !(test(x+1,y)&&test(x-1,y)&&test(x,y+1)&&test(x,y-1))) f(x,y,c);} },
+    };
+  }
+
+  const FONT = {
+    A:[".XXX.","XX.XX","XX.XX","XXXXX","XX.XX","XX.XX","XX.XX"],
+    B:["XXXX.","XX.XX","XX.XX","XXXX.","XX.XX","XX.XX","XXXX."],
+    C:[".XXXX","XX...","XX...","XX...","XX...","XX...",".XXXX"],
+    D:["XXXX.","XX.XX","XX.XX","XX.XX","XX.XX","XX.XX","XXXX."],
+    E:["XXXXX","XX...","XX...","XXXX.","XX...","XX...","XXXXX"],
+    F:["XXXXX","XX...","XX...","XXXX.","XX...","XX...","XX..."],
+    G:[".XXX.","XX.XX","XX...","XX.XX","XX..X","XX..X",".XXX."],
+    H:["XX.XX","XX.XX","XX.XX","XXXXX","XX.XX","XX.XX","XX.XX"],
+    I:["XXXXX",".XX..",".XX..",".XX..",".XX..",".XX..","XXXXX"],
+    K:["XX..X","XX.XX","XXXX.","XXX..","XXXX.","XX.XX","XX..X"],
+    L:["XX...","XX...","XX...","XX...","XX...","XX...","XXXXX"],
+    M:["XX.XX","XXXXX","XXXXX","XX.XX","XX.XX","XX.XX","XX.XX"],
+    N:["XX..X","XXX.X","XX.XX","XX.XX","XX.XX","XX.XX","XX..X"],
+    O:[".XXX.","XX.XX","XX.XX","XX.XX","XX.XX","XX.XX",".XXX."],
+    P:["XXXX.","XX.XX","XX.XX","XXXX.","XX...","XX...","XX..."],
+    R:["XXXX.","XX.XX","XX.XX","XXXX.","XXX..","XX.X.","XX..X"],
+    S:[".XXXX","XX...","XX...",".XXX.","...XX","...XX","XXXX."],
+    T:["XXXXX",".XX..",".XX..",".XX..",".XX..",".XX..",".XX.."],
+    U:["XX.XX","XX.XX","XX.XX","XX.XX","XX.XX","XX.XX",".XXX."],
+    V:["XX.XX","XX.XX","XX.XX","XX.XX",".XXX.",".XXX.","..X.."],
+    W:["XX.XX","XX.XX","XX.XX","XX.XX","XXXXX","XXXXX","XX.XX"],
+    X:["XX.XX","XX.XX",".XXX.","..X..",".XXX.","XX.XX","XX.XX"],
+    Y:["XX.XX","XX.XX",".XXX.","..X..","..X..","..X..","..X.."],
+    Z:["XXXXX","...XX","..XX.","..XX.",".XX..","XX...","XXXXX"],
+    a:[".....",".....",".XXX.","....X",".XXXX","X...X",".XXXX"],
+    b:["X....","X....","XXXX.","X...X","X...X","X...X","XXXX."],
+    c:[".....",".....",".XXXX","X....","X....","X....",".XXXX"],
+    d:["....X","....X",".XXXX","X...X","X...X","X...X",".XXXX"],
+    e:[".....",".....",".XXX.","X...X","XXXXX","X....",".XXXX"],
+    f:["..XX.",".X...","XXXX.",".X...",".X...",".X...",".X..."],
+    g:[".....",".....",".XXXX","X...X","X...X",".XXXX","XXXX."],
+    h:["X....","X....","XXXX.","X...X","X...X","X...X","X...X"],
+    i:["..X..",".....","..X..","..X..","..X..","..X..","..X.."],
+    k:["X....","X....","X.X..","XX...","XX...","X.X..","X..X."],
+    l:[".XX..","..X..","..X..","..X..","..X..","..X..",".XXX."],
+    m:[".....",".....","XXXXX","X.X.X","X.X.X","X.X.X","X.X.X"],
+    n:[".....",".....","XXXX.","X...X","X...X","X...X","X...X"],
+    o:[".....",".....",".XXX.","X...X","X...X","X...X",".XXX."],
+    p:[".....",".....","XXXX.","X...X","X...X","XXXX.","X...."],
+    r:[".....",".....","X.XX.","XX...","X....","X....","X...."],
+    s:[".....",".....",".XXXX","X....",".XXX.","....X","XXXX."],
+    t:[".X...",".X...","XXXX.",".X...",".X...",".X...","..XXX"],
+    u:[".....",".....","X...X","X...X","X...X","X...X",".XXXX"],
+  };
+  function drawChar(P, ch, gx, gy, c) {
+    const g = FONT[ch]; if (!g) return;
+    for (let j=0;j<g.length;j++) for (let i=0;i<g[j].length;i++)
+      if (g[j][i]==='X') P.px(gx+i, gy+j, c);
+  }
+  function drawTextCentred(P, text, c) {
+    const w = text.length*5 + (text.length-1);
+    const gx = Math.round((P.G - w)/2);
+    const gy = Math.round((P.G - 7)/2);
+    let x = gx;
+    for (const ch of text) { drawChar(P, ch, x, gy, c); x += 6; }
+  }
+  function bond(P, x1,y1,r1, x2,y2,r2, c) {
+    const dx=x2-x1, dy=y2-y1, d=Math.hypot(dx,dy);
+    if (d<1e-6) return;
+    const nx=dx/d, ny=dy/d;
+    P.line(x1+nx*r1, y1+ny*r1, x2-nx*r2, y2-ny*r2, c);
+  }
+  function doubleBond(P, x1,y1,r1, x2,y2,r2, c, off=1) {
+    const dx=x2-x1, dy=y2-y1, d=Math.hypot(dx,dy);
+    if (d<1e-6) return;
+    const nx=-dy/d, ny=dx/d;
+    bond(P, x1+nx*off, y1+ny*off, r1, x2+nx*off, y2+ny*off, r2, c);
+    bond(P, x1-nx*off, y1-ny*off, r1, x2-nx*off, y2-ny*off, r2, c);
+  }
+  const MOLECULE_SPECIES = ["water","salt","bronze","co2","methane","ammonia","o2","n2","hcl","benzene","glucose","dna","ethanol","caffeine","sucrose","atp","hemoglobin"];
+  const SPECIES = {
+    atom: (P, frame, label) => {
+      const sym = label || "H";
+      const fill = NONMETALS.has(sym) ? C.d2 : C.d1;
+      P.disc(P.G/2, P.G/2, P.G*0.46, fill);
+      P.ring(P.G/2, P.G/2, P.G*0.46+0.5, C.d0, 1);
+      drawTextCentred(P, sym, C.d0);
+    },
+    water: (P) => {
+      P.disc(12,14,5,C.d2); P.ring(12,14,5,C.d0,1);
+      P.disc(5,7,2.6,C.d2);  P.ring(5,7,2.6,C.d0,1);
+      P.disc(19,7,2.6,C.d2); P.ring(19,7,2.6,C.d0,1);
+      bond(P, 5,7,2.6, 12,14,5, C.d0); bond(P, 19,7,2.6, 12,14,5, C.d0);
+    },
+    salt: (P) => {
+      const pts = [];
+      for (let r=0;r<3;r++) for (let c=0;c<3;c++) pts.push({x:5+c*7, y:5+r*7, na:(r+c)%2===0});
+      for (let i=0;i<pts.length;i++) for (let j=i+1;j<pts.length;j++){ const a=pts[i],b=pts[j];
+        if (Math.abs(a.x-b.x)+Math.abs(a.y-b.y)===7) P.line(a.x,a.y,b.x,b.y,C.d0); }
+      for (const p of pts){ P.disc(p.x,p.y,2.4,p.na?C.d2:C.d1); P.ring(p.x,p.y,2.4,C.d0,1); }
+    },
+    bronze: (P) => {
+      const atoms = [
+        {x:8,y:8,c:C.d1},  {x:14,y:7,c:C.d2}, {x:19,y:10,c:C.d1},
+        {x:5,y:13,c:C.d2}, {x:11,y:13,c:C.d1},{x:17,y:15,c:C.d2},
+        {x:8,y:18,c:C.d1}, {x:15,y:19,c:C.d2},
+      ];
+      for (const a of atoms) { P.disc(a.x,a.y,2.6,a.c); P.ring(a.x,a.y,2.6,C.d0,1); }
+    },
+    co2: (P) => {
+      P.disc(4,12,3,C.d2);  P.ring(4,12,3,C.d0,1);
+      P.disc(12,12,3.4,C.d1); P.ring(12,12,3.4,C.d0,1);
+      P.disc(20,12,3,C.d2); P.ring(20,12,3,C.d0,1);
+      doubleBond(P, 4,12,3, 12,12,3.4, C.d0, 0.9);
+      doubleBond(P, 12,12,3.4, 20,12,3, C.d0, 0.9);
+    },
+    methane: (P) => {
+      P.disc(12,12,3.6,C.d1); P.ring(12,12,3.6,C.d0,1);
+      for (const [x,y] of [[12,4],[20,12],[12,20],[4,12]]){
+        P.disc(x,y,2,C.d2); P.ring(x,y,2,C.d0,1);
+        bond(P, 12,12,3.6, x,y,2, C.d0);
+      }
+    },
+    ammonia: (P) => {
+      P.disc(12,11,3.6,C.d1); P.ring(12,11,3.6,C.d0,1);
+      for (const [x,y] of [[12,3],[4,19],[20,19]]){
+        P.disc(x,y,2,C.d2); P.ring(x,y,2,C.d0,1);
+        bond(P, 12,11,3.6, x,y,2, C.d0);
+      }
+    },
+    o2: (P) => {
+      P.disc(7,12,4,C.d2);  P.ring(7,12,4,C.d0,1);
+      P.disc(17,12,4,C.d2); P.ring(17,12,4,C.d0,1);
+      doubleBond(P, 7,12,4, 17,12,4, C.d0, 1.1);
+    },
+    n2: (P) => {
+      P.disc(7,12,4,C.d1);  P.ring(7,12,4,C.d0,1);
+      P.disc(17,12,4,C.d1); P.ring(17,12,4,C.d0,1);
+      bond(P, 7,12,4, 17,12,4, C.d0);
+      P.line(11,10,13,10,C.d0); P.line(11,14,13,14,C.d0);
+    },
+    hcl: (P) => {
+      P.disc(6,12,2.4,C.d2); P.ring(6,12,2.4,C.d0,1);
+      P.disc(16,12,4,C.d1);  P.ring(16,12,4,C.d0,1);
+      bond(P, 6,12,2.4, 16,12,4, C.d0);
+    },
+    benzene: (P) => {
+      const R=8, cs=[];
+      for (let k=0;k<6;k++){ const a=k/6*Math.PI*2 - Math.PI/2; cs.push([12+Math.cos(a)*R, 12+Math.sin(a)*R]); }
+      for (let k=0;k<6;k++){ const [x1,y1]=cs[k], [x2,y2]=cs[(k+1)%6]; P.line(x1,y1,x2,y2,C.d0); }
+      P.ring(12,12,R-2.6,C.d0,1);
+    },
+    glucose: (P) => {
+      const R=7, cs=[];
+      for (let k=0;k<6;k++){ const a=k/6*Math.PI*2 - Math.PI/2; cs.push([12+Math.cos(a)*R, 12+Math.sin(a)*R]); }
+      for (let k=0;k<6;k++){ const [x1,y1]=cs[k], [x2,y2]=cs[(k+1)%6]; P.line(x1,y1,x2,y2,C.d0); }
+      for (let k=0;k<6;k++){ const a=k/6*Math.PI*2 - Math.PI/2;
+        const x=12+Math.cos(a)*(R+1.8), y=12+Math.sin(a)*(R+1.8);
+        P.disc(x,y,1.4,C.d2); P.ring(x,y,1.4,C.d0,1);
+      }
+    },
+    dna: (P) => {
+      for (let t=0;t<=1;t+=0.025){
+        const y=3+t*18;
+        const x1=12+Math.sin(t*Math.PI*3)*5.5;
+        const x2=12+Math.sin(t*Math.PI*3+Math.PI)*5.5;
+        P.px(Math.round(x1),Math.round(y),C.d1);
+        P.px(Math.round(x2),Math.round(y),C.d1);
+      }
+      for (let i=0;i<5;i++){
+        const t=(i+1)/6, y=3+t*18;
+        const x1=12+Math.sin(t*Math.PI*3)*5.5;
+        const x2=12+Math.sin(t*Math.PI*3+Math.PI)*5.5;
+        P.line(x1,y,x2,y,C.d0);
+      }
+    },
+    ethanol: (P) => {
+      P.disc(5,15,2.8,C.d1);  P.ring(5,15,2.8,C.d0,1);
+      P.disc(12,10,2.8,C.d1); P.ring(12,10,2.8,C.d0,1);
+      P.disc(18,15,2.8,C.d2); P.ring(18,15,2.8,C.d0,1);
+      bond(P, 5,15,2.8, 12,10,2.8, C.d0);
+      bond(P, 12,10,2.8, 18,15,2.8, C.d0);
+      P.disc(21,19,1.4,C.d2); P.ring(21,19,1.4,C.d0,1);
+      bond(P, 18,15,2.8, 21,19,1.4, C.d0);
+    },
+    caffeine: (P) => {
+      const HC=[8,12], hex=[];
+      for (let k=0;k<6;k++){ const a=k/6*Math.PI*2-Math.PI/2; hex.push([HC[0]+Math.cos(a)*3.6, HC[1]+Math.sin(a)*3.6]); }
+      for (let k=0;k<6;k++){ const [x1,y1]=hex[k],[x2,y2]=hex[(k+1)%6]; P.line(x1,y1,x2,y2,C.d0); }
+      const pTop=hex[1], pBot=hex[2];
+      const v1=[pTop[0]+2.8, pTop[1]+0.3];
+      const v2=[pTop[0]+4.2, (pTop[1]+pBot[1])/2];
+      const v3=[pBot[0]+2.8, pBot[1]-0.3];
+      P.line(pTop[0],pTop[1], v1[0],v1[1], C.d0);
+      P.line(v1[0],v1[1], v2[0],v2[1], C.d0);
+      P.line(v2[0],v2[1], v3[0],v3[1], C.d0);
+      P.line(v3[0],v3[1], pBot[0],pBot[1], C.d0);
+      P.disc(hex[5][0]-2.5, hex[5][1], 1.4, C.d2); P.ring(hex[5][0]-2.5, hex[5][1], 1.4, C.d0, 1);
+      P.line(hex[5][0]-1, hex[5][1], hex[5][0], hex[5][1], C.d0);
+      P.disc(hex[4][0]-2.5, hex[4][1], 1.4, C.d2); P.ring(hex[4][0]-2.5, hex[4][1], 1.4, C.d0, 1);
+      P.line(hex[4][0]-1, hex[4][1], hex[4][0], hex[4][1], C.d0);
+      P.line(hex[0][0], hex[0][1], hex[0][0], hex[0][1]-2, C.d0);
+      P.line(hex[3][0], hex[3][1], hex[3][0], hex[3][1]+2, C.d0);
+      P.line(v2[0], v2[1], v2[0]+2, v2[1], C.d0);
+    },
+    sucrose: (P) => {
+      const HC=[6,12], hex=[];
+      for (let k=0;k<6;k++){ const a=k/6*Math.PI*2-Math.PI/2; hex.push([HC[0]+Math.cos(a)*3.3, HC[1]+Math.sin(a)*3.3]); }
+      for (let k=0;k<6;k++){ const [x1,y1]=hex[k],[x2,y2]=hex[(k+1)%6]; P.line(x1,y1,x2,y2,C.d0); }
+      const FC=[18,12], pent=[];
+      for (let k=0;k<5;k++){ const a=k/5*Math.PI*2-Math.PI/2 + Math.PI; pent.push([FC[0]+Math.cos(a)*3, FC[1]+Math.sin(a)*3]); }
+      for (let k=0;k<5;k++){ const [x1,y1]=pent[k],[x2,y2]=pent[(k+1)%5]; P.line(x1,y1,x2,y2,C.d0); }
+      P.disc(12,12,1.4,C.d2); P.ring(12,12,1.4,C.d0,1);
+      P.line(hex[1][0],hex[1][1], 11,12, C.d0);
+      P.line(13,12, pent[2][0],pent[2][1], C.d0);
+    },
+    atp: (P) => {
+      const phos = [[3,18],[7,18],[11,18]];
+      for (const [x,y] of phos){ P.disc(x,y,2,C.d2); P.ring(x,y,2,C.d0,1); }
+      for (let i=0;i<2;i++) bond(P, phos[i][0],phos[i][1],2, phos[i+1][0],phos[i+1][1],2, C.d0);
+      const ribose=[];
+      for (let k=0;k<5;k++){ const a=k/5*Math.PI*2-Math.PI/2; ribose.push([16+Math.cos(a)*2.6, 13+Math.sin(a)*2.6]); }
+      for (let k=0;k<5;k++){ const [x1,y1]=ribose[k],[x2,y2]=ribose[(k+1)%5]; P.line(x1,y1,x2,y2,C.d0); }
+      P.line(13,18, 14,15, C.d0);
+      const ade=[];
+      for (let k=0;k<6;k++){ const a=k/6*Math.PI*2-Math.PI/2; ade.push([19+Math.cos(a)*2.4, 6+Math.sin(a)*2.4]); }
+      for (let k=0;k<6;k++){ const [x1,y1]=ade[k],[x2,y2]=ade[(k+1)%6]; P.line(x1,y1,x2,y2,C.d0); }
+      P.line(17,10, 18,9, C.d0);
+    },
+    hemoglobin: (P) => {
+      for (const [x,y] of [[7,7],[17,7],[7,17],[17,17]]){
+        P.disc(x,y,3.8,C.d1); P.ring(x,y,3.8,C.d0,1);
+        P.disc(x,y,1.4,C.d0); P.px(x,y,C.d2);
+      }
+      P.line(11,7,13,7,C.d0); P.line(11,17,13,17,C.d0);
+      P.line(7,11,7,13,C.d0); P.line(17,11,17,13,C.d0);
+    },
+    spinAmoeba: (P, frame) => {
+      const inside=(x,y)=>{ const dx=x-12,dy=y-12,a=Math.atan2(dy,dx),r=6.2+1.5*Math.cos(4*a); return dx*dx+dy*dy<=r*r; };
+      for(let y=0;y<P.G;y++)for(let x=0;x<P.G;x++) if(inside(x,y)) P.px(x,y,C.d2);
+      P.outline(inside,C.d0);
+    },
+    amoeba: (P, frame) => {
+      const wob = frame ? 1.55 : 1.25;
+      const inside=(x,y)=>{ const dx=x-12,dy=y-12,a=Math.atan2(dy,dx),r=6+wob*Math.cos(4*a); return dx*dx+dy*dy<=r*r; };
+      for(let y=0;y<P.G;y++)for(let x=0;x<P.G;x++) if(inside(x,y)) P.px(x,y,C.d2);
+      P.outline(inside,C.d0);
+      P.px(10,11,C.d0); P.px(10,10,C.d0); P.px(14,11,C.d0); P.px(14,10,C.d0);
+    },
+    butterfly: (P, frame) => {
+      const open = frame ? 0.65 : 1.0;
+      P.rect(11, 5, 2, 14, C.d0);
+      P.rect(10, 3, 4, 2, C.d0);
+      P.line(10, 3, 7, 0, C.d0); P.line(13, 3, 16, 0, C.d0);
+      const wing = (xL, xR, yT, yB) => {
+        for (let y = yT; y <= yB; y++) {
+          let l = xL, r = xR;
+          if (y === yT || y === yB) { l++; r--; }
+          if (l <= r) for (let x = l; x <= r; x++) P.px(x, y, C.d2);
+        }
+        P.outline((x, y) => {
+          if (y < yT || y > yB) return false;
+          let l = xL, r = xR;
+          if (y === yT || y === yB) { l++; r--; }
+          return l <= r && x >= l && x <= r;
+        }, C.d0);
+      };
+      const uW = Math.max(3, Math.round(7 * open));
+      const lW = Math.max(2, Math.round(6 * open));
+      wing(11 - uW, 10, 5, 11);
+      wing(13, 12 + uW, 5, 11);
+      wing(11 - lW, 10, 13, 18);
+      wing(13, 12 + lW, 13, 18);
+    },
+    personMan: (P, frame) => {
+      const dx = frame ? 1 : -1;
+      P.ring(12,5,2.2,C.d0,1);
+      P.line(12,7,12,15,C.d0);
+      P.line(12,10,8+dx,13,C.d0);
+      P.line(12,10,16-dx,13,C.d0);
+      P.line(12,15,9+dx,21,C.d0);
+      P.line(12,15,15-dx,21,C.d0);
+    },
+    personWoman: (P, frame) => {
+      const dx = frame ? 1 : -1;
+      P.ring(12,5,2.2,C.d0,1);
+      P.line(12,7,12,11,C.d0);
+      P.line(12,10,8+dx,13,C.d0);
+      P.line(12,10,16-dx,13,C.d0);
+      const dress=(x,y)=>y>=11&&y<=16&&Math.abs(x-12)<=(y-11)*0.9+1;
+      for(let y=0;y<P.G;y++)for(let x=0;x<P.G;x++) if(dress(x,y)) P.px(x,y,C.d2);
+      P.outline(dress,C.d0);
+      P.line(11,16,10-dx,21,C.d0);
+      P.line(13,16,14+dx,21,C.d0);
+    },
+    redBlood: (P) => {
+      const inside=(x,y)=>Math.hypot(x-12,y-12)<=8;
+      for(let y=0;y<P.G;y++)for(let x=0;x<P.G;x++) if(inside(x,y)) P.px(x,y,C.d1);
+      P.outline(inside,C.d0);
+      P.disc(12,12,3.4,C.d0); P.disc(12,12,2,C.d2);
+    },
+    whiteBlood: (P) => {
+      const inside=(x,y)=>{ const dx=x-12,dy=y-12,a=Math.atan2(dy,dx),r=7.5+0.9*Math.sin(3*a); return dx*dx+dy*dy<=r*r; };
+      for(let y=0;y<P.G;y++)for(let x=0;x<P.G;x++) if(inside(x,y)) P.px(x,y,C.d2);
+      P.outline(inside,C.d0);
+      P.disc(9,10,2.3,C.d0); P.disc(14,11,2,C.d0); P.disc(11,15,2.2,C.d0);
+    },
+    paramecium: (P, frame) => {
+      const off = frame ? 1 : 0;
+      const inside=(x,y)=>((x-12)/9)**2+((y-12)/5)**2<=1;
+      for(let y=0;y<P.G;y++)for(let x=0;x<P.G;x++) if(inside(x,y)) P.px(x,y,C.d2);
+      P.outline(inside,C.d0);
+      P.disc(9,12,1.6,C.d3); P.outline((x,y)=>Math.hypot(x-9,y-12)<=1.6,C.d0);
+      P.disc(15,12,1,C.d0);
+      for (let k=0;k<18;k++){ const a=k/18*Math.PI*2;
+        const long = ((k+off)%2)===0;
+        const x0=12+Math.cos(a)*8.8, y0=12+Math.sin(a)*4.8;
+        const x1=12+Math.cos(a)*(long?11.4:10.2), y1=12+Math.sin(a)*(long?7:6);
+        P.line(x0,y0,x1,y1,C.d0);
+      }
+    },
+    bacterium: (P) => {
+      const rod=(x0,x1,cy)=>{
+        P.rect(x0,cy-1,(x1-x0)+1,3,C.d2);
+        P.disc(x0,cy,1.5,C.d2); P.disc(x1,cy,1.5,C.d2);
+        const inside=(x,y)=>((x>=x0&&x<=x1&&y>=cy-1&&y<=cy+1)||Math.hypot(x-x0,y-cy)<=1.5||Math.hypot(x-x1,y-cy)<=1.5);
+        P.outline(inside,C.d0);
+        P.px(Math.round((x0+x1)/2 - 2), cy, C.d0);
+      };
+      rod(5,18,8); rod(7,17,16);
+    },
+    virus: (P) => {
+      P.disc(12,12,6,C.d1);
+      P.outline((x,y)=>Math.hypot(x-12,y-12)<=6,C.d0);
+      for (let k=0;k<10;k++){ const a=k/10*Math.PI*2;
+        const x0=12+Math.cos(a)*6, y0=12+Math.sin(a)*6;
+        const x1=12+Math.cos(a)*9, y1=12+Math.sin(a)*9;
+        P.line(x0,y0,x1,y1,C.d0); P.disc(x1,y1,0.9,C.d0);
+      }
+      P.disc(12,12,2,C.d0);
+    },
+    worm: (P, frame) => {
+      const ph = frame ? Math.PI : 0;
+      const inside = new Set();
+      for (let t=0; t<=1; t+=0.012) {
+        const x = 3 + t*18, y = 12 + Math.sin(t*Math.PI*1.8 + ph)*4.5;
+        const r = t > 0.88 ? 2.2 : 1.7;
+        for (let dy=-3; dy<=3; dy++) for (let dx=-3; dx<=3; dx++)
+          if (dx*dx + dy*dy <= r*r) inside.add(Math.round(x+dx)+","+Math.round(y+dy));
+      }
+      for (const k of inside) { const [x,y]=k.split(",").map(Number); P.px(x,y,C.d2); }
+      P.outline((x,y)=>inside.has(x+","+y), C.d0);
+      const hx = 21, hy = Math.round(12 + Math.sin(Math.PI*1.8 + ph)*4.5);
+      P.px(hx-1, hy-1, C.d0); P.px(hx+1, hy-1, C.d0);
+    },
+    caterpillar: (P, frame) => {
+      const ph = frame ? 0.8 : 0;
+      const inside = new Set();
+      for (let i=0; i<7; i++) {
+        const x = 4 + i*3, y = 12 + Math.sin(i*0.55 + ph)*1.4;
+        for (let dy=-3; dy<=3; dy++) for (let dx=-3; dx<=3; dx++)
+          if (dx*dx + dy*dy <= 4.8) inside.add(Math.round(x+dx)+","+Math.round(y+dy));
+      }
+      for (const k of inside) { const [x,y]=k.split(",").map(Number); P.px(x,y,C.d2); }
+      P.outline((x,y)=>inside.has(x+","+y), C.d0);
+      for (let i=0; i<7; i++) {
+        const x = Math.round(4 + i*3), y = Math.round(12 + Math.sin(i*0.55 + ph)*1.4);
+        const fl = frame ? 1 : 0;
+        P.line(x-1, y+3, x-1, y+4-fl, C.d0);
+        P.line(x+1, y+3, x+1, y+4-(1-fl), C.d0);
+      }
+      const hx = Math.round(4 + 6*3);
+      const hy = Math.round(12 + Math.sin(6*0.55 + ph)*1.4);
+      P.px(hx+1, hy-1, C.d0); P.px(hx+1, hy+1, C.d0);
+      P.line(hx, hy-2, hx-1, hy-4, C.d0); P.line(hx+2, hy-2, hx+3, hy-4, C.d0);
+    },
+    snake: (P, frame) => {
+      const ph = frame ? 0.6 : 0;
+      const pts = [];
+      for (let t=0; t<=1; t+=0.02) {
+        const x = 3 + t*18, y = 12 + Math.sin(t*Math.PI*2.5 + ph)*5;
+        pts.push([x,y]);
+      }
+      const inside = new Set();
+      for (const [x,y] of pts) for (let dy=-1; dy<=1; dy++) for (let dx=-1; dx<=1; dx++)
+        if (dx*dx + dy*dy <= 2) inside.add(Math.round(x+dx)+","+Math.round(y+dy));
+      for (const k of inside) { const [x,y]=k.split(",").map(Number); P.px(x,y,C.d2); }
+      P.outline((x,y)=>inside.has(x+","+y), C.d0);
+      const [hxRaw, hyRaw] = pts[pts.length-1];
+      const hx = Math.round(hxRaw), hy = Math.round(hyRaw);
+      P.disc(hx, hy, 2, C.d2);
+      P.outline((x,y)=>Math.hypot(x-hx,y-hy)<=2, C.d0);
+      P.px(hx, hy-1, C.d0);
+      const tongue = frame ? 1 : 0;
+      P.line(hx+2, hy, hx+4, hy-1-tongue, C.d0);
+      P.line(hx+2, hy, hx+4, hy+1+tongue, C.d0);
+    },
+    spider: (P, frame) => {
+      const d = frame ? 1 : 0;
+      P.disc(12,11,2,C.d0); P.disc(12,14,3,C.d0);
+      const legs = [
+        [10,11, 6,8-d,   3,10-d], [10,12, 4,11, 2,14], [10,13, 4,15, 3,18+d], [10,14, 6,17+d, 4,20+d],
+        [14,11, 18,8-d,  21,10-d],[14,12, 20,11,22,14],[14,13, 20,15,21,18+d],[14,14, 18,17+d,20,20+d],
+      ];
+      for (const [x0,y0,x1,y1,x2,y2] of legs) { P.line(x0,y0,x1,y1,C.d0); P.line(x1,y1,x2,y2,C.d0); }
+      P.px(11,10,C.d2); P.px(13,10,C.d2);
+    },
+    beetle: (P, frame) => {
+      const d = frame ? 1 : 0;
+      const inside=(x,y)=>((x-12)/4.2)**2+((y-13)/6)**2<=1;
+      for(let y=0;y<P.G;y++)for(let x=0;x<P.G;x++) if(inside(x,y)) P.px(x,y,C.d1);
+      P.outline(inside,C.d0);
+      P.line(12,8,12,18,C.d0);
+      P.px(10,11,C.d0); P.px(14,11,C.d0); P.px(11,15,C.d0); P.px(13,15,C.d0);
+      P.disc(12,7,1.6,C.d0);
+      P.line(11,5,9-d,3,C.d0); P.line(13,5,15+d,3,C.d0);
+      const lYs = [10,13,16], lDs = [d, 0, -d];
+      for (let i=0;i<3;i++){ const oy = lYs[i], dy = lDs[i];
+        P.line(8,oy,4,oy-1+dy,C.d0); P.line(16,oy,20,oy-1+dy,C.d0); }
+    },
+    bee: (P, frame) => {
+      const buzz = frame ? 1 : 0;
+      const inside=(x,y)=>((x-12)/4)**2+((y-13)/5)**2<=1;
+      for(let y=0;y<P.G;y++)for(let x=0;x<P.G;x++) if(inside(x,y)) P.px(x,y,C.d1);
+      P.outline(inside,C.d0);
+      P.rect(8,11,9,1,C.d0); P.rect(8,15,9,1,C.d0);
+      P.disc(12,7,1.7,C.d0);
+      P.line(11,5,9,3,C.d0); P.line(13,5,15,3,C.d0);
+      P.ring(7,10-buzz,2.6,C.d0,1); P.ring(17,10-buzz,2.6,C.d0,1);
+      P.line(12,18,12,20,C.d0); P.px(12,21,C.d0);
+    },
+    dragonfly: (P, frame) => {
+      const flap = frame ? 1 : 0;
+      P.rect(11, 2, 2, 2, C.d0);
+      P.px(10, 2, C.d0); P.px(13, 2, C.d0);
+      P.rect(11, 4, 2, 3, C.d0);
+      P.px(10, 5, C.d0); P.px(13, 5, C.d0);
+      P.rect(11, 7, 2, 14, C.d0);
+      for (let y = 9; y <= 19; y += 2) { P.px(11, y, C.d2); P.px(12, y, C.d2); }
+      const upperL = (x,y) => ((x-6)/4.5)**2 + ((y-(5+flap))/1.3)**2 <= 1;
+      const upperR = (x,y) => ((x-18)/4.5)**2 + ((y-(5+flap))/1.3)**2 <= 1;
+      const lowerL = (x,y) => ((x-6)/3.5)**2 + ((y-(9-flap))/1.2)**2 <= 1;
+      const lowerR = (x,y) => ((x-18)/3.5)**2 + ((y-(9-flap))/1.2)**2 <= 1;
+      P.outline(upperL, C.d0); P.outline(upperR, C.d0);
+      P.outline(lowerL, C.d0); P.outline(lowerR, C.d0);
+    },
+    ladybug: (P, frame) => {
+      const d = frame ? 1 : 0;
+      const body=(x,y)=>((x-12)/5)**2+((y-13)/5.5)**2<=1;
+      for(let y=0;y<P.G;y++)for(let x=0;x<P.G;x++) if(body(x,y)) P.px(x,y,C.d1);
+      P.outline(body, C.d0);
+      const head=(x,y)=>Math.hypot(x-12,y-6)<=2;
+      for(let y=0;y<P.G;y++)for(let x=0;x<P.G;x++) if(head(x,y)) P.px(x,y,C.d0);
+      P.line(11,4,9-d,2,C.d0); P.line(13,4,15+d,2,C.d0);
+      P.line(12,8,12,18,C.d0);
+      P.disc(9,11,1.3,C.d0); P.disc(15,11,1.3,C.d0);
+      P.disc(9,15,1.3,C.d0); P.disc(15,15,1.3,C.d0);
+      P.line(8,10,5,9-d,C.d0);   P.line(16,10,19,9-d,C.d0);
+      P.line(7,13,4,13,C.d0);    P.line(17,13,20,13,C.d0);
+      P.line(8,16,5,17+d,C.d0);  P.line(16,16,19,17+d,C.d0);
+    },
+    ant: (P, frame) => {
+      const d = frame ? 1 : 0;
+      const head=(x,y)=>Math.hypot(x-12,y-4)<=2.2;
+      for(let y=0;y<P.G;y++)for(let x=0;x<P.G;x++) if(head(x,y)) P.px(x,y,C.d1);
+      P.outline(head, C.d0);
+      P.px(11,4,C.d0); P.px(13,4,C.d0);
+      P.line(11,2,9-d,0,C.d0); P.line(13,2,15+d,0,C.d0);
+      const thorax=(x,y)=>Math.hypot(x-12,y-10)<=2;
+      for(let y=0;y<P.G;y++)for(let x=0;x<P.G;x++) if(thorax(x,y)) P.px(x,y,C.d1);
+      P.outline(thorax, C.d0);
+      const abdomen=(x,y)=>((x-12)/3)**2+((y-17)/4.5)**2<=1;
+      for(let y=0;y<P.G;y++)for(let x=0;x<P.G;x++) if(abdomen(x,y)) P.px(x,y,C.d1);
+      P.outline(abdomen, C.d0);
+      P.line(10,9,7,7-d,C.d0);    P.line(7,7-d,5,8-d,C.d0);
+      P.line(14,9,17,7+d,C.d0);   P.line(17,7+d,19,8+d,C.d0);
+      P.line(10,10,6,10,C.d0);    P.line(6,10,4,11+d,C.d0);
+      P.line(14,10,18,10,C.d0);   P.line(18,10,20,11-d,C.d0);
+      P.line(10,11,7,13+d,C.d0);  P.line(7,13+d,5,14+d,C.d0);
+      P.line(14,11,17,13-d,C.d0); P.line(17,13-d,19,14-d,C.d0);
+    },
+    apple: (P) => {
+      const body=(x,y)=> Math.hypot(x-10,y-13)<=5 || Math.hypot(x-14,y-13)<=5;
+      for(let y=0;y<P.G;y++)for(let x=0;x<P.G;x++) if(body(x,y)) P.px(x,y,C.d1);
+      P.outline(body,C.d0);
+      P.line(12,7,13,4,C.d0); P.disc(15,5,1.6,C.d2);
+      P.px(10,11,C.d2); P.px(11,11,C.d2);
+    },
+    banana: (P) => {
+      const inside = new Set();
+      for (let t=0; t<=1; t+=0.015) {
+        const x = 3 + t*18, y = 8 + Math.sin(t*Math.PI)*7;
+        const r = 1.6 + Math.sin(t*Math.PI)*1.4;
+        for (let dy=-3; dy<=3; dy++) for (let dx=-3; dx<=3; dx++)
+          if (dx*dx + dy*dy <= r*r) inside.add(Math.round(x+dx)+","+Math.round(y+dy));
+      }
+      for (const k of inside) { const [x,y]=k.split(",").map(Number); P.px(x,y,C.d2); }
+      P.outline((x,y)=>inside.has(x+","+y), C.d0);
+      P.px(3,7,C.d0); P.px(3,6,C.d0); P.px(3,5,C.d0); P.px(20,7,C.d0);
+    },
+    cherries: (P) => {
+      P.disc(8,17,3,C.d1);  P.ring(8,17,3,C.d0,1);
+      P.disc(16,17,3,C.d1); P.ring(16,17,3,C.d0,1);
+      P.line(8,14,11,8,C.d0); P.line(16,14,13,8,C.d0);
+      P.disc(13,7,1.8,C.d2); P.outline((x,y)=>Math.hypot(x-13,y-7)<=1.8,C.d0);
+    },
+    grapes: (P) => {
+      const pts=[];
+      for (let r=0;r<4;r++) for (let i=0;i<=r;i++) pts.push({x:12-r*2+i*4, y:9+r*3});
+      for (const p of pts) P.disc(p.x,p.y,1.9,C.d1);
+      for (const p of pts) P.ring(p.x,p.y,1.9,C.d0,1);
+      P.line(12,8,13,4,C.d0);
+      P.disc(15,4,1.7,C.d2); P.outline((x,y)=>Math.hypot(x-15,y-4)<=1.7,C.d0);
+    },
+    strawberry: (P) => {
+      const inside = (x,y) => {
+        if (Math.hypot(x-10, y-11) <= 3.3) return true;
+        if (Math.hypot(x-14, y-11) <= 3.3) return true;
+        if (y >= 11 && y <= 20 && Math.abs(x-12) <= 5.5 - (y-11)*0.55) return true;
+        return false;
+      };
+      for(let y=0;y<P.G;y++)for(let x=0;x<P.G;x++) if(inside(x,y)) P.px(x,y,C.d1);
+      P.outline(inside, C.d0);
+      for (const [x,y] of [[10,13],[14,13],[12,14],[9,15],[15,15],[11,17],[13,17]]) P.px(x,y,C.d2);
+      const calyx = (x,y) => {
+        if (y >= 5 && y <= 9 && Math.abs(x-12) <= (9-y)*0.7) return true;
+        if (y >= 6 && y <= 9 && x >= 7 && x <= 11 && Math.abs(x-9) <= (9-y)*0.8) return true;
+        if (y >= 6 && y <= 9 && x >= 13 && x <= 17 && Math.abs(x-15) <= (9-y)*0.8) return true;
+        return false;
+      };
+      for(let y=0;y<P.G;y++)for(let x=0;x<P.G;x++) if(calyx(x,y)) P.px(x,y,C.d2);
+      P.outline(calyx, C.d0);
+    },
+    pear: (P) => {
+      P.disc(12,15,5,C.d1); P.disc(12,9,3.5,C.d1);
+      const inside=(x,y)=>(Math.hypot(x-12,y-15)<=5 || Math.hypot(x-12,y-9)<=3.5);
+      P.outline(inside,C.d0);
+      P.line(12,5,13,3,C.d0);
+      P.disc(14,4,1.5,C.d2); P.outline((x,y)=>Math.hypot(x-14,y-4)<=1.5,C.d0);
+      P.px(10,13,C.d2); P.px(11,13,C.d2);
+    },
+    orange: (P) => {
+      P.disc(12,12,7,C.d1);
+      P.outline((x,y)=>Math.hypot(x-12,y-12)<=7,C.d0);
+      for (let k=0;k<8;k++){ const a=k/8*Math.PI*2;
+        const x0=12+Math.cos(a)*1.5, y0=12+Math.sin(a)*1.5;
+        const x1=12+Math.cos(a)*6.4, y1=12+Math.sin(a)*6.4;
+        P.line(x0,y0,x1,y1,C.d0);
+      }
+      P.disc(12,12,1,C.d0);
+      P.px(12,4,C.d2); P.line(12,5,13,4,C.d0);
+    },
+    watermelon: (P) => {
+      const flesh=(x,y)=>{ const dx=x-12,dy=y-9; return dy>=0 && dx*dx+dy*dy<=92 && dy<=11; };
+      for(let y=0;y<P.G;y++)for(let x=0;x<P.G;x++) if(flesh(x,y)) P.px(x,y,C.d1);
+      for(let y=0;y<P.G;y++)for(let x=0;x<P.G;x++){ const dx=x-12,dy=y-9,d=Math.sqrt(dx*dx+dy*dy);
+        if (dy>=0 && d>9 && d<=10.5 && dy<=11) P.px(x,y,C.d2); }
+      P.outline((x,y)=>{ const dx=x-12,dy=y-9; return dy>=0 && dx*dx+dy*dy<=110 && dy<=11; }, C.d0);
+      P.line(2,9,22,9,C.d0);
+      for (const [x,y] of [[9,12],[13,13],[11,15],[14,14],[10,14],[15,16],[12,17]]) P.px(x,y,C.d0);
+    },
+    bicycle: (P) => {
+      P.ring(6,17,4,C.d0,1); P.ring(18,17,4,C.d0,1);
+      P.disc(6,17,1,C.d0); P.disc(18,17,1,C.d0);
+      P.line(6,13.5,6,20.5,C.d0); P.line(2.5,17,9.5,17,C.d0);
+      P.line(18,13.5,18,20.5,C.d0); P.line(14.5,17,21.5,17,C.d0);
+      P.line(11,9,16,9,C.d0);
+      P.line(11,9,12,17,C.d0);
+      P.line(16,9,12,17,C.d0);
+      P.line(12,17,6,17,C.d0);
+      P.line(16,9,18,17,C.d0);
+      P.rect(9,8,4,1,C.d0);
+      P.rect(14,7,4,1,C.d0); P.line(16,8,16,9,C.d0);
+    },
+    car: (P) => {
+      const body=(x,y)=>((x>=3&&x<=20&&y>=13&&y<=16)||(x>=7&&x<=15&&y>=9&&y<=12));
+      for(let y=0;y<P.G;y++)for(let x=0;x<P.G;x++) if(body(x,y)) P.px(x,y,C.d1);
+      P.outline(body,C.d0);
+      P.rect(8,10,3,2,C.d3); P.rect(12,10,3,2,C.d3); P.px(11,10,C.d0); P.px(11,11,C.d0);
+      P.px(10,11,C.d0);
+      P.line(11,13,11,16,C.d0);
+      P.px(20,14,C.d2); P.px(3,14,C.d2);
+      P.disc(7,18,2.5,C.d0); P.disc(7,18,1,C.d2);
+      P.disc(16,18,2.5,C.d0); P.disc(16,18,1,C.d2);
+    },
+    house: (P) => {
+      P.rect(6,13,13,9,C.d1);
+      P.outline((x,y)=>x>=6&&x<=18&&y>=13&&y<=21,C.d0);
+      const roof=(x,y)=>y>=5&&y<=13&&Math.abs(x-12)<=(y-5)*(7/8);
+      for(let y=0;y<P.G;y++)for(let x=0;x<P.G;x++) if(roof(x,y)) P.px(x,y,C.d2);
+      P.outline(roof,C.d0);
+      P.rect(11,17,3,5,C.d0); P.px(13,19,C.d2);
+      P.rect(8,15,3,3,C.d2);
+      P.outline((x,y)=>x>=8&&x<=10&&y>=15&&y<=17,C.d0);
+      P.line(9,15,9,17,C.d0); P.line(8,16,10,16,C.d0);
+      P.rect(15,15,3,3,C.d2);
+      P.outline((x,y)=>x>=15&&x<=17&&y>=15&&y<=17,C.d0);
+      P.line(16,15,16,17,C.d0); P.line(15,16,17,16,C.d0);
+      P.rect(15,7,2,4,C.d1);
+      P.outline((x,y)=>x>=15&&x<=16&&y>=7&&y<=10,C.d0);
+    },
+    skyscraper: (P) => {
+      P.rect(7,5,10,17,C.d1);
+      P.outline((x,y)=>x>=7&&x<=16&&y>=5&&y<=21,C.d0);
+      for (let row=0;row<5;row++) for (let col=0;col<3;col++) {
+        const wx=8+col*3, wy=7+row*3;
+        P.rect(wx,wy,2,2,C.d3);
+      }
+      P.rect(11,2,2,3,C.d1);
+      P.outline((x,y)=>x>=11&&x<=12&&y>=2&&y<=4,C.d0);
+      P.px(12,1,C.d0); P.px(12,0,C.d0);
+    },
+    airplane: (P) => {
+      const inside=(x,y)=>{
+        if (x>=11&&x<=12 && y>=2&&y<=20) return true;
+        if (y>=10&&y<=11 && ((x>=3&&x<=10)||(x>=13&&x<=20))) return true;
+        if (y===12 && ((x>=5&&x<=10)||(x>=13&&x<=18))) return true;
+        if (y>=17&&y<=18 && x>=8&&x<=15) return true;
+        return false;
+      };
+      for(let y=0;y<P.G;y++)for(let x=0;x<P.G;x++) if(inside(x,y)) P.px(x,y,C.d1);
+      P.outline(inside,C.d0);
+      P.px(11,4,C.d3); P.px(12,4,C.d3); P.px(11,5,C.d3); P.px(12,5,C.d3);
+      P.disc(6,12,1,C.d0); P.disc(17,12,1,C.d0);
+    },
+  };
+  function planetBuild(P, o, frame) {
+    const RING_ANG = -0.42;
+    const FC = 8;
+    const t = ((frame|0) % FC) / FC * Math.PI * 2;
+    function ellRot(cx,cy,rx,ry,ang,c,front){
+      const ca=Math.cos(ang), sa=Math.sin(ang);
+      for(let y=0;y<P.G;y++) for(let x=0;x<P.G;x++){
+        const dx=x-cx, dy=y-cy;
+        const dxr=dx*ca+dy*sa, dyr=-dx*sa+dy*ca;
+        const v=(dxr/rx)**2+(dyr/ry)**2;
+        if(v<=1.04 && v>0.7 && (!front || dyr>=0)) P.px(x,y,c);
+      }
+    }
+    function ringPt(orbitT) {
+      const rx = 9, ry = 3.2;
+      const ca = Math.cos(RING_ANG), sa = Math.sin(RING_ANG);
+      const lx = Math.cos(orbitT)*rx, ly = Math.sin(orbitT)*ry;
+      return { x: 12 + lx*ca - ly*sa, y: 12 + lx*sa + ly*ca, front: ly >= 0 };
+    }
+    function moonPt(orbitT, r) {
+      const ca = Math.cos(RING_ANG), sa = Math.sin(RING_ANG);
+      const lx = Math.cos(orbitT)*r, ly = Math.sin(orbitT)*r*0.55;
+      return { x: 12 + lx*ca - ly*sa, y: 12 + lx*sa + ly*ca, front: ly >= 0 };
+    }
+    if (o.ring) ellRot(12,12,9,3.2,RING_ANG,C.d2,false);
+    if (o.moons>=1) { const m=moonPt(t, 10);   if (!m.front) { P.disc(m.x,m.y,1.6,C.d2); P.outline((x,y)=>Math.hypot(x-m.x,y-m.y)<=1.6,C.d0); } }
+    if (o.moons>=2) { const m=moonPt(t+Math.PI, 11); if (!m.front) { P.disc(m.x,m.y,1.3,C.d2); P.outline((x,y)=>Math.hypot(x-m.x,y-m.y)<=1.3,C.d0); } }
+    P.disc(12,12,6,C.d1);
+    P.outline((x,y)=>Math.hypot(x-12,y-12)<=6,C.d0);
+    if (o.bands){ P.rect(7,10,10,1,C.d0); P.rect(8,13,8,1,C.d0); if(o.bands>2) P.rect(9,16,6,1,C.d0); }
+    if (o.spots){ P.disc(10,11,1.4,C.d0); P.disc(15,14,1,C.d0); }
+    if (o.ring) ellRot(12,12,9,3.2,RING_ANG,C.d2,true);
+    if (o.ring) { const r=ringPt(t); P.disc(r.x,r.y,1.1,C.d0); }
+    if (o.moons>=1) { const m=moonPt(t, 10);   if (m.front)  { P.disc(m.x,m.y,1.6,C.d2); P.outline((x,y)=>Math.hypot(x-m.x,y-m.y)<=1.6,C.d0); } }
+    if (o.moons>=2) { const m=moonPt(t+Math.PI, 11); if (m.front)  { P.disc(m.x,m.y,1.3,C.d2); P.outline((x,y)=>Math.hypot(x-m.x,y-m.y)<=1.3,C.d0); } }
+  }
+  SPECIES.planet1 = (P, frame)=>planetBuild(P,{bands:2}, frame);
+  SPECIES.planet2 = (P, frame)=>planetBuild(P,{spots:true}, frame);
+  SPECIES.planet3 = (P, frame)=>planetBuild(P,{bands:3}, frame);
+  SPECIES.planet4 = (P, frame)=>planetBuild(P,{ring:true}, frame);
+  SPECIES.planet5 = (P, frame)=>planetBuild(P,{ring:true,bands:2}, frame);
+  SPECIES.planet6 = (P, frame)=>planetBuild(P,{ring:true,spots:true}, frame);
+  SPECIES.planet7 = (P, frame)=>planetBuild(P,{moons:2}, frame);
+  SPECIES.planet8 = (P, frame)=>planetBuild(P,{moons:2,bands:2}, frame);
+  SPECIES.planet9 = (P, frame)=>planetBuild(P,{ring:true,moons:1}, frame);
+  SPECIES.sun = (P) => {
+    for(let k=0;k<8;k++){ const a=k*Math.PI/4; const P_=painter; const _=null;
+      const x0=12+Math.cos(a)*7, y0=12+Math.sin(a)*7, x1=12+Math.cos(a)*10, y1=12+Math.sin(a)*10;
+      P.line(x0,y0,x1,y1,C.d0); }
+    P.disc(12,12,6,C.d2);
+    P.outline((x,y)=>Math.hypot(x-12,y-12)<=6,C.d0);
+    P.px(10,11,C.d0); P.px(14,11,C.d0);
+    P.line(10,14,11,15,C.d0); P.line(11,15,13,15,C.d0); P.line(13,15,14,14,C.d0);
+  };
+  SPECIES.galaxySpiral = (P) => {
+    P.disc(12,12,2,C.d2);
+    for(let arm=0;arm<2;arm++){ const off=arm*Math.PI;
+      for(let t=0;t<10;t+=0.5){ const a=t*0.55+off, r=2+t; P.px(12+Math.cos(a)*r,12+Math.sin(a)*r, t>6?C.d0:C.d1); } }
+    P.px(5,6,C.d0); P.px(19,17,C.d0); P.px(18,5,C.d2);
+  };
+  SPECIES.galaxyBarred = (P) => {
+    P.rect(9,11,7,2,C.d2);
+    for(let arm=0;arm<2;arm++){ const sx=arm?16:8, off=arm?0:Math.PI;
+      for(let t=0;t<9;t+=0.5){ const a=t*0.5+off, r=t; P.px(sx+Math.cos(a)*r*0.7, 12+Math.sin(a)*r, t>5?C.d0:C.d1); } }
+  };
+  SPECIES.galaxyElliptical = (P) => {
+    for(let y=0;y<P.G;y++)for(let x=0;x<P.G;x++){ const v=((x-12)/8)**2+((y-12)/5)**2;
+      if(v<=0.25) P.px(x,y,C.d2); else if(v<=0.6) P.px(x,y,C.d1); else if(v<=1 && (x+y)%2===0) P.px(x,y,C.d0); }
+  };
+  SPECIES.blackHole = (P) => {
+    function ellRot(cx,cy,rx,ry,ang,c,front){
+      const ca=Math.cos(ang), sa=Math.sin(ang);
+      for(let y=0;y<P.G;y++) for(let x=0;x<P.G;x++){
+        const dx=x-cx, dy=y-cy;
+        const dxr=dx*ca+dy*sa, dyr=-dx*sa+dy*ca;
+        const v=(dxr/rx)**2+(dyr/ry)**2;
+        if(v<=1.04 && v>0.7 && (!front || dyr>=0)) P.px(x,y,c);
+      }
+    }
+    ellRot(12,12,10,3,-0.3,C.d2,false);
+    P.ring(12,12,6,C.d2,1);
+    P.disc(12,12,5,C.d0);
+    ellRot(12,12,10,3,-0.3,C.d2,true);
+  };
+  SPECIES.nebula = (P) => {
+    [[10,11,5],[15,13,4],[12,9,3],[16,9,3],[9,15,3]].forEach(([x,y,r])=>P.disc(x,y,r,C.d1));
+    for(let y=0;y<P.G;y++)for(let x=0;x<P.G;x++){ const near=Math.hypot(x-12,y-12)<7; if(near && (x*3+y*5)%7===0) P.px(x,y,C.d2); }
+    P.px(6,6,C.d0); P.px(18,7,C.d0); P.px(17,17,C.d0); P.px(7,18,C.d2);
+  };
+  SPECIES.universe = (P) => {
+    P.ring(12,12,10,C.d0,1);
+    for(let y=0;y<P.G;y++)for(let x=0;x<P.G;x++){ if(Math.hypot(x-12,y-12)<10 && (x*7+y*3)%11===0) P.px(x,y, (x+y)%2?C.d1:C.d2); }
+    for(let t=0;t<6;t+=0.6){ const a=t*0.6, r=t*0.7; P.px(8+Math.cos(a)*r,9+Math.sin(a)*r,C.d0); }
+    P.disc(16,15,1,C.d2);
+  };
+  const SPECIES_KEYS = Object.keys(SPECIES);
+
+  const SPRITE_G = 24, SPRITE_PIX = 6, SPRITE_SIZE = SPRITE_G * SPRITE_PIX;
+  const SPRITE_CACHE = {};
+  const isPlanet = (s) => /^planet[1-9]$/.test(s);
+  function frameCountOf(species) { return isPlanet(species) ? 8 : 2; }
+  function framePeriodOf(species) { return isPlanet(species) ? 600 : FRAME_MS; }
+  function getSprite(species, frame, label) {
+    const key = label ? species + ":" + label : species;
+    if (!SPRITE_CACHE[key]) {
+      SPRITE_CACHE[key] = [];
+      const fc = frameCountOf(species);
+      for (let f=0; f<fc; f++) {
+        const off = document.createElement("canvas");
+        off.width = SPRITE_SIZE; off.height = SPRITE_SIZE;
+        SPECIES[species](painter(off.getContext("2d"), SPRITE_G, SPRITE_PIX), f, label);
+        SPRITE_CACHE[key].push(off);
+      }
+    }
+    return SPRITE_CACHE[key][frame];
+  }
+
+  let cam, zoom, zoomTarget, size, score;
+  let camAnim = null, flick = null, lockTarget = null;
+  let orbs = [];
+  let bhBattle = false, bhPower = 0, bhOrb = null;
+  const BH_FILL_PER_CLICK = 0.012;
+  const BH_DRAIN_PER_SEC = 0.04;
+  const BH_NOTCHES = 10;
+
+  function blobRadius() { return SCREEN_R; }
+  function playerWorldR() { return SCREEN_R / zoom; }
+
+  function tooClose(wx, wy, worldR) {
+    const gapW = SPAWN_GAP / zoom;
+    for (const o of orbs) if (Math.hypot(wx-o.wx, wy-o.wy) < worldR + o.worldR + gapW) return true;
+    return false;
+  }
+  function pickAreaForTier(t) {
+    if (t.name === "atoms") {
+      const mol = SPAWN_TIERS.find(x => x.name === "molecules");
+      if (mol && size >= mol.unlockSize) {
+        return Math.max(0.008, 0.030 * (1 + rand(-0.25, 0.25)));
+      }
+    }
+    let progress = 0;
+    if (t.phaseOutSize != null) {
+      progress = Math.max(0, Math.min(1, (size - t.unlockSize) / (t.phaseOutSize - t.unlockSize)));
+    }
+    const target = t.areaHi + (t.areaLo - t.areaHi) * progress;
+    return Math.max(0.005, target * (1 + rand(-0.12, 0.12)));
+  }
+  function tierWeight(t) {
+    if (size < t.unlockSize) return 0;
+    if (t.phaseOutSize != null && size >= t.phaseOutSize) return 0;
+    const ramp = Math.min(1, (size - t.unlockSize + 1) / t.ramp);
+    let fade = 1;
+    if (t.phaseOutSize != null && t.fadeOut) {
+      const fadeStart = t.phaseOutSize - t.fadeOut;
+      if (size > fadeStart) fade = Math.max(0, (t.phaseOutSize - size) / t.fadeOut);
+    }
+    return t.weight * ramp * fade;
+  }
+  function pickTier() {
+    const ws = SPAWN_TIERS.map(tierWeight);
+    const total = ws.reduce((s,w)=>s+w, 0);
+    if (total <= 0) return SPAWN_TIERS[0];
+    let r = Math.random() * total;
+    for (let i=0; i<SPAWN_TIERS.length; i++){ r -= ws[i]; if (r <= 0) return SPAWN_TIERS[i]; }
+    return SPAWN_TIERS[0];
+  }
+  function makeOrb() {
+    const tier = pickTier();
+    const areaRatio = pickAreaForTier(tier);
+    const radiusRatio = Math.sqrt(areaRatio);
+    const worldR = playerWorldR() * radiusRatio;
+    const screenR = radiusRatio * SCREEN_R;
+    let wx, wy, tries=0;
+    do {
+      const ang = Math.random()*Math.PI*2;
+      const sd = SCREEN_R + screenR + rand(3, 14);
+      wx = cam.x + Math.cos(ang)*sd/zoom;
+      wy = cam.y + Math.sin(ang)*sd/zoom;
+      tries++;
+    } while (tries<200 && tooClose(wx,wy,worldR));
+    const species = tier.species[(Math.random()*tier.species.length)|0];
+    let label = null;
+    if (tier.atomLabels && species === "atom") {
+      label = tier.atomLabels[(Math.random()*tier.atomLabels.length)|0];
+    }
+    const isStatic = STATIC_SPECIES.has(species);
+    const va = Math.random()*Math.PI*2, sp = isStatic ? 0 : ORB_SPEED/zoom;
+    const orb = {
+      wx, wy, vx:Math.cos(va)*sp, vy:Math.sin(va)*sp, worldR,
+      spawnT:performance.now(),
+      phase:Math.random()*Math.PI*2,
+      species, label,
+      clicksUsed: 0,
+      static: isStatic,
+    };
+    if (species === "blackHole" && !bhBattle) { bhBattle = true; bhOrb = orb; }
+    return orb;
+  }
+  function clicksNeeded(o) {
+    const areaRatio = (o.worldR / playerWorldR()) ** 2;
+    if (areaRatio > 1.0) return Infinity;
+    return Math.max(1, Math.ceil(areaRatio * CLICKS_PER_AREA));
+  }
+  function bump(target) {
+    const dx=target.wx-cam.x, dy=target.wy-cam.y, d=Math.hypot(dx,dy);
+    if (d<1e-6) return;
+    const nx=dx/d, ny=dy/d;
+    const f = BUMP_FORCE / zoom;
+    target.vx += nx*f; target.vy += ny*f;
+  }
+  function resetGame() {
+    cam = { x:0, y:0 }; zoom = 1; zoomTarget = 1;
+    size=1; score=0; camAnim=null; flick=null; lockTarget=null;
+    bhBattle = false; bhPower = 0; bhOrb = null;
+    orbs = [];
+    for (let i=0;i<ORB_COUNT;i++) orbs.push(makeOrb());
+  }
+  function bhRebirth() {
+    const keep = score;
+    cam = { x:0, y:0 }; zoom = 1; zoomTarget = 1;
+    size = 1; camAnim = null; flick = null; lockTarget = null;
+    bhBattle = false; bhPower = 0; bhOrb = null;
+    orbs = [];
+    for (let i=0;i<ORB_COUNT;i++) orbs.push(makeOrb());
+    score = keep;
+  }
+
+  function eat(target) {
+    const i = orbs.indexOf(target);
+    if (i>=0) orbs.splice(i,1);
+    orbs.push(makeOrb());
+    score += 1;
+    zoomTarget *= ZOOM_PER_EAT;
+    if (score % PTS_PER_SIZE === 0) { size += 1; zoomTarget *= ZOOM_PUNCH; }
+  }
+
+  function screenGap(o) {
+    const sx=(o.wx-cam.x)*zoom, sy=(o.wy-cam.y)*zoom;
+    return Math.hypot(sx,sy) - SCREEN_R - o.worldR*zoom;
+  }
+
+  function doThwomp() {
+    if (bhBattle) {
+      bhPower = Math.min(1, bhPower + BH_FILL_PER_CLICK);
+      if (bhPower >= 1) bhRebirth();
+      return;
+    }
+    if (!orbs.length) return;
+    let minD=Infinity;
+    for (const o of orbs){ const d=screenGap(o); if(d<minD) minD=d; }
+    if (!lockTarget || orbs.indexOf(lockTarget)<0 || screenGap(lockTarget) > minD*TARGET_SWITCH + 0.5) {
+      const tied = orbs.filter(o => screenGap(o) <= minD+1e-6);
+      lockTarget = tied[(Math.random()*tied.length)|0];
+    }
+    const target = lockTarget;
+    const fromX=cam.x, fromY=cam.y;
+    let hit = screenGap(target) <= REACH;
+    if (!hit) {
+      const dx=target.wx-cam.x, dy=target.wy-cam.y, d=Math.hypot(dx,dy);
+      if (d>1e-6){ const step=Math.min(THWOMP_STEP/zoom, d); cam.x+=dx/d*step; cam.y+=dy/d*step; }
+      hit = screenGap(target) <= REACH;
+    }
+    if (fromX!==cam.x || fromY!==cam.y)
+      camAnim = { fx:fromX, fy:fromY, tx:cam.x, ty:cam.y, start:performance.now() };
+    flick = { ang:Math.atan2(target.wy-cam.y, target.wx-cam.x), start:performance.now(), hit };
+    if (hit) {
+      const need = clicksNeeded(target);
+      if (need === Infinity) {
+        bump(target);
+      } else {
+        target.clicksUsed += 1;
+        if (target.clicksUsed >= need) {
+          eat(target);
+          lockTarget = null;
+        }
+      }
+    }
+  }
+
+  function update(dt) {
+    zoom += (zoomTarget - zoom) * ZOOM_EASE;
+    if (bhBattle) {
+      bhPower = Math.max(0, bhPower - BH_DRAIN_PER_SEC*dt);
+      if (bhOrb) {
+        const target = playerWorldR() * (1.15 + bhPower*0.6);
+        bhOrb.worldR = Math.max(bhOrb.worldR, target);
+        const dx = cam.x - bhOrb.wx, dy = cam.y - bhOrb.wy;
+        bhOrb.wx += dx * bhPower * 0.9 * dt;
+        bhOrb.wy += dy * bhPower * 0.9 * dt;
+      }
+    }
+    const pwr = playerWorldR();
+    for (const o of orbs){
+      if (!o.static && o !== bhOrb) { o.wx+=o.vx*dt; o.wy+=o.vy*dt; }
+      const dx=o.wx-cam.x, dy=o.wy-cam.y, d=Math.hypot(dx,dy), minD=pwr+o.worldR;
+      if (d>1e-6 && d<minD && !o.static && o !== bhOrb){
+        const nx=dx/d, ny=dy/d;
+        o.wx=cam.x+nx*minD; o.wy=cam.y+ny*minD;
+        const vn=o.vx*nx+o.vy*ny;
+        if (vn<0){ o.vx-=2*vn*nx; o.vy-=2*vn*ny; }
+      }
+      const sr=o.worldR*zoom, sd=Math.hypot((o.wx-cam.x)*zoom,(o.wy-cam.y)*zoom);
+      if (o !== bhOrb && (sr<CULL_R || sd>CULL_DIST)) Object.assign(o, makeOrb());
+    }
+    for (let i=0;i<orbs.length;i++) for (let j=i+1;j<orbs.length;j++){
+      const a=orbs[i], b=orbs[j];
+      const dx=b.wx-a.wx, dy=b.wy-a.wy, d=Math.hypot(dx,dy), rr=a.worldR+b.worldR;
+      if (d>1e-6 && d<rr){
+        const nx=dx/d, ny=dy/d, push=(rr-d)/2;
+        a.wx-=nx*push; a.wy-=ny*push; b.wx+=nx*push; b.wy+=ny*push;
+        const va=a.vx*nx+a.vy*ny, vb=b.vx*nx+b.vy*ny, diff=vb-va;
+        a.vx+=diff*nx; a.vy+=diff*ny; b.vx-=diff*nx; b.vy-=diff*ny;
+      }
+    }
+  }
+
+  function fillCell(x,y){ ctx.fillRect(cellPx(x), fieldTop+cellPx(y), CELL, CELL); }
+
+  function radiusAt(th, t) {
+    const rot = 2*Math.PI * t / ROT_MS;
+    const amp = AMP_RATIO * blobRadius() * (1 + BREATH_AMP*Math.sin(2*Math.PI*t/BREATH_MS));
+    let r = blobRadius() + amp*Math.cos(LOBES*th - rot);
+    if (flick) {
+      const e = t - flick.start, total = FLICK_OUT_MS+FLICK_IN_MS;
+      if (e < total) {
+        const prog = e<FLICK_OUT_MS ? e/FLICK_OUT_MS : 1-(e-FLICK_OUT_MS)/FLICK_IN_MS;
+        let d = th - flick.ang;
+        d = Math.atan2(Math.sin(d), Math.cos(d));
+        r += prog * REACH_BUMP * Math.exp(-(d*d)/(2*BUMP_WIDTH*BUMP_WIDTH));
+      }
+    }
+    return r;
+  }
+
+  function simplifyLoop(pts) {
+    let arr = pts;
+    for (let pass=0; pass<10; pass++) {
+      const n = arr.length;
+      if (n < 5) break;
+      const keep = new Array(n).fill(true);
+      let changed = false;
+      for (let i=0;i<n;i++){
+        let pi=(i-1+n)%n; while(!keep[pi]) pi=(pi-1+n)%n;
+        let ni=(i+1)%n; while(!keep[ni]) ni=(ni+1)%n;
+        if (pi===i || ni===i || pi===ni) continue;
+        const p=arr[pi], q=arr[ni];
+        if (Math.max(Math.abs(p.x-q.x), Math.abs(p.y-q.y)) <= 1) { keep[i]=false; changed=true; i++; }
+      }
+      if (!changed) break;
+      arr = arr.filter((_,i)=>keep[i]);
+    }
+    return arr;
+  }
+
+  function traceLoop(cxr, cyr, t) {
+    const N = 480;
+    const pts = [];
+    let last = null;
+    for (let k=0;k<=N;k++){
+      const th = k/N * 2*Math.PI;
+      const r = radiusAt(th, t);
+      const x = Math.round(cxr + r*Math.cos(th));
+      const y = Math.round(cyr + r*Math.sin(th));
+      if (!last || x!==last.x || y!==last.y){ pts.push({x,y}); last={x,y}; }
+    }
+    while (pts.length>1 && pts[0].x===pts[pts.length-1].x && pts[0].y===pts[pts.length-1].y) pts.pop();
+    return pts.length < 4 ? pts : simplifyLoop(pts);
+  }
+
+  function foodRadiusAt(th, rU, t, phase) {
+    const rot = 2*Math.PI*t/ROT_MS + phase;
+    const amp = AMP_RATIO * rU * (1 + BREATH_AMP*Math.sin(2*Math.PI*t/BREATH_MS + phase));
+    return rU + amp*Math.cos(LOBES*th - rot);
+  }
+  function foodLoop(cxU, cyU, rU, t, phase) {
+    const N = Math.max(120, Math.ceil(rU*10));
+    const pts=[]; let last=null;
+    for (let k=0;k<=N;k++){
+      const th=k/N*2*Math.PI;
+      const r=foodRadiusAt(th,rU,t,phase);
+      const x=Math.round(cxU+r*Math.cos(th)), y=Math.round(cyU+r*Math.sin(th));
+      if (!last||x!==last.x||y!==last.y){ pts.push({x,y}); last={x,y}; }
+    }
+    while (pts.length>1 && pts[0].x===pts[pts.length-1].x && pts[0].y===pts[pts.length-1].y) pts.pop();
+    return pts.length < 4 ? pts : simplifyLoop(pts);
+  }
+
+  function draw() {
+    ctx.fillStyle = C.lightest; ctx.fillRect(0,0,W,H);
+
+    ctx.fillStyle = C.darkest;
+    ctx.font = "bold 18px 'Courier New', monospace";
+    ctx.textBaseline = "middle";
+    ctx.textAlign="left"; ctx.fillText("SCORE "+score, 10, HUD_H/2);
+    ctx.textAlign="right"; ctx.fillText("SIZE "+size, W-10, HUD_H/2);
+    ctx.fillRect(0, HUD_H-2, W, 2);
+    if (bhBattle) {
+      const cellW = 28, cellH = 14, gap = 2;
+      const totalW = BH_NOTCHES * cellW + (BH_NOTCHES-1) * gap;
+      const barX = Math.round((W - totalW)/2);
+      const barY = 4;
+      const filled = bhPower * BH_NOTCHES;
+      for (let i=0; i<BH_NOTCHES; i++) {
+        const cx = barX + i*(cellW+gap);
+        ctx.fillStyle = C.d0;
+        ctx.fillRect(cx, barY, cellW, cellH);
+        const fillFrac = Math.max(0, Math.min(1, filled - i));
+        ctx.fillStyle = fillFrac >= 1 ? C.d1 : C.d3;
+        ctx.fillRect(cx+1, barY+1, cellW-2, cellH-2);
+        if (fillFrac > 0 && fillFrac < 1) {
+          ctx.fillStyle = C.d1;
+          ctx.fillRect(cx+1, barY+1, Math.round((cellW-2)*fillFrac), cellH-2);
+        }
+      }
+    }
+
+    ctx.save();
+    ctx.beginPath(); ctx.rect(0, fieldTop, W, VIS*CELL); ctx.clip();
+
+    const now = performance.now();
+    if (flick && now-flick.start >= FLICK_OUT_MS+FLICK_IN_MS) flick=null;
+
+    let crx=cam.x, cry=cam.y;
+    if (camAnim){
+      const e=now-camAnim.start;
+      if (e>=MOVE_MS) camAnim=null;
+      else { const p=e/MOVE_MS; crx=camAnim.fx+(camAnim.tx-camAnim.fx)*p; cry=camAnim.fy+(camAnim.ty-camAnim.fy)*p; }
+    }
+
+    ctx.imageSmoothingEnabled = false;
+    for (const o of orbs){
+      const sx = CX + (o.wx-crx)*zoom, sy = CY + (o.wy-cry)*zoom, sr = o.worldR*zoom;
+      const bbox = sr * 2 * CELL;
+      if (bbox < 1.5) continue;
+      const fc = frameCountOf(o.species);
+      const fp = framePeriodOf(o.species);
+      const frame = Math.floor((now + o.phase*200) / fp) % fc;
+      const sprite = getSprite(o.species, frame, o.label);
+      const fade = Math.min(1, (now - o.spawnT)/FADE_IN_MS);
+      const need = clicksNeeded(o);
+      const biteFade = (need===Infinity || need===0) ? 0 : (o.clicksUsed/need);
+      ctx.globalAlpha = fade * (1 - biteFade*0.35);
+      const px = cellPx(sx) + CELL/2;
+      const py = fieldTop + cellPx(sy) + CELL/2;
+      let drawBbox = bbox;
+      if (PULSE_SPECIES.has(o.species)) {
+        drawBbox = bbox * (1 + 0.045 * Math.sin(now/360 + o.phase*5));
+      }
+      if (SPIN_SPECIES.has(o.species)) {
+        const period = SPIN_MS[o.species] || 7000;
+        ctx.save();
+        ctx.translate(px, py);
+        ctx.rotate(2*Math.PI*now/period + o.phase);
+        ctx.drawImage(sprite, -drawBbox/2, -drawBbox/2, drawBbox, drawBbox);
+        ctx.restore();
+      } else {
+        ctx.drawImage(sprite, px - drawBbox/2, py - drawBbox/2, drawBbox, drawBbox);
+      }
+    }
+    ctx.globalAlpha = 1;
+
+    const loop = traceLoop(CX, CY, now);
+    ctx.fillStyle = C.darkest;
+    for (const c of loop) fillCell(c.x, c.y);
+    for (const [ax,ay] of EYE_ANCHORS)
+      for (const [gx,gy] of EYE_GLYPH) fillCell(CX+ax+gx, CY+ay+gy);
+
+    ctx.restore();
+  }
+
+  let last = performance.now();
+  function frame(now){
+    let dt=(now-last)/1000; last=now;
+    if (dt>0.1) dt=0.1;
+    update(dt); draw();
+    requestAnimationFrame(frame);
+  }
+
+  window.addEventListener("keydown", (e)=>{
+    if (e.code==="Space"){ e.preventDefault(); doThwomp(); }
+    else if (e.key==="r"||e.key==="R") resetGame();
+  });
+  canvas.addEventListener("pointerdown", (e)=>{ e.preventDefault(); doThwomp(); });
+
+  resetGame();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
