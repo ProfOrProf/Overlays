@@ -528,6 +528,17 @@ function render(it, silent){
   trailPush('item', it.name, it.name, it.g);
   if (!silent) writeURL(false);
   browse();
+  syncTermHighlight();
+}
+
+/* The shared-by list paints its highlight when the term is opened, so moving to a
+   different entry afterwards would leave it stale. Re-calling showTerm() would work but
+   would also push a duplicate onto the Trail, so sync the class alone. */
+function syncTermHighlight(){
+  document.querySelectorAll('#tlist .row').forEach(r => {
+    const i = +r.dataset.i;
+    r.classList.toggle('on', i >= 0 && ITEMS[i] === cur);
+  });
 }
 
 /* ── term panel ────────────────────────────────────────────────────────── */
