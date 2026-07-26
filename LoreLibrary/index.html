@@ -157,10 +157,6 @@
   .w.dead:hover{color:inherit;border-bottom-color:transparent}
   .ph{background:linear-gradient(180deg,transparent 62%,rgba(240,177,60,.13) 62%);border-radius:2px}
   .ph.hot{background:linear-gradient(180deg,transparent 58%,rgba(240,177,60,.3) 58%)}
-  #loc{font-size:13.5px;color:var(--ink-faint);line-height:1.75;margin-top:26px;max-width:46ch;
-    border-left:1px solid var(--line);padding-left:13px}
-  #loc b{color:var(--ink-dim);font-weight:400;letter-spacing:.22em;text-transform:uppercase;
-    font-size:10px;display:block;margin-bottom:4px}
   #chips{position:fixed;z-index:50;display:none;gap:6px;padding:7px;background:#141110;
     border:1px solid var(--line);border-radius:3px;box-shadow:0 8px 30px rgba(0,0,0,.7)}
   #chips.on{display:flex}
@@ -245,7 +241,6 @@
           <div id="eff"></div>
           <div class="hair"></div>
           <div id="flavor"></div>
-          <div id="loc"></div>
         </div>
       </div>
     </div>
@@ -507,7 +502,6 @@ function render(it, silent){
   fitTitle();
   $('jp').textContent = it.jp_name || '';
   $('eff').textContent = it.effect || '';
-  $('loc').innerHTML = it.location ? '<b>where to find</b>' + esc(it.location) : '';
   const words = it.spans.filter(s => s.kind === 'word');
   const phs = outerPhrases(it.spans);
   const t = it.flavor;
