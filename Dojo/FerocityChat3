@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Dojo Standalone Battle Header</title>
+<style>
+  :root{
+    --w: 1920px;            /* overall size */
+    --h: 240px;
+
+    --radius: 34px;         /* corner roundness */
+    --bevel: 12px;          /* metal bevel thickness */
+
+    /* steel palette */
+    --steel-hi: #d6dde8;
+    --steel-mid:#8b95a3;
+    --steel-dk: #2f3541;
+    --steel-bg: #12161c;
+
+    /* glow */
+    --red-strong: rgba(255,40,40,.85);
+    --red-soft:   rgba(255,40,40,.30);
+  }
+
+  html,body{
+    margin:0;background:transparent;overflow:hidden;
+    width:var(--w);height:var(--h);
+  }
+
+  .stage{position:relative;width:var(--w);height:var(--h);display:grid;place-items:center}
+
+  /* Outer frame with full rim all around + clipped/angled vibe */
+  .frame{
+    position:relative;
+    width:calc(var(--w) - 24px);
+    height:calc(var(--h) - 24px);
+    border-radius:var(--radius);
+    background:
+      radial-gradient(160% 140% at 50% -40%, rgba(255,255,255,.09), transparent 60%),
+      linear-gradient(180deg, #3b4350 0%, #1b2029 60%, var(--steel-bg) 100%);
+    box-shadow:
+      0 24px 40px rgba(0,0,0,.55),
+      inset 0 0 0 2px rgba(0,0,0,.85);
+    overflow:hidden;
+    isolation:isolate;
+  }
+
+  /* Silver rim that goes all the way around */
+  .frame::before{
+    content:"";
+    position:absolute; inset:0;
+    border-radius:var(--radius);
+    padding:var(--bevel);
+    background:linear-gradient(135deg,#58616f 0%,#2a313b 45%,#171b22 60%,#697280 100%);
+    -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor; mask-composite:exclude;
+    opacity:.9; pointer-events:none;
+  }
+
+  /* Inner steel bezel with harder chamfers (angled band) */
+  .bezel{
+    position:absolute; inset:12px;
+    border-radius:calc(var(--radius) - 10px);
+    background:
+      conic-gradient(from 200deg at 16px 16px, rgba(0,0,0,.55), transparent 60deg) top left/50% 50% no-repeat,
+      conic-gradient(from 20deg  at calc(100% - 16px) 16px, rgba(0,0,0,.55), transparent 60deg) top right/50% 50% no-repeat,
+      conic-gradient(from 200deg at 16px calc(100% - 16px), rgba(0,0,0,.55), transparent 60deg) bottom left/50% 50% no-repeat,
+      conic-gradient(from 20deg  at calc(100% - 16px) calc(100% - 16px), rgba(0,0,0,.55), transparent 60deg) bottom right/50% 50% no-repeat,
+      linear-gradient(180deg, var(--steel-mid), #4a5260 60%, #212631 100%);
+    box-shadow:
+      inset 0 0 0 1px rgba(255,255,255,.08),
+      inset 0 12px 22px rgba(255,255,255,.10),
+      inset 0 -14px 26px rgba(0,0,0,.55);
+  }
+
+  /* Deep red underglow rising from the bottom */
+  .glow{
+    position:absolute; left:22px; right:22px; bottom:10px; height:42px;
+    border-radius:24px;
+    background:
+      radial-gradient(120% 180% at 50% 100%, var(--red-strong) 0%, transparent 70%),
+      radial-gradient(100% 160% at 50% 100%, var(--red-soft) 0%, transparent 100%);
+    filter: blur(2px);
+    opacity:.9; pointer-events:none;
+  }
+
+  /* Title slot for your transparent PNG */
+  #title-slot{
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    pointer-events:none;
+  }
+  #title-slot img{
+    max-height:65%; max-width:92%; height:auto; image-rendering:auto; pointer-events:none;
+    /* no drop shadow here—add it in OBS if you want */
+  }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="frame">
+      <div class="bezel"></div>
+      <div class="glow"></div>
+      <div id="title-slot">
+        <!-- Optional inline usage:
+        <img src="Battle_Log.png" alt="Battle Log">
+        -->
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Dojo Chat Panel – Armor Glow</title>
+<link href="https://fonts.googleapis.com/css2?family=Hind:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --canvas-w:1920px; --canvas-h:1080px;
+  --panel-w:447px; --panel-h:894px; --offset-x:24px; --offset-y:24px;
+
+  --steel-1:#0e1015; --steel-2:#1a1d26;
+  --rim:rgba(0,0,0,.85); --inner:rgba(255,255,255,.08);
+  --glass:rgba(6,6,10,.64);
+
+  --hdr-h:120px;
+  --crest-h:20px;
+
+  /* glow tuning */
+  --red-strong: rgba(255,36,36,.90);
+  --red-soft:   rgba(255,36,36,.30);
+  --lip-shadow: rgba(0,0,0,.75);
+}
+
+html,body{width:var(--canvas-w);height:var(--canvas-h);margin:0;background:transparent;overflow:hidden;font-family:'Hind',system-ui,Segoe UI,Roboto,Arial,sans-serif}
+.stage{position:relative;width:100%;height:100%}
+
+.chat-panel{
+  position:absolute;left:var(--offset-x);bottom:var(--offset-y);
+  width:var(--panel-w);height:var(--panel-h);border-radius:22px;overflow:hidden;isolation:isolate;
+  background:
+    radial-gradient(140% 100% at 100% 0%, rgba(255,255,255,.06) 0%, transparent 36%),
+    linear-gradient(180deg, rgba(255,255,255,.02), rgba(0,0,0,.12)),
+    linear-gradient(135deg, var(--steel-2), var(--steel-1) 60%);
+  box-shadow:0 20px 40px rgba(0,0,0,.6), inset 0 0 0 2px var(--rim), inset 0 0 0 6px rgba(255,255,255,.025);
+}
+.chat-panel::before{
+  content:"";position:absolute;inset:0;border-radius:22px;padding:10px;
+  background:linear-gradient(140deg,#3c444f 0%,#202631 40%,#151922 60%,#464e5a 100%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:.85;pointer-events:none;
+}
+.rim{position:absolute;inset:14px;border-radius:16px;box-shadow:inset 0 0 0 2px var(--inner), inset 0 0 0 4px rgba(0,0,0,.55)}
+
+/* Header (unchanged from the version you liked) */
+.header{
+  position:absolute;left:0;right:0;top:0;height:var(--hdr-h);overflow:visible;
+  background:
+    radial-gradient(120% 200% at 50% -35%, rgba(255,255,255,.08) 0%, transparent 55%),
+    linear-gradient(180deg,#cbd4e3 0%, #8a93a1 30%, #3a424e 70%, #141820 100%);
+  border-bottom:1px solid rgba(255,255,255,.1);
+  box-shadow:inset 0 -18px 32px rgba(0,0,0,.55), inset 0 2px 0 rgba(255,255,255,.06), 0 12px 24px rgba(0,0,0,.35);
+}
+.crest{
+  position:absolute;left:22px;right:22px;top:calc(var(--hdr-h) - var(--crest-h) - 18px);height:var(--crest-h);
+  background:linear-gradient(180deg,#d7deea,#6f7886);
+  border-radius:12px;
+  box-shadow:0 -8px 16px rgba(255,255,255,.18), 0 8px 16px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.22);
+  -webkit-mask:radial-gradient(180% 120% at 50% 0, #000 0 70%, transparent 71%);mask:radial-gradient(180% 120% at 50% 0, #000 0 70%, transparent 71%);
+}
+/* faint glow behind the PNG title if you embed it */
+.under-glow{position:absolute;left:34px;right:34px;top:54px;height:22px;border-radius:14px;background:radial-gradient(60% 140% at 50% 40%, var(--red-strong), transparent 70%);filter:blur(2px);opacity:.7;pointer-events:none}
+#title-slot{position:absolute;left:0;right:0;top:0;height:var(--hdr-h);display:flex;align-items:center;justify-content:center;pointer-events:none}
+#title-slot img{max-width:88%;height:auto;image-rendering:auto;pointer-events:none}
+
+/* ---- NEW: interior red light + curved lip shadow ---- */
+.glass{
+  position:absolute;left:16px;right:16px;top:calc(var(--hdr-h) + 12px);bottom:16px;border-radius:12px;overflow:hidden;
+  background:
+    /* base glass tint */
+    linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,0) 18%, rgba(0,0,0,.12) 100%),
+    linear-gradient(180deg, var(--glass), rgba(8,10,14,.55));
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.06), inset 0 0 18px rgba(0,0,0,.55);
+}
+
+/* Curved lip shadow just under the header edge */
+.glass::before{
+  content:""; position:absolute; left:10px; right:10px; top:0; height:72px;
+  background:
+    radial-gradient(140% 180% at 50% -40%, var(--lip-shadow), transparent 70%);
+  -webkit-mask:
+    radial-gradient(180% 140% at 50% 0, #000 60%, transparent 61%);
+          mask:
+    radial-gradient(180% 140% at 50% 0, #000 60%, transparent 61%);
+  opacity:.85; pointer-events:none; filter:blur(0.5px);
+}
+
+/* Deep red cavity glow rising from the bottom, echoing the header’s cutaway */
+.glass::after{
+  content:""; position:absolute; left:14px; right:14px; bottom:10px; height:120px; border-radius:14px;
+  background:
+    radial-gradient(140% 200% at 50% 100%, var(--red-strong) 0%, transparent 65%),
+    radial-gradient(120% 200% at 50% 100%, var(--red-soft) 0%, transparent 100%);
+  filter: blur(2px);
+  opacity:.95; pointer-events:none;
+}
+
+/* Optional faint side vignettes to deepen the cavity */
+.vignette{position:absolute; inset:0; pointer-events:none;
+  background:
+    linear-gradient(90deg, rgba(0,0,0,.22), transparent 22%, transparent 78%, rgba(0,0,0,.22)),
+    linear-gradient(180deg, rgba(0,0,0,.16), transparent 30%, transparent 90%, rgba(0,0,0,.28));
+  mix-blend-mode:multiply;
+}
+
+/* content slot */
+.lattice{position:absolute;inset:0;background:
+  linear-gradient(45deg, rgba(255,255,255,.025) 0 2px, transparent 2px 100%),
+  linear-gradient(-45deg, rgba(255,255,255,.02) 0 2px, transparent 2px 100%);
+  background-size:26px 26px;mix-blend-mode:screen;opacity:.25;pointer-events:none}
+#slot{position:absolute;inset:0;display:block}
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="chat-panel" aria-hidden="true">
+      <div class="rim"></div>
+
+      <div class="header">
+        <div class="under-glow"></div>
+        <div class="crest"></div>
+        <div id="title-slot"><!-- place Battle Log PNG here if you want it inside --></div>
+      </div>
+
+      <div class="glass">
+        <div class="vignette"></div>
+        <div class="lattice"></div>
+        <div id="slot"></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

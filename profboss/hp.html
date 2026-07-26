@@ -1,0 +1,13 @@
+// Build the HP URL and stash it to a global so a following OBS subaction can apply it.
+string bossName = "Boss Prof"; // or read from a config/global
+int maxHp = 10;
+long ts = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+
+string hpUrl = $"https://proforprof.com/profboss/hp.html" +
+               $"?name={Uri.EscapeDataString(bossName)}&max={maxHp}&hp={hp}&scale=1&ticks=1&bg=0.18&ts={ts}";
+
+CPH.SetGlobalVar("bb.hpUrl", hpUrl, true);
+
+// If your Streamer.bot version supports setting browser URL directly, call that here.
+// Otherwise: follow this line with a normal OBS subaction that sets the Browser Source's URL
+// from the global var "bb.hpUrl" and (optionally) refreshes the source.

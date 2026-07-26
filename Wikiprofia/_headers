@@ -1,0 +1,4 @@
+/*
+  Content-Security-Policy: frame-ancestors *;
+  X-Frame-Options: ALLOW-FROM https://* http://*
+  Referrer-Policy: no-referrer-when-downgrade

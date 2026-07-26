@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profagachi Damacy — P0 breadboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  html, body {
+    margin: 0; min-height: 100%;
+    background: #15171a;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 18px;
+    font-family: "Courier New", ui-monospace, monospace;
+    user-select: none;
+  }
+  .tapcap {
+    text-align: center; color: #9bbc0f; opacity: .9;
+    font-size: 15px; letter-spacing: 2px; text-transform: uppercase;
+  }
+  .gameboy {
+    background: #cfc9bb;
+    padding: 22px 24px 14px 24px;
+    border-radius: 12px 12px 74px 14px;
+    box-shadow: 0 22px 50px rgba(0,0,0,.55),
+                inset 0 2px 0 rgba(255,255,255,.6),
+                inset 0 -4px 8px rgba(0,0,0,.16);
+  }
+  .bezel {
+    position: relative;
+    background: #8e8d85;
+    padding: 16px 56px 58px 64px;
+    border-radius: 8px 8px 36px 8px;
+    box-shadow: inset 0 3px 9px rgba(0,0,0,.5), inset 0 -2px 3px rgba(255,255,255,.1);
+  }
+  .topbar {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 12px;
+  }
+  .stripes { flex: 1; height: 8px; position: relative; }
+  .stripes::before, .stripes::after {
+    content: ""; position: absolute; left: 0; right: 0; height: 2px;
+  }
+  .stripes::before { top: 1px; background: #3a3f7e; }
+  .stripes::after  { top: 5px; background: #8c3a5c; }
+  .dmt { font-size: 10px; letter-spacing: 1.5px; color: #5b5f86; white-space: nowrap; }
+  .battery {
+    position: absolute; left: 18px; top: 48%;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+  }
+  .led {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #ff8a78, #bf2729 70%);
+    box-shadow: 0 0 7px rgba(210,40,40,.7), inset 0 0 2px rgba(0,0,0,.45);
+  }
+  .batlabel { font-size: 8px; letter-spacing: 1px; color: #45453e; }
+  canvas {
+    display: block;
+    image-rendering: pixelated;
+    box-shadow: inset 0 0 0 2px rgba(15,56,15,.35);
+  }
+  .wordmark {
+    text-align: center; margin-top: 14px; color: #2c2c6e; white-space: nowrap;
+  }
+  .proftendo { font-family: "Press Start 2P", monospace; font-size: 13px; vertical-align: baseline; }
+  .dummy { font-size: 27px; font-weight: 800; font-style: italic; letter-spacing: 1px; margin-left: 12px; }
+  .tm { font-size: 11px; font-weight: 700; margin-left: 4px; vertical-align: baseline; }
+</style>
+</head>
+<body>
+  <div class="gameboy">
+    <div class="bezel">
+      <div class="topbar">
+        <span class="stripes"></span>
+        <span class="dmt">DOT MATRIX WITH STEREO SOUND</span>
+        <span class="stripes"></span>
+      </div>
+      <div class="battery"><span class="led"></span><span class="batlabel">BATTERY</span></div>
+      <canvas id="c"></canvas>
+    </div>
+    <div class="wordmark"><span class="proftendo">Proftendo</span> <span class="dummy">GAME&nbsp;DUMMY</span><span class="tm">TM</span></div>
+  </div>
+  <div class="tapcap">Just Tap Spacebar!</div>
+
+<script>
+(() => {
+  "use strict";
+
+  const VIS = 50;
+  const CELL = 12;
+  const HUD_H = 44;
+  const ORB_COUNT = 10;
+  const ORB_SPEED = 1.0;
+  const PTS_PER_SIZE = 5;
+
+  const REACH = 2;
+  const THWOMP_STEP = 2;
+  const TARGET_SWITCH = 1.6;
+  const MOVE_MS = 130;
+  const FLICK_OUT_MS = 90;
+  const FLICK_IN_MS = 130;
+
+  const SCREEN_R = 7;
+  const LOBES = 4;
+  const AMP_RATIO = 0.214;
+  const ROT_MS = 7000;
+  const BREATH_MS = 1600;
+  const BREATH_AMP = 0.25;
+  const REACH_BUMP = 3;
+  const BUMP_WIDTH = 0.45;
+  const EYE_GLYPH = [[1,0],[0,1],[1,1]];
+  const EYE_ANCHORS = [[-2,-1],[1,-1]];
+
+  const SUB = 4;
+  const REL_SMALL = [0.35, 0.95];
+  const REL_BIG = [1.1, 1.7];
+  const BIG_CHANCE = 0.18;
+  const STAR_CHANCE = 0.3;
+  const FADE_IN_MS = 600;
+  const SPAWN_GAP = 3;
+  const CULL_R = 0.4;
+  const CULL_DIST = VIS * 0.9;
+
+  const ZOOM_PER_EAT = 0.985;
+  const ZOOM_PUNCH = 0.94;
+  const ZOOM_EASE = 0.14;
+
+  const C = { darkest:"#0f380f", dark:"#306230", light:"#8bac0f", lightest:"#9bbc0f" };
+
+  const canvas = document.getElementById("c");
+  const ctx = canvas.getContext("2d");
+  const W = VIS*CELL, H = HUD_H + VIS*CELL;
+  canvas.width = W; canvas.height = H;
+  const fieldTop = HUD_H;
+  const CX = VIS/2, CY = VIS/2;
+  const cellPx = (c) => c*CELL;
+  const rand = (lo,hi) => lo + Math.random()*(hi-lo);
+
+  let cam, zoom, zoomTarget, size, score;
+  let camAnim = null, flick = null, lockTarget = null;
+  let orbs = [];
+
+  function blobRadius() { return SCREEN_R; }
+  function playerWorldR() { return SCREEN_R / zoom; }
+
+  function tooClose(wx, wy, worldR) {
+    const gapW = SPAWN_GAP / zoom;
+    for (const o of orbs) if (Math.hypot(wx-o.wx, wy-o.wy) < worldR + o.worldR + gapW) return true;
+    return false;
+  }
+  function makeOrb() {
+    const big = Math.random() < BIG_CHANCE;
+    const rel = big ? rand(REL_BIG[0],REL_BIG[1]) : rand(REL_SMALL[0],REL_SMALL[1]);
+    const worldR = playerWorldR() * rel;
+    const screenR = rel * SCREEN_R;
+    let wx, wy, tries=0;
+    do {
+      const ang = Math.random()*Math.PI*2;
+      const sd = SCREEN_R + screenR + rand(2, 12);
+      wx = cam.x + Math.cos(ang)*sd/zoom;
+      wy = cam.y + Math.sin(ang)*sd/zoom;
+      tries++;
+    } while (tries<200 && tooClose(wx,wy,worldR));
+    const va = Math.random()*Math.PI*2, sp = ORB_SPEED/zoom;
+    return { wx, wy, vx:Math.cos(va)*sp, vy:Math.sin(va)*sp, worldR, spawnT:performance.now(), phase:Math.random()*Math.PI*2, kind:Math.random()<STAR_CHANCE?"star":"amoeba" };
+  }
+  function resetGame() {
+    cam = { x:0, y:0 }; zoom = 1; zoomTarget = 1;
+    size=1; score=0; camAnim=null; flick=null; lockTarget=null;
+    orbs = [];
+    for (let i=0;i<ORB_COUNT;i++) orbs.push(makeOrb());
+  }
+
+  function eat(target) {
+    const i = orbs.indexOf(target);
+    if (i>=0) orbs.splice(i,1);
+    orbs.push(makeOrb());
+    score += 1;
+    zoomTarget *= ZOOM_PER_EAT;
+    if (score % PTS_PER_SIZE === 0) { size += 1; zoomTarget *= ZOOM_PUNCH; }
+  }
+
+  function screenGap(o) {
+    const sx=(o.wx-cam.x)*zoom, sy=(o.wy-cam.y)*zoom;
+    return Math.hypot(sx,sy) - SCREEN_R - o.worldR*zoom;
+  }
+
+  function doThwomp() {
+    if (!orbs.length) return;
+    let minD=Infinity;
+    for (const o of orbs){ const d=screenGap(o); if(d<minD) minD=d; }
+    if (!lockTarget || orbs.indexOf(lockTarget)<0 || screenGap(lockTarget) > minD*TARGET_SWITCH + 0.5) {
+      const tied = orbs.filter(o => screenGap(o) <= minD+1e-6);
+      lockTarget = tied[(Math.random()*tied.length)|0];
+    }
+    const target = lockTarget;
+    const fromX=cam.x, fromY=cam.y;
+    let hit = screenGap(target) <= REACH;
+    if (!hit) {
+      const dx=target.wx-cam.x, dy=target.wy-cam.y, d=Math.hypot(dx,dy);
+      if (d>1e-6){ const step=Math.min(THWOMP_STEP/zoom, d); cam.x+=dx/d*step; cam.y+=dy/d*step; }
+      hit = screenGap(target) <= REACH;
+    }
+    if (fromX!==cam.x || fromY!==cam.y)
+      camAnim = { fx:fromX, fy:fromY, tx:cam.x, ty:cam.y, start:performance.now() };
+    flick = { ang:Math.atan2(target.wy-cam.y, target.wx-cam.x), start:performance.now(), hit };
+    if (hit) { eat(target); lockTarget=null; }
+  }
+
+  function update(dt) {
+    zoom += (zoomTarget - zoom) * ZOOM_EASE;
+    const pwr = playerWorldR();
+    for (const o of orbs){
+      o.wx+=o.vx*dt; o.wy+=o.vy*dt;
+      const dx=o.wx-cam.x, dy=o.wy-cam.y, d=Math.hypot(dx,dy), minD=pwr+o.worldR;
+      if (d>1e-6 && d<minD){
+        const nx=dx/d, ny=dy/d;
+        o.wx=cam.x+nx*minD; o.wy=cam.y+ny*minD;
+        const vn=o.vx*nx+o.vy*ny;
+        if (vn<0){ o.vx-=2*vn*nx; o.vy-=2*vn*ny; }
+      }
+      const sr=o.worldR*zoom, sd=Math.hypot((o.wx-cam.x)*zoom,(o.wy-cam.y)*zoom);
+      if (sr<CULL_R || sd>CULL_DIST) Object.assign(o, makeOrb());
+    }
+    for (let i=0;i<orbs.length;i++) for (let j=i+1;j<orbs.length;j++){
+      const a=orbs[i], b=orbs[j];
+      const dx=b.wx-a.wx, dy=b.wy-a.wy, d=Math.hypot(dx,dy), rr=a.worldR+b.worldR;
+      if (d>1e-6 && d<rr){
+        const nx=dx/d, ny=dy/d, push=(rr-d)/2;
+        a.wx-=nx*push; a.wy-=ny*push; b.wx+=nx*push; b.wy+=ny*push;
+        const va=a.vx*nx+a.vy*ny, vb=b.vx*nx+b.vy*ny, diff=vb-va;
+        a.vx+=diff*nx; a.vy+=diff*ny; b.vx-=diff*nx; b.vy-=diff*ny;
+      }
+    }
+  }
+
+  function fillCell(x,y){ ctx.fillRect(cellPx(x), fieldTop+cellPx(y), CELL, CELL); }
+
+  function radiusAt(th, t) {
+    const rot = 2*Math.PI * t / ROT_MS;
+    const amp = AMP_RATIO * blobRadius() * (1 + BREATH_AMP*Math.sin(2*Math.PI*t/BREATH_MS));
+    let r = blobRadius() + amp*Math.cos(LOBES*th - rot);
+    if (flick) {
+      const e = t - flick.start, total = FLICK_OUT_MS+FLICK_IN_MS;
+      if (e < total) {
+        const prog = e<FLICK_OUT_MS ? e/FLICK_OUT_MS : 1-(e-FLICK_OUT_MS)/FLICK_IN_MS;
+        let d = th - flick.ang;
+        d = Math.atan2(Math.sin(d), Math.cos(d));
+        r += prog * REACH_BUMP * Math.exp(-(d*d)/(2*BUMP_WIDTH*BUMP_WIDTH));
+      }
+    }
+    return r;
+  }
+
+  function simplifyLoop(pts) {
+    let arr = pts;
+    for (let pass=0; pass<10; pass++) {
+      const n = arr.length;
+      if (n < 5) break;
+      const keep = new Array(n).fill(true);
+      let changed = false;
+      for (let i=0;i<n;i++){
+        let pi=(i-1+n)%n; while(!keep[pi]) pi=(pi-1+n)%n;
+        let ni=(i+1)%n; while(!keep[ni]) ni=(ni+1)%n;
+        if (pi===i || ni===i || pi===ni) continue;
+        const p=arr[pi], q=arr[ni];
+        if (Math.max(Math.abs(p.x-q.x), Math.abs(p.y-q.y)) <= 1) { keep[i]=false; changed=true; i++; }
+      }
+      if (!changed) break;
+      arr = arr.filter((_,i)=>keep[i]);
+    }
+    return arr;
+  }
+
+  function traceLoop(cxr, cyr, t) {
+    const N = 480;
+    const pts = [];
+    let last = null;
+    for (let k=0;k<=N;k++){
+      const th = k/N * 2*Math.PI;
+      const r = radiusAt(th, t);
+      const x = Math.round(cxr + r*Math.cos(th));
+      const y = Math.round(cyr + r*Math.sin(th));
+      if (!last || x!==last.x || y!==last.y){ pts.push({x,y}); last={x,y}; }
+    }
+    while (pts.length>1 && pts[0].x===pts[pts.length-1].x && pts[0].y===pts[pts.length-1].y) pts.pop();
+    return pts.length < 4 ? pts : simplifyLoop(pts);
+  }
+
+  function foodRadiusAt(th, rU, t, phase) {
+    const rot = 2*Math.PI*t/ROT_MS + phase;
+    const amp = AMP_RATIO * rU * (1 + BREATH_AMP*Math.sin(2*Math.PI*t/BREATH_MS + phase));
+    return rU + amp*Math.cos(LOBES*th - rot);
+  }
+  function foodLoop(cxU, cyU, rU, t, phase) {
+    const N = Math.max(120, Math.ceil(rU*10));
+    const pts=[]; let last=null;
+    for (let k=0;k<=N;k++){
+      const th=k/N*2*Math.PI;
+      const r=foodRadiusAt(th,rU,t,phase);
+      const x=Math.round(cxU+r*Math.cos(th)), y=Math.round(cyU+r*Math.sin(th));
+      if (!last||x!==last.x||y!==last.y){ pts.push({x,y}); last={x,y}; }
+    }
+    while (pts.length>1 && pts[0].x===pts[pts.length-1].x && pts[0].y===pts[pts.length-1].y) pts.pop();
+    return pts.length < 4 ? pts : simplifyLoop(pts);
+  }
+
+  function draw() {
+    ctx.fillStyle = C.lightest; ctx.fillRect(0,0,W,H);
+
+    ctx.fillStyle = C.darkest;
+    ctx.font = "bold 18px 'Courier New', monospace";
+    ctx.textBaseline = "middle";
+    ctx.textAlign="left"; ctx.fillText("SCORE "+score, 10, HUD_H/2);
+    ctx.textAlign="right"; ctx.fillText("SIZE "+size, W-10, HUD_H/2);
+    ctx.fillRect(0, HUD_H-2, W, 2);
+
+    ctx.save();
+    ctx.beginPath(); ctx.rect(0, fieldTop, W, VIS*CELL); ctx.clip();
+
+    const now = performance.now();
+    if (flick && now-flick.start >= FLICK_OUT_MS+FLICK_IN_MS) flick=null;
+
+    let crx=cam.x, cry=cam.y;
+    if (camAnim){
+      const e=now-camAnim.start;
+      if (e>=MOVE_MS) camAnim=null;
+      else { const p=e/MOVE_MS; crx=camAnim.fx+(camAnim.tx-camAnim.fx)*p; cry=camAnim.fy+(camAnim.ty-camAnim.fy)*p; }
+    }
+
+    const UNIT = CELL/SUB;
+    for (const o of orbs){
+      const sx = CX + (o.wx-crx)*zoom, sy = CY + (o.wy-cry)*zoom, sr = o.worldR*zoom;
+      ctx.globalAlpha = Math.min(1, (now - o.spawnT)/FADE_IN_MS);
+      if (o.kind==="star") {
+        const px=cellPx(sx)+CELL/2, py=fieldTop+cellPx(sy)+CELL/2, rPx=sr*CELL;
+        const rot=2*Math.PI*now/ROT_MS;
+        ctx.strokeStyle=C.dark; ctx.lineWidth=Math.max(1.5, rPx*0.12); ctx.lineCap="round";
+        ctx.beginPath();
+        for (let k=0;k<3;k++){ const a=o.phase+rot+k*Math.PI/3; ctx.moveTo(px-Math.cos(a)*rPx, py-Math.sin(a)*rPx); ctx.lineTo(px+Math.cos(a)*rPx, py+Math.sin(a)*rPx); }
+        ctx.stroke();
+        continue;
+      }
+      const cxU = (cellPx(sx)+CELL/2)/UNIT;
+      const cyU = (cellPx(sy)+CELL/2)/UNIT;
+      const rU = sr*SUB;
+      const loop = foodLoop(cxU, cyU, rU, now, o.phase);
+      if (loop.length>=3) {
+        ctx.fillStyle=C.light; ctx.beginPath();
+        ctx.moveTo(loop[0].x*UNIT, fieldTop+loop[0].y*UNIT);
+        for (let i=1;i<loop.length;i++) ctx.lineTo(loop[i].x*UNIT, fieldTop+loop[i].y*UNIT);
+        ctx.closePath(); ctx.fill();
+      }
+      ctx.fillStyle = C.dark;
+      for (const c of loop) ctx.fillRect(c.x*UNIT, fieldTop + c.y*UNIT, UNIT, UNIT);
+    }
+    ctx.globalAlpha = 1;
+
+    const loop = traceLoop(CX, CY, now);
+    ctx.fillStyle = C.darkest;
+    for (const c of loop) fillCell(c.x, c.y);
+    for (const [ax,ay] of EYE_ANCHORS)
+      for (const [gx,gy] of EYE_GLYPH) fillCell(CX+ax+gx, CY+ay+gy);
+
+    ctx.restore();
+  }
+
+  let last = performance.now();
+  function frame(now){
+    let dt=(now-last)/1000; last=now;
+    if (dt>0.1) dt=0.1;
+    update(dt); draw();
+    requestAnimationFrame(frame);
+  }
+
+  window.addEventListener("keydown", (e)=>{
+    if (e.code==="Space"){ e.preventDefault(); doThwomp(); }
+    else if (e.key==="r"||e.key==="R") resetGame();
+  });
+  canvas.addEventListener("pointerdown", (e)=>{ e.preventDefault(); doThwomp(); });
+
+  resetGame();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
