@@ -9,8 +9,17 @@
     --serif:"Palatino Linotype",Palatino,"Book Antiqua","Iowan Old Style",Georgia,serif;
   }
   *{box-sizing:border-box}
+  html{color-scheme:dark}
   html,body{margin:0;height:100%;background:#070606;color:var(--ink);font-family:var(--serif)}
   ::selection{background:rgba(240,177,60,.25)}
+  /* gold scrollbars so the chrome belongs to the site, not to Windows */
+  *{scrollbar-width:thin;scrollbar-color:rgba(240,177,60,.42) rgba(255,255,255,.03)}
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-track{background:rgba(255,255,255,.03)}
+  ::-webkit-scrollbar-thumb{background:linear-gradient(180deg,rgba(240,177,60,.55),rgba(179,144,80,.4));
+    border-radius:6px;border:2px solid #0c0a09}
+  ::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,rgba(240,177,60,.85),rgba(240,177,60,.55))}
+  ::-webkit-scrollbar-corner{background:transparent}
   .hidden{display:none !important}
   .vignette{position:fixed;inset:0;pointer-events:none;z-index:1;
     background:radial-gradient(ellipse at 50% 42%,transparent 20%,rgba(0,0,0,.72) 78%)}
@@ -70,16 +79,16 @@
   #app{display:grid;grid-template-rows:auto 1fr;height:100vh;overflow:hidden}
   header{display:flex;align-items:center;gap:18px;padding:12px 20px;
     border-bottom:1px solid var(--line);background:var(--panel);z-index:30}
-  header .brand{font-size:11.5px;letter-spacing:.32em;text-transform:uppercase;color:var(--grace);
+  header .brand{font-size:13px;letter-spacing:.3em;text-transform:uppercase;color:var(--grace);
     white-space:nowrap;cursor:pointer;background:none;border:0;font-family:var(--serif)}
   header .brand:hover{text-shadow:0 0 18px rgba(240,177,60,.5)}
-  header .stat{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-faint);white-space:nowrap}
+  header .stat{font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);white-space:nowrap}
   header .stat b{color:var(--ink-dim);font-weight:400}
-  #search{flex:1;max-width:540px;background:#141110;border:1px solid var(--line);color:var(--ink);
-    font-family:var(--serif);font-size:14px;padding:9px 13px;border-radius:2px}
+  #search{flex:1;max-width:560px;background:#141110;border:1px solid var(--line);color:var(--ink);
+    font-family:var(--serif);font-size:15.5px;padding:11px 14px;border-radius:2px}
   #search:focus{outline:1px solid var(--grace);outline-offset:1px}
   .realmpick{position:relative}
-  .realmpick>button,.iconbtn{font-family:var(--serif);font-size:11.5px;letter-spacing:.18em;
+  .realmpick>button,.iconbtn{font-family:var(--serif);font-size:12.5px;letter-spacing:.16em;
     text-transform:uppercase;background:none;border:1px solid var(--line);color:var(--ink-dim);
     padding:9px 14px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:8px}
   .realmpick>button:hover,.iconbtn:hover{color:var(--grace);border-color:var(--grace)}
@@ -100,64 +109,76 @@
   .menu .warn{font-size:11px;font-style:italic;color:var(--bad);text-align:center;margin-top:7px;
     min-height:14px;opacity:0;transition:opacity .25s}
   .menu .warn.on{opacity:1}
-  main.cols{display:grid;grid-template-columns:318px 1fr 328px;overflow:hidden}
-  .col{overflow-y:auto;padding:18px;scrollbar-width:thin}
-  .col::-webkit-scrollbar{width:7px}
-  .col::-webkit-scrollbar-thumb{background:rgba(179,144,80,.25)}
+  main.cols{display:grid;grid-template-columns:340px 1fr 348px;overflow:hidden}
+  .col{overflow-y:auto;padding:18px 20px}
   #left{border-right:1px solid var(--line);background:var(--panel)}
   #right{border-left:1px solid var(--line);background:var(--panel)}
-  .grouphead{font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:var(--ink-faint);
-    margin:15px 0 6px;padding-bottom:5px;border-bottom:1px solid var(--line)}
+  .grouphead{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--ink-faint);
+    margin:16px 0 7px;padding-bottom:6px;border-bottom:1px solid var(--line)}
   .grouphead:first-child{margin-top:0}
-  .row{padding:6px 8px;font-size:12.5px;cursor:pointer;border-left:2px solid transparent;
-    color:var(--ink-dim);line-height:1.4;display:flex;gap:9px;align-items:baseline}
+  .row{padding:7px 9px;font-size:14px;cursor:pointer;border-left:2px solid transparent;
+    color:var(--ink-dim);line-height:1.45;display:flex;gap:10px;align-items:baseline}
   .row:hover{color:var(--ink);background:rgba(240,177,60,.06)}
   .row.on{color:var(--grace);border-left-color:var(--grace);background:rgba(240,177,60,.08)}
   .row .dot{margin-top:4px}
-  .row .meta{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);
-    display:block;margin-top:2px}
-  .row .cnt{margin-left:auto;font-size:10.5px;color:var(--ink-faint);flex:0 0 auto;display:flex;
+  .row .meta{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-faint);
+    display:block;margin-top:3px}
+  .row .cnt{margin-left:auto;font-size:11.5px;color:var(--ink-faint);flex:0 0 auto;display:flex;
     gap:5px;align-items:center}
-  .empty{font-size:12.5px;font-style:italic;color:var(--ink-faint);line-height:1.7;padding:6px 2px}
+  .empty{font-size:13.5px;font-style:italic;color:var(--ink-faint);line-height:1.7;padding:6px 2px}
+  #facet{width:100%;background:#141110;border:1px solid var(--line);color:var(--ink-dim);
+    font-family:var(--serif);font-size:13px;letter-spacing:.08em;padding:9px 11px;margin-bottom:14px;
+    border-radius:2px;cursor:pointer}
+  #facet:hover{color:var(--ink);border-color:rgba(240,177,60,.45)}
+  #facet:focus{outline:1px solid var(--grace);outline-offset:1px}
+  .trailhead{display:flex;align-items:baseline;justify-content:space-between}
+  .trailhead button{background:none;border:0;font-family:var(--serif);font-size:10px;
+    letter-spacing:.18em;text-transform:uppercase;color:var(--ink-faint);cursor:pointer}
+  .trailhead button:hover{color:var(--bad)}
+  .trailrow{display:flex;gap:9px;align-items:baseline;padding:5px 8px;font-size:12.5px;
+    color:var(--ink-faint);cursor:pointer;border-left:2px solid transparent;line-height:1.4}
+  .trailrow:hover{color:var(--ink);background:rgba(240,177,60,.06)}
+  .trailrow .mark{font-size:10px;letter-spacing:.14em;text-transform:uppercase;opacity:.65;
+    flex:0 0 auto;width:34px}
+  .trailrow.term .mark{color:var(--grace)}
   #mid{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:5vh 4vw}
   #card{max-width:660px;width:100%}
-  .kind{font-size:11px;letter-spacing:.38em;text-transform:uppercase;color:var(--grace)}
-  #iname{font-size:clamp(22px,2.4vw,34px);font-weight:400;letter-spacing:.1em;text-transform:uppercase;
+  .kind{font-size:12.5px;letter-spacing:.34em;text-transform:uppercase;color:var(--grace)}
+  #iname{font-size:clamp(26px,2.8vw,40px);font-weight:400;letter-spacing:.1em;text-transform:uppercase;
     margin:.45em 0 .1em;line-height:1.3}
-  #jp{font-size:15px;color:var(--ink-dim);letter-spacing:.1em}
-  #eff{font-size:13px;font-style:italic;color:var(--ink-faint);margin-top:6px}
+  #jp{font-size:17px;color:var(--ink-dim);letter-spacing:.1em}
+  #eff{font-size:14.5px;font-style:italic;color:var(--ink-faint);margin-top:7px}
   .hair{width:120px;height:1px;margin:20px 0;background:linear-gradient(90deg,var(--ac,var(--grace)),transparent);opacity:.85}
-  #flavor{font-size:17.5px;line-height:2.05;color:rgba(239,230,214,.9);max-width:46ch}
+  #flavor{font-size:20px;line-height:2;color:rgba(239,230,214,.92);max-width:44ch}
   .w{cursor:pointer;border-bottom:1px dotted transparent;transition:color .15s,border-color .15s}
   .w:hover{color:var(--grace);border-bottom-color:rgba(240,177,60,.55)}
   .w.dead{cursor:default}
   .w.dead:hover{color:inherit;border-bottom-color:transparent}
   .ph{background:linear-gradient(180deg,transparent 62%,rgba(240,177,60,.13) 62%);border-radius:2px}
   .ph.hot{background:linear-gradient(180deg,transparent 58%,rgba(240,177,60,.3) 58%)}
-  #loc{font-size:12.5px;color:var(--ink-faint);line-height:1.7;margin-top:24px;max-width:46ch;
+  #loc{font-size:13.5px;color:var(--ink-faint);line-height:1.75;margin-top:26px;max-width:46ch;
     border-left:1px solid var(--line);padding-left:13px}
   #loc b{color:var(--ink-dim);font-weight:400;letter-spacing:.22em;text-transform:uppercase;
     font-size:10px;display:block;margin-bottom:4px}
   #chips{position:fixed;z-index:50;display:none;gap:6px;padding:7px;background:#141110;
     border:1px solid var(--line);border-radius:3px;box-shadow:0 8px 30px rgba(0,0,0,.7)}
   #chips.on{display:flex}
-  .chip{font-family:var(--serif);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;
-    background:none;border:1px solid var(--line);color:var(--ink-dim);padding:4px 9px;cursor:pointer;
+  .chip{font-family:var(--serif);font-size:12.5px;letter-spacing:.1em;text-transform:uppercase;
+    background:none;border:1px solid var(--line);color:var(--ink-dim);padding:5px 11px;cursor:pointer;
     border-radius:2px;white-space:nowrap}
   .chip:hover{color:var(--grace);border-color:var(--grace)}
   .chip.solo{opacity:.4;cursor:default}
   .chip b{color:var(--grace);font-weight:400;margin-left:5px}
-  #termhead{font-size:16px;letter-spacing:.1em;color:var(--grace);margin:0 0 3px;font-weight:400}
-  #termsub{font-size:11px;font-style:italic;color:var(--ink-faint);margin-bottom:12px}
+  #termhead{font-size:18px;letter-spacing:.09em;color:var(--grace);margin:0 0 4px;font-weight:400}
+  #termsub{font-size:12.5px;font-style:italic;color:var(--ink-faint);margin-bottom:13px}
   .bars{display:flex;flex-direction:column;gap:8px;margin:0 0 16px}
-  .bar{display:grid;grid-template-columns:74px 1fr 56px;gap:9px;align-items:center;font-size:10.5px}
+  .bar{display:grid;grid-template-columns:82px 1fr 60px;gap:9px;align-items:center;font-size:11.5px}
   .bar .g{letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint)}
   .bar .track{height:7px;background:rgba(255,255,255,.05);border-radius:2px;overflow:hidden}
   .bar .fill{height:100%;border-radius:2px}
   .bar .v{text-align:right;color:var(--ink-faint);font-variant-numeric:tabular-nums}
-  .splash{text-align:center;color:var(--ink-faint);font-style:italic;font-size:14px;line-height:2}
-  .splash b{display:block;font-style:normal;color:var(--grace);letter-spacing:.32em;
-    text-transform:uppercase;font-size:13px;margin-bottom:14px}
+  .splash{text-align:center;color:var(--grace);letter-spacing:.3em;text-transform:uppercase;
+    font-size:16px}
   .copied{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);background:#141110;
     border:1px solid var(--line);color:var(--grace);font-size:11.5px;letter-spacing:.2em;
     text-transform:uppercase;padding:10px 18px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:60}
@@ -209,11 +230,13 @@
     </div>
   </header>
   <main class="cols">
-    <div class="col" id="left"></div>
+    <div class="col" id="left">
+      <select id="facet"><option value="">all categories</option></select>
+      <div id="list"></div>
+    </div>
     <div class="col" id="mid">
       <div id="card">
-        <div id="splash" class="splash"><b>The stacks are open</b>
-          Search above, or pick an entry.<br/>Click any word in a description to find what shares it.</div>
+        <div id="splash" class="splash">Welcome to the Library.</div>
         <div id="entry" class="hidden">
           <div class="kind" id="kind"></div>
           <h2 id="iname"></h2>
@@ -230,6 +253,10 @@
       <div id="termsub">click a word or phrase in a description</div>
       <div class="bars" id="bars"></div>
       <div id="tlist"></div>
+      <div id="trailwrap" class="hidden">
+        <div class="grouphead trailhead">Trail <button id="trailclear">clear</button></div>
+        <div id="trail"></div>
+      </div>
     </div>
   </main>
 </div>
@@ -345,6 +372,52 @@ function assemble(){
   $('picklabel').textContent = active.length === GAMES.length ? 'All games'
     : active.length === 1 ? GBY[active[0]].short : active.length + ' games';
 }
+/* A browsable category. BB files weapons with subcategory == the item's own name,
+   which would make 100+ junk facets, so fall back to the broad category there. */
+function facetOf(it){
+  if (it.wiki_class) return it.wiki_class;
+  if (it.subcategory && it.subcategory !== it.name) return it.subcategory;
+  return it.category || '';
+}
+function paintFacets(){
+  const counts = {};
+  for (const it of ITEMS){ const f = facetOf(it); if (f) counts[f] = (counts[f]||0)+1; }
+  const keep = Object.entries(counts).filter(([,n]) => n >= 2)
+    .sort((a,b) => b[1]-a[1] || a[0].localeCompare(b[0]));
+  const sel = $('facet');
+  const was = sel.value;
+  sel.innerHTML = '<option value="">all categories · ' + ITEMS.length.toLocaleString() + '</option>' +
+    keep.map(([f,n]) => '<option value="' + esc(f) + '">' + esc(f) + ' · ' + n + '</option>').join('');
+  if (was && keep.some(([f]) => f === was)) sel.value = was;
+}
+
+/* Trail: where you have actually been, newest first. A revisit moves back to the top
+   rather than duplicating, and the list is capped — so it stays a path, not a log. */
+const TRAIL_MAX = 50;
+let trail = [];
+const trailKey = () => 'lore.trail.' + (sessionStorage.getItem('lore.who') || 'anon');
+function trailLoad(){
+  try { trail = JSON.parse(localStorage.getItem(trailKey()) || '[]'); }
+  catch { trail = []; }
+  paintTrail();
+}
+function trailPush(kind, key, label, g){
+  const id = kind + ' ' + (g || '') + ' ' + key;
+  trail = trail.filter(x => x.id !== id);
+  trail.unshift({ id, kind, key, label, g });
+  if (trail.length > TRAIL_MAX) trail.length = TRAIL_MAX;
+  try { localStorage.setItem(trailKey(), JSON.stringify(trail)); } catch {}
+  paintTrail();
+}
+function paintTrail(){
+  $('trailwrap').classList.toggle('hidden', !trail.length);
+  $('trail').innerHTML = trail.map((x,i) =>
+    '<div class="trailrow ' + x.kind + '" data-trail="' + i + '">' +
+      '<span class="mark">' + (x.kind === 'term' ? 'term' :
+        '<span class="dot" style="background:' + ((GBY[x.g]||{}).color || 'var(--ink-faint)') + '"></span>') +
+      '</span><span>' + esc(x.label) + '</span></div>').join('');
+}
+
 const linkable = t => {
   const r = TERMS[t];
   return !!r && Object.values(r.per).reduce((s,x) => s + x.e.length, 0) >= 2;
@@ -360,21 +433,23 @@ function itemRow(i, idx){
 }
 function browse(){
   const q = $('search').value.trim().toLowerCase();
+  const facet = $('facet').value;
+  const pool = facet ? ITEMS.filter(i => facetOf(i) === facet) : ITEMS;
   const idx = new Map(ITEMS.map((it,i) => [it,i]));
   const out = [];
   if (!q){
     for (const k of active){
-      const rows = ITEMS.filter(i => i.g === k);
+      const rows = pool.filter(i => i.g === k);
       out.push(`<div class="grouphead">${esc(GBY[k].short)} · ${rows.length.toLocaleString()}</div>`);
       out.push(rows.slice(0,MAX).map(i => itemRow(i, idx.get(i))).join(''));
       if (rows.length > MAX) out.push('<div class="empty">…search to reach the rest</div>');
     }
   } else {
     // three kinds of hit: "saw" must find the Saw Cleaver, the word, and the mentions
-    const nameHits = ITEMS.filter(i => i.name.toLowerCase().includes(q)).slice(0,90);
+    const nameHits = pool.filter(i => i.name.toLowerCase().includes(q)).slice(0,90);
     const termHits = Object.keys(TERMS).filter(t => t.includes(q) || (TERMS[t].d||'').toLowerCase().includes(q))
       .sort((a,b) => TERMS[b].total - TERMS[a].total).slice(0,60);
-    const textHits = ITEMS.filter(i => !i.name.toLowerCase().includes(q) && i.flavor.toLowerCase().includes(q)).slice(0,90);
+    const textHits = pool.filter(i => !i.name.toLowerCase().includes(q) && i.flavor.toLowerCase().includes(q)).slice(0,90);
     if (nameHits.length){
       out.push(`<div class="grouphead">Items · ${nameHits.length}</div>`);
       out.push(nameHits.map(i => itemRow(i, idx.get(i))).join(''));
@@ -393,7 +468,7 @@ function browse(){
       out.push(textHits.map(i => itemRow(i, idx.get(i))).join(''));
     }
   }
-  $('left').innerHTML = out.join('') || '<div class="empty">Nothing in the stacks matches that.</div>';
+  $('list').innerHTML = out.join('') || '<div class="empty">Nothing in the stacks matches that.</div>';
 }
 
 /* ── entry ─────────────────────────────────────────────────────────────── */
@@ -438,6 +513,7 @@ function render(it, silent){
   }
   html += esc(t.slice(i));
   $('flavor').innerHTML = html;
+  trailPush('item', it.name, it.name, it.g);
   if (!silent) writeURL(false);
   browse();
 }
@@ -471,6 +547,7 @@ function showTerm(key, silent){
     }).join(''));
   }
   $('tlist').innerHTML = out.join('');
+  trailPush('term', key, r.d || key, '');
   if (!silent) writeURL(false);
 }
 
@@ -547,11 +624,13 @@ async function openLibrary(keys, want){
   active = keys;
   localStorage.setItem('lore.realms', JSON.stringify(active));
   show('app');
-  $('left').innerHTML = '<div class="empty">Unsealing the stacks…</div>';
+  $('list').innerHTML = '<div class="empty">Unsealing the stacks…</div>';
   try { for (const k of active) await loadRealm(k); }
-  catch (e){ $('left').innerHTML = '<div class="empty">Could not open a realm. ' + esc(e.message) + '</div>'; return; }
+  catch (e){ $('list').innerHTML = '<div class="empty">Could not open a realm. ' + esc(e.message) + '</div>'; return; }
   assemble();
   paintMenu();
+  paintFacets();
+  trailLoad();
   cur = null; curTerm = null;
   $('splash').classList.remove('hidden'); $('entry').classList.add('hidden');
   $('termhead').textContent = ''; $('bars').innerHTML = ''; $('tlist').innerHTML = '';
@@ -650,6 +729,23 @@ document.addEventListener('click', e => {
   if (row && row.dataset.i !== undefined && +row.dataset.i >= 0) render(ITEMS[+row.dataset.i]);
 });
 $('search').addEventListener('input', browse);
+$('facet').addEventListener('change', browse);
+$('trailclear').addEventListener('click', () => {
+  trail = [];
+  try { localStorage.removeItem(trailKey()); } catch {}
+  paintTrail();
+});
+$('trail').addEventListener('click', e => {
+  const row = e.target.closest('.trailrow');
+  if (!row) return;
+  const x = trail[+row.dataset.trail];
+  if (!x) return;
+  if (x.kind === 'term') showTerm(x.key);
+  else {
+    const hit = ITEMS.find(i => i.g === x.g && i.name === x.key);
+    if (hit) render(hit);
+  }
+});
 addEventListener('keydown', e => {
   if (e.key === '/' && $('app') && !$('app').classList.contains('hidden') && document.activeElement !== $('search')){
     e.preventDefault(); $('search').focus();
