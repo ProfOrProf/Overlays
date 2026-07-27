@@ -116,25 +116,26 @@
   .menu .warn{font-size:11px;font-style:italic;color:var(--bad);text-align:center;margin-top:7px;
     min-height:14px;opacity:0;transition:opacity .25s}
   .menu .warn.on{opacity:1}
-  main.cols{display:grid;grid-template-columns:430px 1fr 440px;overflow:hidden;padding:0 6px}
-  .col{overflow-y:auto;padding:20px 26px}
+  main.cols{display:grid;grid-template-columns:470px 1fr 490px;overflow:hidden;padding:0 4px}
+  .col{overflow-y:auto;padding:20px 22px}
   #left{border-right:1px solid var(--line);background:var(--panel)}
   #right{border-left:1px solid var(--line);background:var(--panel)}
-  .grouphead{font-size:13px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-faint);
-    margin:18px 0 9px;padding-bottom:7px;border-bottom:1px solid var(--line)}
+  .grouphead{font-size:14.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-faint);
+    margin:24px 0 11px;padding-bottom:8px;border-bottom:1px solid var(--line)}
   .grouphead:first-child{margin-top:0}
-  .row{padding:8px 11px;font-size:17px;cursor:pointer;border-left:2px solid transparent;
-    color:var(--ink-dim);line-height:1.5;display:flex;gap:11px;align-items:baseline}
+  .row{padding:10px 12px;font-size:20px;cursor:pointer;border-left:2px solid transparent;
+    color:var(--ink-dim);line-height:1.45;display:flex;gap:12px;align-items:baseline;
+    margin-bottom:2px}
   .row:hover{color:var(--ink);background:rgba(240,177,60,.06)}
   .row.on{color:var(--grace);border-left-color:var(--grace);background:rgba(240,177,60,.08)}
   .row .dot{margin-top:4px}
-  .row .meta{font-size:12.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-faint);
-    display:block;margin-top:3px}
-  .row .cnt{margin-left:auto;font-size:13px;color:var(--ink-faint);flex:0 0 auto;display:flex;
+  .row .meta{font-size:13.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-faint);
+    display:block;margin-top:4px}
+  .row .cnt{margin-left:auto;font-size:14.5px;color:var(--ink-faint);flex:0 0 auto;display:flex;
     gap:5px;align-items:center}
-  .empty{font-size:13.5px;font-style:italic;color:var(--ink-faint);line-height:1.7;padding:6px 2px}
+  .empty{font-size:15px;font-style:italic;color:var(--ink-faint);line-height:1.7;padding:7px 2px}
   #facet{width:100%;background:#141110;border:1px solid var(--line);color:var(--ink-dim);
-    font-family:var(--serif);font-size:15px;letter-spacing:.08em;padding:10px 12px;margin-bottom:15px;
+    font-family:var(--serif);font-size:17px;letter-spacing:.08em;padding:11px 13px;margin-bottom:16px;
     border-radius:2px;cursor:pointer}
   #facet:hover{color:var(--ink);border-color:rgba(240,177,60,.45)}
   #facet:focus{outline:1px solid var(--grace);outline-offset:1px}
@@ -142,11 +143,12 @@
   .trailhead button{background:none;border:0;font-family:var(--serif);font-size:10px;
     letter-spacing:.18em;text-transform:uppercase;color:var(--ink-faint);cursor:pointer}
   .trailhead button:hover{color:var(--bad)}
-  .trailrow{display:flex;gap:9px;align-items:baseline;padding:6px 9px;font-size:14px;
-    color:var(--ink-faint);cursor:pointer;border-left:2px solid transparent;line-height:1.4}
+  .trailrow{display:flex;gap:8px;align-items:baseline;padding:8px 9px;font-size:17px;
+    color:var(--ink-faint);cursor:pointer;border-left:2px solid transparent;line-height:1.4;
+    margin-bottom:4px}
   .trailrow:hover{color:var(--ink);background:rgba(240,177,60,.06)}
-  .trailrow .mark{font-size:10px;letter-spacing:.14em;text-transform:uppercase;opacity:.65;
-    flex:0 0 auto;width:34px}
+  .trailrow .mark{font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:.65;
+    flex:0 0 auto;width:26px}
   .trailrow.term .mark{color:var(--grace)}
   /* justify-content:center inside a scrollable flex box clips the TOP of tall content —
      auto margins centre short entries without trapping long dialogue. */
@@ -198,8 +200,8 @@
   .chip:hover{color:var(--grace);border-color:var(--grace)}
   .chip.solo{opacity:.4;cursor:default}
   .chip b{color:var(--grace);font-weight:400;margin-left:5px}
-  #termhead{font-size:20px;letter-spacing:.09em;color:var(--grace);margin:0 0 5px;font-weight:400}
-  #termsub{font-size:13.5px;font-style:italic;color:var(--ink-faint);margin-bottom:14px}
+  #termhead{font-size:25px;letter-spacing:.08em;color:var(--grace);margin:0 0 6px;font-weight:400}
+  #termsub{font-size:15px;font-style:italic;color:var(--ink-faint);margin-bottom:16px}
   .bars{display:flex;flex-direction:column;gap:8px;margin:0 0 16px}
   .bar{display:grid;grid-template-columns:82px 1fr 60px;gap:9px;align-items:center;font-size:11.5px}
   .bar .g{letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint)}
@@ -379,7 +381,7 @@ function writeURL(push){
 /* ── state ─────────────────────────────────────────────────────────────── */
 let active = [], ITEMS = [], TERMS = {}, cur = null, curTerm = null, picked = new Set();
 let showJP = false;   // per-session; the toggle is discovered, never advertised
-let JPIDX = {};
+let JPIDX = {}, JPTERMS = {};
 
 /* Greedy longest-match over a Japanese string against the derived gloss. Japanese has no
    spaces, so segmentation is the whole problem; preferring the longest known term keeps
@@ -404,7 +406,7 @@ function jpTermsIn(s){
 }
 
 function assemble(){
-  ITEMS = []; TERMS = {};
+  ITEMS = []; TERMS = {}; JPTERMS = {};
   // term entries are indices into each realm's own item list; record where that
   // realm starts here so they can be turned into global ITEMS indices
   const base = {};
@@ -412,6 +414,12 @@ function assemble(){
     const D = LOADED[k];
     base[k] = ITEMS.length;
     for (const it of D.items) ITEMS.push(Object.assign({g:k}, it));
+    for (const [jt, jv] of Object.entries(D.jpTerms || {})){
+      const rec = JPTERMS[jt] || (JPTERMS[jt] = {g: jv.g, per: {}, total: 0});
+      if (!rec.g && jv.g) rec.g = jv.g;
+      rec.per[k] = {c: jv.c, e: jv.e, base: base[k]};
+      rec.total += jv.c;
+    }
     for (const [t, v] of Object.entries(D.terms)){
       const rec = TERMS[t] || (TERMS[t] = {d:v.display, per:{}, total:0});
       if (k === 'ER' || !rec.d) rec.d = v.display;
@@ -603,10 +611,32 @@ function render(it, silent){
   const isDlg = it.category === 'Dialogue';
   $('flavor').className = isDlg ? 'dialogue' : '';
   if (showJP && hasJP){
-    // Japanese has no term spans of its own yet — show it plain rather than fake them.
-    $('flavor').innerHTML = isDlg
-      ? it.jp_flavor.split(String.fromCharCode(10)).map((l,n) => `<span class="dl"><span class="n">${n+1}</span>${esc(l)}</span>`).join('')
-      : esc(it.jp_flavor);
+    // Japanese is indexed too now: same span contract, offsets against jp_flavor.
+    const jt = it.jp_spans || [];
+    const jtext = it.jp_flavor;
+    const wrap = (a, b) => {
+      let h = '', k = a;
+      for (const sp of jt){
+        if (sp.s < a || sp.e > b) continue;
+        if (sp.s > k) h += esc(jtext.slice(k, sp.s));
+        const info = JPTERMS[sp.term];
+        h += `<span class="jt${info ? '' : ' dead'}" data-jt="${esc(sp.term)}">${esc(jtext.slice(sp.s, sp.e))}</span>`;
+        k = sp.e;
+      }
+      if (k < b) h += esc(jtext.slice(k, b));
+      return h;
+    };
+    if (isDlg){
+      const out = []; let pos = 0;
+      for (const ln of jtext.split(String.fromCharCode(10))){
+        const s = pos, e = pos + ln.length; pos = e + 1;
+        if (!ln.trim()) continue;
+        out.push(`<span class="dl"><span class="n">${out.length + 1}</span>${wrap(s, e)}</span>`);
+      }
+      $('flavor').innerHTML = out.join('');
+    } else {
+      $('flavor').innerHTML = wrap(0, jtext.length);
+    }
   } else if (isDlg){
     // split AFTER the spans are built: newlines only survive in escaped text, never inside a tag
     $('flavor').innerHTML = html.split(String.fromCharCode(10))
@@ -707,11 +737,13 @@ document.addEventListener('mouseover', e => {
   const box = $('gloss');
   if (!jt){ if (!e.target.closest('#gloss')) box.className = ''; return; }
   const term = jt.dataset.jt;
+  const rec = JPTERMS[term];
   const g = GLOSS[term];
-  if (!g) return;
-  const shared = (JPIDX[term] || []).length;
-  box.innerHTML = `<b>${esc(term)}</b> &nbsp;·&nbsp; ${esc(g[0])}` +
-    `<i>${shared} ${shared === 1 ? 'entry shares this' : 'entries share this'}</i>`;
+  if (!rec && !g) return;
+  const shared = rec ? rec.total : (JPIDX[term] || []).length;
+  const reading = (rec && rec.g) || (g && g[0]) || '';
+  box.innerHTML = `<b>${esc(term)}</b>` + (reading ? ` &nbsp;·&nbsp; ${esc(reading)}` : '') +
+    `<i>${shared} ${shared === 1 ? 'mention' : 'mentions'}</i>`;
   box.className = 'on';
   const r = jt.getBoundingClientRect();
   const w = box.offsetWidth;
@@ -723,23 +755,41 @@ document.addEventListener('mouseout', e => {
 });
 
 function showJPTerm(term){
-  const ids = JPIDX[term] || [];
-  if (!ids.length) return;
+  const rec = JPTERMS[term];
+  const ids = rec ? [] : (JPIDX[term] || []);
   const g = GLOSS[term];
+  const reading = (rec && rec.g) || (g && g[0]) || '';
+  if (!rec && !ids.length) return;
   curTerm = null;
   $('termhead').textContent = term;
-  $('termsub').innerHTML = `${g ? esc(g[0]) + ' · ' : ''}${ids.length} ` +
-    `${ids.length === 1 ? 'entry' : 'entries'}<span class="tag">japanese</span>`;
+  const total = rec ? rec.total : ids.length;
+  $('termsub').innerHTML = (reading ? esc(reading) + ' · ' : '') +
+    `${total} ${total === 1 ? 'mention' : 'mentions'}<span class="tag">japanese</span>`;
   $('bars').innerHTML = '';
-  const byGame = {};
-  ids.forEach(i => (byGame[ITEMS[i].g] || (byGame[ITEMS[i].g] = [])).push(i));
   const out = [];
-  for (const k of active){
-    if (!byGame[k]) continue;
-    out.push(`<div class="grouphead">${esc(GBY[k].short)} · ${byGame[k].length}</div>`);
-    // names stay English on both sides; only the term itself is Japanese
-    out.push(byGame[k].map(i => `<div class="row${ITEMS[i] === cur ? ' on' : ''}" data-i="${i}">
-      <span class="dot" style="background:${GBY[k].color}"></span><span>${esc(ITEMS[i].name)}</span></div>`).join(''));
+  if (rec){
+    for (const k of active){
+      const per = rec.per[k];
+      if (!per) continue;
+      out.push(`<div class="grouphead">${esc(GBY[k].short)} · ${per.e.length}</div>`);
+      // names stay English on both sides — only the term itself is Japanese
+      out.push(per.e.map(li => {
+        const gi = per.base + li;
+        const it = ITEMS[gi];
+        if (!it) return '';
+        return `<div class="row${it === cur ? ' on' : ''}" data-i="${gi}">
+          <span class="dot" style="background:${GBY[k].color}"></span><span>${esc(it.name)}</span></div>`;
+      }).join(''));
+    }
+  } else {
+    const byGame = {};
+    ids.forEach(i2 => (byGame[ITEMS[i2].g] || (byGame[ITEMS[i2].g] = [])).push(i2));
+    for (const k of active){
+      if (!byGame[k]) continue;
+      out.push(`<div class="grouphead">${esc(GBY[k].short)} · ${byGame[k].length}</div>`);
+      out.push(byGame[k].map(i2 => `<div class="row${ITEMS[i2] === cur ? ' on' : ''}" data-i="${i2}">
+        <span class="dot" style="background:${GBY[k].color}"></span><span>${esc(ITEMS[i2].name)}</span></div>`).join(''));
+    }
   }
   $('tlist').innerHTML = out.join('');
 }
