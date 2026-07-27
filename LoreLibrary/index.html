@@ -197,6 +197,14 @@
   .w.dead:hover{color:inherit;border-bottom-color:transparent}
   .ph{background:linear-gradient(180deg,transparent 62%,rgba(240,177,60,.13) 62%);border-radius:2px}
   .ph.hot{background:linear-gradient(180deg,transparent 58%,rgba(240,177,60,.3) 58%)}
+  /* the term you arrived by. Every occurrence is marked; the first one gets scrolled to.
+     Reads as ink on the page rather than a UI selection — a scribe's underscore, not a
+     search hit, so it never competes with .row.on in the panel beside it. */
+  .w.hit,.ph.hit,.jt.hit{color:var(--grace);
+    background:linear-gradient(180deg,transparent 88%,rgba(240,177,60,.5) 88%)}
+  .w.hit{border-bottom-color:transparent}
+  @keyframes arrive{from{background-color:rgba(240,177,60,.24)}to{background-color:transparent}}
+  .hit{animation:arrive 1.1s ease-out 1}
   #chips{position:fixed;z-index:50;display:none;gap:6px;padding:7px;background:#141110;
     border:1px solid var(--line);border-radius:3px;box-shadow:0 8px 30px rgba(0,0,0,.7)}
   #chips.on{display:flex}
@@ -385,7 +393,7 @@ function writeURL(push){
 }
 
 /* ── state ─────────────────────────────────────────────────────────────── */
-let active = [], ITEMS = [], TERMS = {}, cur = null, curTerm = null, picked = new Set();
+let active = [], ITEMS = [], TERMS = {}, cur = null, curTerm = null, curJPTerm = null, picked = new Set();
 let showJP = false;   // per-session; the toggle is discovered, never advertised
 let JPIDX = {}, JPTERMS = {};
 
@@ -481,7 +489,7 @@ function trailLoad(){
   paintTrail();
 }
 function trailPush(kind, key, label, g){
-  const id = kind + ' ' + (g || '') + ' ' + key;
+  const id = kind + '\0' + (g || '') + '\0' + key;
   trail = trail.filter(x => x.id !== id);
   trail.unshift({ id, kind, key, label, g });
   if (trail.length > TRAIL_MAX) trail.length = TRAIL_MAX;
@@ -658,6 +666,38 @@ function render(it, silent){
   if (!silent) writeURL(false);
   browse();
   syncTermHighlight();
+  markArrival();
+}
+
+/* You arrived here FROM a term, so show the reader why: mark every occurrence of that term
+   in this entry and carry them to the first one. Otherwise a long entry makes you hunt for
+   the word that put it on the list — which is the one thing you already know about it.
+
+   The spans exist already: the index wraps every occurrence at render time, so this only
+   has to find them by term and scroll. Nothing is re-parsed.
+
+   Matching is a filter rather than an attribute selector: terms are arbitrary corpus text,
+   so "lord's blade" would need CSS-string escaping to be interpolated safely. Comparing
+   dataset values sidesteps the quoting question entirely.
+
+   Scrolling is computed against #mid rather than delegated to scrollIntoView(), which walks
+   up and moves ancestors too — here that would drag the whole three-column frame. */
+function markArrival(){
+  const jp = showJP && curJPTerm;
+  const key = jp ? curJPTerm : curTerm;
+  if (!key) return;
+  // The Japanese index counts terms in the NAME as well as the prose — 1,545 of Elden Ring's
+  // claims are name-only — so the title line has to be searched too or those arrivals mark
+  // nothing while the word sits in plain view above the text. English names aren't spanned.
+  const scope = jp ? [$('jp'), $('flavor')] : [$('flavor')];
+  const hits = scope.flatMap(el => [...el.querySelectorAll(jp ? '.jt' : '.ph, .w')])
+    .filter(el => (jp ? el.dataset.jt : (el.dataset.p ?? el.dataset.t)) === key);
+  if (!hits.length) return;
+  hits.forEach(el => el.classList.add('hit'));
+  const mid = $('mid'), r = hits[0].getBoundingClientRect(), m = mid.getBoundingClientRect();
+  // centre it, but never scroll past the top — a first-line hit should leave the title visible
+  const to = mid.scrollTop + (r.top - m.top) - mid.clientHeight / 2 + r.height / 2;
+  mid.scrollTo({ top: Math.max(0, to), behavior: 'smooth' });
 }
 
 /* The shared-by list paints its highlight when the term is opened, so moving to a
@@ -674,7 +714,7 @@ function syncTermHighlight(){
 function showTerm(key, silent){
   if (!linkable(key)) return;
   const r = TERMS[key];
-  curTerm = key;
+  curTerm = key; curJPTerm = null;
   $('termhead').textContent = r.d || key;
   const games = active.filter(k => r.per[k]);
   $('termsub').textContent = `${r.total} mentions across ${games.length} ${games.length === 1 ? 'game' : 'games'}`;
@@ -768,7 +808,7 @@ function showJPTerm(term){
   const g = GLOSS[term];
   const reading = (rec && rec.g) || (g && g[0]) || '';
   if (!rec && !ids.length) return;
-  curTerm = null;
+  curTerm = null; curJPTerm = term;
   $('termhead').textContent = term;
   const total = rec ? rec.total : ids.length;
   $('termsub').innerHTML = (reading ? esc(reading) + ' · ' : '') +
@@ -853,7 +893,7 @@ async function openLibrary(keys, want){
   paintMenu();
   paintFacets();
   trailLoad();
-  cur = null; curTerm = null;
+  cur = null; curTerm = null; curJPTerm = null;
   $('splash').classList.remove('hidden'); $('entry').classList.add('hidden');
   $('termhead').textContent = ''; $('bars').innerHTML = ''; $('tlist').innerHTML = '';
   $('termsub').textContent = 'click a word or phrase in a description';
