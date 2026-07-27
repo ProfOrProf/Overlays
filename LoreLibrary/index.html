@@ -263,7 +263,7 @@
 
 <script src="data/auth.js"></script>
 <script>
-const GAMES = [{"key":"BB","slug":"bloodborne","name":"Bloodborne","short":"Bloodborne","color":"#c2544a","realm":"Yharnam","entries":433,"terms":1318},{"key":"ER","slug":"eldenring","name":"Elden Ring","short":"Elden Ring","color":"#f0b13c","realm":"The Lands Between","entries":3087,"terms":4572},{"key":"NR","slug":"nightreign","name":"Elden Ring Nightreign","short":"Nightreign","color":"#7fb2e6","realm":"Limveld","entries":1583,"terms":2951},{"key":"D1","slug":"darksouls1","name":"Dark Souls","short":"Dark Souls","color":"#b8933f","realm":"Lordran","entries":870,"terms":1734},{"key":"D2","slug":"darksouls2","name":"Dark Souls II","short":"Dark Souls 2","color":"#6f8f7a","realm":"Drangleic","entries":1263,"terms":2492},{"key":"D3","slug":"darksouls3","name":"Dark Souls III","short":"Dark Souls 3","color":"#8f9ba8","realm":"Lothric","entries":1693,"terms":3080}];
+const GAMES = [{"key":"BB","slug":"bloodborne","name":"Bloodborne","short":"Bloodborne","color":"#c2544a","realm":"Yharnam","entries":433,"terms":1318},{"key":"ER","slug":"eldenring","name":"Elden Ring","short":"Elden Ring","color":"#f0b13c","realm":"The Lands Between","entries":3087,"terms":4605},{"key":"NR","slug":"nightreign","name":"Elden Ring Nightreign","short":"Nightreign","color":"#7fb2e6","realm":"Limveld","entries":1583,"terms":2984},{"key":"D1","slug":"darksouls1","name":"Dark Souls","short":"Dark Souls","color":"#b8933f","realm":"Lordran","entries":870,"terms":1767},{"key":"D2","slug":"darksouls2","name":"Dark Souls II","short":"Dark Souls 2","color":"#6f8f7a","realm":"Drangleic","entries":1263,"terms":2507},{"key":"D3","slug":"darksouls3","name":"Dark Souls III","short":"Dark Souls 3","color":"#8f9ba8","realm":"Lothric","entries":1693,"terms":3373}];
 const GBY = Object.fromEntries(GAMES.map(g => [g.key, g]));
 const BY_SLUG = Object.fromEntries(GAMES.map(g => [g.slug, g.key]));
 const $ = id => document.getElementById(id);
@@ -347,13 +347,17 @@ let active = [], ITEMS = [], TERMS = {}, cur = null, curTerm = null, picked = ne
 
 function assemble(){
   ITEMS = []; TERMS = {};
+  // term entries are indices into each realm's own item list; record where that
+  // realm starts here so they can be turned into global ITEMS indices
+  const base = {};
   for (const k of active){
     const D = LOADED[k];
+    base[k] = ITEMS.length;
     for (const it of D.items) ITEMS.push(Object.assign({g:k}, it));
     for (const [t, v] of Object.entries(D.terms)){
       const rec = TERMS[t] || (TERMS[t] = {d:v.display, per:{}, total:0});
       if (k === 'ER' || !rec.d) rec.d = v.display;
-      rec.per[k] = {c:v.count, r:v.count / D.descriptions, e:v.entries};
+      rec.per[k] = {c:v.count, r:v.count / D.descriptions, e:v.entries, base: base[k]};
       rec.total += v.count;
     }
   }
@@ -559,14 +563,16 @@ function showTerm(key, silent){
         <div class="v">${e ? (100*e.r).toFixed(1)+'%' : '—'}</div></div>`;
     }).join('');
   } else $('bars').innerHTML = '';
-  const idx = new Map(ITEMS.map((it,i) => [it.g + '\u0000' + it.name, i]));
   const out = [];
   for (const k of games){
-    out.push(`<div class="grouphead">${esc(GBY[k].short)} · ${r.per[k].e.length}</div>`);
-    out.push(r.per[k].e.map(n => {
-      const i = idx.get(k + '\u0000' + n);
-      return `<div class="row${cur && cur.name === n && cur.g === k ? ' on' : ''}" data-i="${i === undefined ? -1 : i}">
-        <span class="dot" style="background:${GBY[k].color}"></span><span>${esc(n)}</span></div>`;
+    const off = r.per[k].base, ids = r.per[k].e;
+    out.push(`<div class="grouphead">${esc(GBY[k].short)} · ${ids.length}</div>`);
+    out.push(ids.map(localIdx => {
+      const i = off + localIdx;
+      const it = ITEMS[i];
+      if (!it) return '';
+      return `<div class="row${it === cur ? ' on' : ''}" data-i="${i}">
+        <span class="dot" style="background:${GBY[k].color}"></span><span>${esc(it.name)}</span></div>`;
     }).join(''));
   }
   $('tlist').innerHTML = out.join('');
