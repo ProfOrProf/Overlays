@@ -147,8 +147,10 @@
     color:var(--ink-faint);cursor:pointer;border-left:2px solid transparent;line-height:1.4;
     margin-bottom:4px}
   .trailrow:hover{color:var(--ink);background:rgba(240,177,60,.06)}
+  /* "TERM" at 11px with letter-spacing needs ~36px; at 26px it overran its box and
+     collided with the label beside it. */
   .trailrow .mark{font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:.65;
-    flex:0 0 auto;width:26px}
+    flex:0 0 auto;width:38px;padding-right:6px;overflow:hidden}
   .trailrow.term .mark{color:var(--grace)}
   /* justify-content:center inside a scrollable flex box clips the TOP of tall content —
      auto margins centre short entries without trapping long dialogue. */
