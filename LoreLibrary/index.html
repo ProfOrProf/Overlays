@@ -54,7 +54,7 @@
   .realms{display:grid;grid-template-columns:repeat(auto-fit,208px);gap:15px;
     justify-content:center;margin:0 auto 38px;max-width:min(96vw,890px)}
   .realm{position:relative;cursor:pointer;user-select:none;
-    width:208px;height:118px;display:flex;flex-direction:column;
+    width:208px;height:132px;display:flex;flex-direction:column;
     border:1px solid var(--line);background:rgba(255,255,255,.012);padding:17px 18px;
     text-align:left;overflow:hidden;
     transition:border-color .28s,background .28s,transform .28s}
@@ -72,6 +72,9 @@
     padding-left:25px;letter-spacing:.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .realm .cnt{font-size:10.5px;letter-spacing:.18em;color:var(--rc);opacity:.75;
     margin-top:auto;padding-left:25px;white-space:nowrap}
+  /* second language gets its own line — at 208px wide it was being clipped mid-word */
+  .realm .lang{font-size:10px;letter-spacing:.16em;color:var(--ink-faint);
+    margin-top:3px;padding-left:25px;white-space:nowrap;text-transform:uppercase}
   footer.foot{position:fixed;bottom:18px;left:0;right:0;text-align:center;font-size:10px;
     letter-spacing:.22em;text-transform:uppercase;color:var(--ink-faint);opacity:.55;z-index:2}
   footer.foot a{color:inherit}
@@ -619,7 +622,8 @@ function paintRealmCards(){
     <label class="realm${picked.has(g.key) ? ' on' : ''}" style="--rc:${g.color}" data-k="${g.key}" title="${esc(g.name)}">
       <span class="nm"><span class="tick"></span>${esc(g.short)}</span>
       <div class="sub">${esc(g.realm)}</div>
-      <div class="cnt">${g.entries.toLocaleString()} descriptions${g.lang2 ? ' · ' + esc(g.lang2) : ' · English only'}</div>
+      <div class="cnt">${g.entries.toLocaleString()} descriptions</div>
+      <div class="lang">${g.lang2 ? esc(g.lang2) : 'English only'}</div>
     </label>`).join('');
 }
 function paintMenu(){
