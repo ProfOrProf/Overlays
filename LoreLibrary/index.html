@@ -263,7 +263,7 @@
 
 <script src="data/auth.js"></script>
 <script>
-const GAMES = [{"key":"BB","slug":"bloodborne","name":"Bloodborne","short":"Bloodborne","color":"#c2544a","realm":"Yharnam","entries":433,"terms":1318},{"key":"ER","slug":"eldenring","name":"Elden Ring","short":"Elden Ring","color":"#f0b13c","realm":"The Lands Between","entries":3087,"terms":4572},{"key":"NR","slug":"nightreign","name":"Elden Ring Nightreign","short":"Nightreign","color":"#7fb2e6","realm":"Limveld","entries":1583,"terms":2951}];
+const GAMES = [{"key":"BB","slug":"bloodborne","name":"Bloodborne","short":"Bloodborne","color":"#c2544a","realm":"Yharnam","entries":433,"terms":1318},{"key":"ER","slug":"eldenring","name":"Elden Ring","short":"Elden Ring","color":"#f0b13c","realm":"The Lands Between","entries":3087,"terms":4572},{"key":"NR","slug":"nightreign","name":"Elden Ring Nightreign","short":"Nightreign","color":"#7fb2e6","realm":"Limveld","entries":1583,"terms":2951},{"key":"D1","slug":"darksouls1","name":"Dark Souls","short":"Dark Souls","color":"#b8933f","realm":"Lordran","entries":870,"terms":1734},{"key":"D2","slug":"darksouls2","name":"Dark Souls II","short":"Dark Souls 2","color":"#6f8f7a","realm":"Drangleic","entries":1263,"terms":2492},{"key":"D3","slug":"darksouls3","name":"Dark Souls III","short":"Dark Souls 3","color":"#8f9ba8","realm":"Lothric","entries":1693,"terms":3080}];
 const GBY = Object.fromEntries(GAMES.map(g => [g.key, g]));
 const BY_SLUG = Object.fromEntries(GAMES.map(g => [g.slug, g.key]));
 const $ = id => document.getElementById(id);
