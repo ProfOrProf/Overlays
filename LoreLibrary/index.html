@@ -116,25 +116,25 @@
   .menu .warn{font-size:11px;font-style:italic;color:var(--bad);text-align:center;margin-top:7px;
     min-height:14px;opacity:0;transition:opacity .25s}
   .menu .warn.on{opacity:1}
-  main.cols{display:grid;grid-template-columns:352px 1fr 360px;overflow:hidden;padding:0 10px}
+  main.cols{display:grid;grid-template-columns:430px 1fr 440px;overflow:hidden;padding:0 6px}
   .col{overflow-y:auto;padding:20px 26px}
   #left{border-right:1px solid var(--line);background:var(--panel)}
   #right{border-left:1px solid var(--line);background:var(--panel)}
-  .grouphead{font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:var(--ink-faint);
-    margin:17px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+  .grouphead{font-size:13px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-faint);
+    margin:18px 0 9px;padding-bottom:7px;border-bottom:1px solid var(--line)}
   .grouphead:first-child{margin-top:0}
-  .row{padding:7px 10px;font-size:15px;cursor:pointer;border-left:2px solid transparent;
-    color:var(--ink-dim);line-height:1.5;display:flex;gap:10px;align-items:baseline}
+  .row{padding:8px 11px;font-size:17px;cursor:pointer;border-left:2px solid transparent;
+    color:var(--ink-dim);line-height:1.5;display:flex;gap:11px;align-items:baseline}
   .row:hover{color:var(--ink);background:rgba(240,177,60,.06)}
   .row.on{color:var(--grace);border-left-color:var(--grace);background:rgba(240,177,60,.08)}
   .row .dot{margin-top:4px}
-  .row .meta{font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-faint);
+  .row .meta{font-size:12.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-faint);
     display:block;margin-top:3px}
-  .row .cnt{margin-left:auto;font-size:11.5px;color:var(--ink-faint);flex:0 0 auto;display:flex;
+  .row .cnt{margin-left:auto;font-size:13px;color:var(--ink-faint);flex:0 0 auto;display:flex;
     gap:5px;align-items:center}
   .empty{font-size:13.5px;font-style:italic;color:var(--ink-faint);line-height:1.7;padding:6px 2px}
   #facet{width:100%;background:#141110;border:1px solid var(--line);color:var(--ink-dim);
-    font-family:var(--serif);font-size:13px;letter-spacing:.08em;padding:9px 11px;margin-bottom:14px;
+    font-family:var(--serif);font-size:15px;letter-spacing:.08em;padding:10px 12px;margin-bottom:15px;
     border-radius:2px;cursor:pointer}
   #facet:hover{color:var(--ink);border-color:rgba(240,177,60,.45)}
   #facet:focus{outline:1px solid var(--grace);outline-offset:1px}
@@ -142,7 +142,7 @@
   .trailhead button{background:none;border:0;font-family:var(--serif);font-size:10px;
     letter-spacing:.18em;text-transform:uppercase;color:var(--ink-faint);cursor:pointer}
   .trailhead button:hover{color:var(--bad)}
-  .trailrow{display:flex;gap:9px;align-items:baseline;padding:5px 8px;font-size:12.5px;
+  .trailrow{display:flex;gap:9px;align-items:baseline;padding:6px 9px;font-size:14px;
     color:var(--ink-faint);cursor:pointer;border-left:2px solid transparent;line-height:1.4}
   .trailrow:hover{color:var(--ink);background:rgba(240,177,60,.06)}
   .trailrow .mark{font-size:10px;letter-spacing:.14em;text-transform:uppercase;opacity:.65;
@@ -198,8 +198,8 @@
   .chip:hover{color:var(--grace);border-color:var(--grace)}
   .chip.solo{opacity:.4;cursor:default}
   .chip b{color:var(--grace);font-weight:400;margin-left:5px}
-  #termhead{font-size:18px;letter-spacing:.09em;color:var(--grace);margin:0 0 4px;font-weight:400}
-  #termsub{font-size:12.5px;font-style:italic;color:var(--ink-faint);margin-bottom:13px}
+  #termhead{font-size:20px;letter-spacing:.09em;color:var(--grace);margin:0 0 5px;font-weight:400}
+  #termsub{font-size:13.5px;font-style:italic;color:var(--ink-faint);margin-bottom:14px}
   .bars{display:flex;flex-direction:column;gap:8px;margin:0 0 16px}
   .bar{display:grid;grid-template-columns:82px 1fr 60px;gap:9px;align-items:center;font-size:11.5px}
   .bar .g{letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint)}
@@ -701,7 +701,7 @@ document.addEventListener('mouseout', e => {
 
 /* ── japanese gloss: hover for the derived reading, click to list what shares it ──
    The gloss is INFERRED from thousands of aligned EN/JP name pairs, not translated,
-   so it is labelled approximate wherever it appears. */
+   pairs, not translated — it recovers FromSoft's own localisation. In-house tool. */
 document.addEventListener('mouseover', e => {
   const jt = e.target.closest('.jt');
   const box = $('gloss');
@@ -711,7 +711,7 @@ document.addEventListener('mouseover', e => {
   if (!g) return;
   const shared = (JPIDX[term] || []).length;
   box.innerHTML = `<b>${esc(term)}</b> &nbsp;·&nbsp; ${esc(g[0])}` +
-    `<i>${shared} ${shared === 1 ? 'entry shares this' : 'entries share this'} · approximate</i>`;
+    `<i>${shared} ${shared === 1 ? 'entry shares this' : 'entries share this'}</i>`;
   box.className = 'on';
   const r = jt.getBoundingClientRect();
   const w = box.offsetWidth;
