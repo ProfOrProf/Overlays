@@ -58,6 +58,10 @@
     border:1px solid var(--line);background:rgba(255,255,255,.012);padding:17px 18px;
     text-align:left;overflow:hidden;
     transition:border-color .28s,background .28s,transform .28s}
+  /* A lone tile on the final row aligns to the row START in an auto-fit grid, not the
+     centre — so with 7 realms Nightreign sat bottom-left. Push it to column 2 so it sits
+     directly under the middle of the row above. Generalises to any count that is 3n+1. */
+  .realm:last-child:nth-child(3n+1){grid-column:2}
   .realm:hover{border-color:rgba(240,177,60,.45);background:rgba(240,177,60,.05);transform:translateY(-2px)}
   .realm.on{border-color:var(--rc);background:rgba(240,177,60,.07)}
   .tick{width:15px;height:15px;border:1px solid var(--line);display:inline-grid;place-items:center;
