@@ -148,7 +148,10 @@
   .trailrow .mark{font-size:10px;letter-spacing:.14em;text-transform:uppercase;opacity:.65;
     flex:0 0 auto;width:34px}
   .trailrow.term .mark{color:var(--grace)}
-  #mid{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:5vh 4vw}
+  /* justify-content:center inside a scrollable flex box clips the TOP of tall content —
+     auto margins centre short entries without trapping long dialogue. */
+  #mid{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:5vh 4vw}
+  #card{margin-top:auto;margin-bottom:auto}
   #card{max-width:min(1040px,94%);width:100%}
   .kind{font-size:12.5px;letter-spacing:.34em;text-transform:uppercase;color:var(--grace)}
   /* one line, always: nowrap plus a shrink-to-fit pass in render() */
@@ -158,6 +161,10 @@
   #eff{font-size:14.5px;font-style:italic;color:var(--ink-faint);margin-top:7px}
   .hair{width:120px;height:1px;margin:20px 0;background:linear-gradient(90deg,var(--ac,var(--grace)),transparent);opacity:.85}
   #flavor{font-size:20px;line-height:2;color:rgba(239,230,214,.92);max-width:46ch}
+  /* Dialogue is thousands of characters, not a 300-char item blurb: give it room and
+     break every line so a transcript reads as speech instead of one wall. */
+  #flavor.dialogue{max-width:82ch;font-size:17.5px;line-height:1.85;white-space:pre-wrap}
+  #flavor.dialogue .w,#flavor.dialogue .ph{white-space:pre-wrap}
   .w{cursor:pointer;border-bottom:1px dotted transparent;transition:color .15s,border-color .15s}
   .w:hover{color:var(--grace);border-bottom-color:rgba(240,177,60,.55)}
   .w.dead{cursor:default}
@@ -535,6 +542,7 @@ function render(it, silent){
     i = m.e;
   }
   html += esc(t.slice(i));
+  $('flavor').className = (it.category === 'Dialogue') ? 'dialogue' : '';
   $('flavor').innerHTML = html;
   trailPush('item', it.name, it.name, it.g);
   if (!silent) writeURL(false);
