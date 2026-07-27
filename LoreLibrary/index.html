@@ -52,7 +52,7 @@
      how long its name is, and adding realms wraps into tidy rows rather than
      stretching anything. Built to hold ~7 without a redesign. */
   .realms{display:grid;grid-template-columns:repeat(auto-fit,208px);gap:15px;
-    justify-content:center;margin:0 auto 38px;max-width:min(96vw,890px)}
+    justify-content:center;margin:0 auto 38px;max-width:min(96vw,676px)}
   .realm{position:relative;cursor:pointer;user-select:none;
     width:208px;height:132px;display:flex;flex-direction:column;
     border:1px solid var(--line);background:rgba(255,255,255,.012);padding:17px 18px;
@@ -266,7 +266,7 @@
 
 <script src="data/auth.js"></script>
 <script>
-const GAMES = [{"key":"BB","slug":"bloodborne","name":"Bloodborne","short":"Bloodborne","color":"#c2544a","realm":"Yharnam","lang2":"Japanese","entries":433,"terms":1318},{"key":"ER","slug":"eldenring","name":"Elden Ring","short":"Elden Ring","color":"#f0b13c","realm":"The Lands Between","lang2":"Japanese","entries":3087,"terms":4605},{"key":"NR","slug":"nightreign","name":"Elden Ring Nightreign","short":"Nightreign","color":"#7fb2e6","realm":"Limveld","lang2":"Japanese","entries":1583,"terms":2984},{"key":"D1","slug":"darksouls1","name":"Dark Souls","short":"Dark Souls","color":"#b8933f","realm":"Lordran","lang2":"Japanese","entries":870,"terms":1767},{"key":"D2","slug":"darksouls2","name":"Dark Souls II","short":"Dark Souls 2","color":"#6f8f7a","realm":"Drangleic","lang2":"Chinese","entries":1263,"terms":2507},{"key":"D3","slug":"darksouls3","name":"Dark Souls III","short":"Dark Souls 3","color":"#8f9ba8","realm":"Lothric","lang2":"Japanese","entries":1693,"terms":3373},{"key":"DS","slug":"demonssouls","name":"Demon's Souls","short":"Demon's Souls","color":"#9a86b8","realm":"Boletaria","lang2":"","entries":481,"terms":1099}];
+const GAMES = [{"key":"DS","slug":"demonssouls","name":"Demon's Souls","short":"Demon's Souls","color":"#9a86b8","realm":"Boletaria","lang2":"","entries":481,"terms":1099},{"key":"D1","slug":"darksouls1","name":"Dark Souls","short":"Dark Souls","color":"#b8933f","realm":"Lordran","lang2":"Japanese","entries":870,"terms":1767},{"key":"D2","slug":"darksouls2","name":"Dark Souls II","short":"Dark Souls 2","color":"#6f8f7a","realm":"Drangleic","lang2":"Chinese","entries":1263,"terms":2507},{"key":"BB","slug":"bloodborne","name":"Bloodborne","short":"Bloodborne","color":"#c2544a","realm":"Yharnam","lang2":"Japanese","entries":433,"terms":1318},{"key":"D3","slug":"darksouls3","name":"Dark Souls III","short":"Dark Souls 3","color":"#8f9ba8","realm":"Lothric","lang2":"Japanese","entries":1693,"terms":3373},{"key":"ER","slug":"eldenring","name":"Elden Ring","short":"Elden Ring","color":"#f0b13c","realm":"The Lands Between","lang2":"Japanese","entries":3087,"terms":4605},{"key":"NR","slug":"nightreign","name":"Elden Ring Nightreign","short":"Nightreign","color":"#7fb2e6","realm":"Limveld","lang2":"Japanese","entries":1583,"terms":2984}];
 const GBY = Object.fromEntries(GAMES.map(g => [g.key, g]));
 const BY_SLUG = Object.fromEntries(GAMES.map(g => [g.slug, g.key]));
 const $ = id => document.getElementById(id);
@@ -786,9 +786,8 @@ addEventListener('keydown', e => {
   if (e.key === 'Escape'){ $('search').blur(); $('menu').classList.remove('on'); $('chips').className = ''; }
 });
 
-$('foot').innerHTML = 'Item text © FromSoftware · taxonomy from bloodborne-wiki.com and fextralife, ' +
-  '<a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener">CC BY-SA 3.0</a> · ' +
-  GAMES.length + ' games · ' + GAMES.reduce((s,g) => s+g.entries, 0).toLocaleString() + ' descriptions';
+$('foot').innerHTML = GAMES.length + ' games · ' +
+  GAMES.reduce((s,g) => s+g.entries, 0).toLocaleString() + ' descriptions';
 
 /* motes */
 (function(){
