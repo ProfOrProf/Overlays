@@ -623,7 +623,7 @@ function paintRealmCards(){
       <span class="nm"><span class="tick"></span>${esc(g.short)}</span>
       <div class="sub">${esc(g.realm)}</div>
       <div class="cnt">${g.entries.toLocaleString()} descriptions</div>
-      <div class="lang">${g.lang2 ? esc(g.lang2) : 'English only'}</div>
+      <div class="lang">${g.lang2 ? 'English &amp; ' + esc(g.lang2) : 'English only'}</div>
     </label>`).join('');
 }
 function paintMenu(){
