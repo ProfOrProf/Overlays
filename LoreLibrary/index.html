@@ -588,7 +588,7 @@ function render(it, silent){
   fitTitle();
   $('jp').innerHTML = it.jp_name
     ? jpSegment(it.jp_name).map(seg => seg.known
-        ? `<span class="jt" data-jt="${esc(seg.t)}">${esc(seg.t)}</span>`
+        ? `<span class="jt${seg.t.length > 1 ? ' ph' : ''}" data-jt="${esc(seg.t)}">${esc(seg.t)}</span>`
         : esc(seg.t)).join('')
     : '';
   $('eff').textContent = it.effect || '';
@@ -626,7 +626,8 @@ function render(it, silent){
         if (sp.s < a || sp.e > b) continue;
         if (sp.s > k) h += esc(jtext.slice(k, sp.s));
         const info = JPTERMS[sp.term];
-        h += `<span class="jt${info ? '' : ' dead'}" data-jt="${esc(sp.term)}">${esc(jtext.slice(sp.s, sp.e))}</span>`;
+        const multi = (sp.e - sp.s) > 1;   // a compound: the seam is invisible in Japanese
+        h += `<span class="jt${multi ? ' ph' : ''}${info ? '' : ' dead'}" data-jt="${esc(sp.term)}">${esc(jtext.slice(sp.s, sp.e))}</span>`;
         k = sp.e;
       }
       if (k < b) h += esc(jtext.slice(k, b));
