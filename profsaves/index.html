@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Prof Saves</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="description" content="Save manager for any and all games forever. Remember kids… Prof Saves!"/>
+<link rel="canonical" href="https://proforprof.com/profsaves/"/>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://proforprof.com/profsaves/"/>
+<meta property="og:title" content="Prof Saves"/>
+<meta property="og:description" content="Save manager for any and all games forever. Remember kids… Prof Saves!"/>
+<meta property="og:image" content="https://proforprof.com/profsaves/ProfSaves2.png"/>
+<meta property="og:image:type" content="image/png"/>
+<meta property="og:image:alt" content="Prof Saves — dripping neon green logo"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="Prof Saves"/>
+<meta name="twitter:description" content="Save manager for any and all games forever."/>
+<meta name="twitter:image" content="https://proforprof.com/profsaves/ProfSaves2.png"/>
+<meta name="theme-color" content="#070606"/>
+<style>
+  :root{
+    --ink:#efe6d6; --ink-dim:#b3a68f; --ink-faint:#6f665a; --grace:#f0b13c;
+    --green:#21ff63; --line:rgba(179,144,80,.22);
+    --serif:"Palatino Linotype",Palatino,"Book Antiqua","Iowan Old Style",Georgia,serif;
+  }
+  *{box-sizing:border-box}
+  html{color-scheme:dark}
+  html,body{margin:0;min-height:100%;background:#070606;color:var(--ink);font-family:var(--serif)}
+  ::selection{background:rgba(33,255,99,.25)}
+  #motes{position:fixed;inset:0;pointer-events:none;opacity:.45;z-index:0}
+  .vignette{position:fixed;inset:0;pointer-events:none;z-index:1;
+    background:radial-gradient(ellipse at 50% 42%,transparent 20%,rgba(0,0,0,.74) 78%)}
+  .back{position:relative;z-index:3;display:inline-block;margin:22px 0 0 26px;
+    font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-faint);
+    text-decoration:none}
+  .back:hover{color:var(--grace)}
+  main{position:relative;z-index:2;max-width:880px;margin:0 auto;
+    padding:clamp(26px,5vh,60px) 24px 110px;text-align:center}
+  h1{font-weight:400;font-size:clamp(26px,5.4vw,54px);letter-spacing:.36em;text-indent:.36em;
+    margin:0;color:var(--green);text-transform:uppercase;line-height:1.25;
+    text-shadow:0 0 34px rgba(33,255,99,.45),0 0 96px rgba(33,255,99,.18)}
+  .rule{width:min(340px,46vw);height:1px;margin:24px auto 20px;
+    background:linear-gradient(90deg,transparent,rgba(33,255,99,.75),transparent)}
+  .lede{margin:0 auto 34px;max-width:52ch;font-style:italic;
+    font-size:clamp(13.5px,1.6vw,16.5px);letter-spacing:.1em;color:var(--ink-dim);line-height:1.85}
+  .hero{display:block;margin:0 auto 34px;max-width:560px}
+  .hero img{display:block;width:100%;height:auto;
+    filter:drop-shadow(0 0 26px rgba(33,255,99,.22));transition:filter .25s}
+  .hero:hover img{filter:drop-shadow(0 0 40px rgba(33,255,99,.6))}
+  .get{display:inline-flex;align-items:center;gap:14px;
+    font-family:var(--serif);font-size:13.5px;letter-spacing:.28em;text-transform:uppercase;
+    background:none;border:1px solid rgba(33,255,99,.5);color:var(--green);
+    padding:16px 34px;text-decoration:none;
+    transition:background .3s,box-shadow .3s,letter-spacing .3s}
+  .get:hover{background:rgba(33,255,99,.09);box-shadow:0 0 34px rgba(33,255,99,.22);
+    letter-spacing:.34em}
+  .meta{margin:18px 0 0;font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--ink-faint)}
+  .facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:15px;
+    max-width:760px;margin:54px auto 0;text-align:left}
+  .fact{border:1px solid var(--line);background:rgba(255,255,255,.012);padding:17px 18px}
+  .fact .h{font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--green);
+    opacity:.85}
+  .fact .b{margin-top:9px;font-size:13px;color:var(--ink-dim);line-height:1.7}
+  .sig{margin:52px auto 0;font-size:12.5px;letter-spacing:.14em;color:var(--ink-faint);
+    font-style:italic}
+  .sig b{color:var(--green);font-weight:400;font-style:normal;letter-spacing:.2em}
+  footer{position:relative;z-index:2;text-align:center;padding:0 24px 46px;
+    font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-faint);opacity:.6}
+  footer a{color:inherit}
+  @media (prefers-reduced-motion:reduce){#motes{display:none}}
+</style>
+</head>
+<body>
+<canvas id="motes"></canvas>
+<div class="vignette"></div>
+<a class="back" href="/">&larr; Prof or Prof</a>
+
+<main>
+  <h1>Prof Saves</h1>
+  <div class="rule"></div>
+  <p class="lede">A save manager for any and all games forever. Back up a run before it goes
+    wrong, keep as many as you want, put any of them back.</p>
+
+  <a class="hero" href="https://github.com/ProfOrProf/ProfSaves-Releases/releases/latest/download/ProfSaves_Setup_Latest.exe">
+    <img src="/profsaves/ProfSaves2.png" alt="Prof Saves"/>
+  </a>
+
+  <p><a class="get" href="https://github.com/ProfOrProf/ProfSaves-Releases/releases/latest/download/ProfSaves_Setup_Latest.exe">Download the installer</a></p>
+  <p class="meta">Windows &nbsp;·&nbsp; 51 MB &nbsp;·&nbsp; free</p>
+
+  <div class="facts">
+    <div class="fact">
+      <div class="h">Any game</div>
+      <div class="b">Point it at a save folder and it handles the rest. Nothing is
+        game-specific, so it works on the one nobody has written a tool for.</div>
+    </div>
+    <div class="fact">
+      <div class="h">Before the boss</div>
+      <div class="b">Snapshot a run in a keystroke, keep as many as you like, and roll back to
+        any of them when it goes badly.</div>
+    </div>
+    <div class="fact">
+      <div class="h">Yours, offline</div>
+      <div class="b">Saves stay on your machine. No account, no cloud, no upload.</div>
+    </div>
+  </div>
+
+  <p class="sig">Remember kids… <b>Prof Saves!</b><br/>
+    by Profware, Inc. — a subsidiary of ProfCo</p>
+</main>
+
+<footer>
+  <a href="/">Prof or Prof</a> &nbsp;·&nbsp;
+  <a href="/lorelibrary/">Lore Library</a> &nbsp;·&nbsp;
+  <a href="https://twitch.tv/proforprof">Twitch</a>
+</footer>
+
+<script>
+(function(){
+  var cv=document.getElementById('motes'),cx=cv.getContext('2d'),W,H,dust=[];
+  function size(){
+    var d=window.devicePixelRatio||1;
+    W=cv.width=innerWidth*d; H=cv.height=innerHeight*d;
+    cv.style.width=innerWidth+'px'; cv.style.height=innerHeight+'px';
+    dust=Array.from({length:Math.min(80,Math.round(innerWidth/18))},function(){
+      return {x:Math.random()*W,y:Math.random()*H,r:(Math.random()*1.5+0.4)*d,
+              s:Math.random()*0.20+0.04,a:Math.random()*0.42+0.10,p:Math.random()*Math.PI*2};
+    });
+  }
+  size(); addEventListener('resize',size);
+  (function tick(){
+    var d=window.devicePixelRatio||1;
+    cx.clearRect(0,0,W,H);
+    for(var i=0;i<dust.length;i++){
+      var m=dust[i];
+      m.y-=m.s*d; m.p+=0.01;
+      if(m.y<-8){ m.y=H+8; m.x=Math.random()*W; }
+      cx.beginPath();
+      cx.arc(m.x+Math.sin(m.p)*9*d,m.y,m.r,0,6.284);
+      cx.fillStyle='rgba(33,255,99,'+(m.a*(0.5+0.5*Math.sin(m.p*1.7)))+')';
+      cx.fill();
+    }
+    requestAnimationFrame(tick);
+  })();
+})();
+</script>
+</body>
+</html>
