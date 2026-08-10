@@ -60,12 +60,12 @@
       border-radius:9999px; object-fit:cover; border:1px solid #ddd; background:#fafafa;
     }
     .meta{ flex:1 1 auto; min-width:0 }
-    .t{ display:block; font-weight:700; line-height:1.25; margin:2px 0 }
-    .desc{ color:#555; font-size:.95rem }
+    .t{ display:block; font-weight:700; line-height:1.25; margin:2px 0; overflow-wrap:anywhere }
+    .desc{ color:#555; font-size:.95rem; overflow-wrap:anywhere }
 
     /* actions */
     .actions{ margin-top:.5rem; display:flex; gap:.5rem; flex-wrap:wrap }
-    .btn{
+    .btn{ max-width:100%; overflow-wrap:anywhere;
       display:inline-block; padding:.4rem .7rem; border-radius:8px;
       border:1px solid var(--twitch); background:#fff; color:var(--twitch);
       font-weight:600; font-size:.9rem; line-height:1; text-decoration:none;
@@ -148,6 +148,8 @@
         const acts = '<div class="actions">'
           + '<a class="btn" href="https://www.twitch.tv/' + esc(handle) + '" target="_blank" rel="noopener noreferrer">Twitch</a>'
           + (r.page ? '<a class="btn" href="' + esc(r.url) + '">Read article</a>' : '')
+          + (r.site ? '<a class="btn" href="' + esc(r.site) + '" target="_blank" rel="noopener noreferrer">Personal Site</a>' : '')
+          + (r.email ? '<a class="btn" href="mailto:' + esc(r.email) + '">Email</a>' : '')
           + '</div>';
         meta.innerHTML = article + desc + acts;
 
