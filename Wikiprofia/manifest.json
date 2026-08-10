@@ -1,18 +1,979 @@
 {
   "runners": [
     {
-      "title": "Ki11ahB",
-      "url": "https://proforprof.com/wikiprofia/ki11ahb",
-      "description": "Canadian Soulsborne hitless runner. “Come to Canada!”",
-      "avatar": "https://unavatar.io/twitch/ki11ahb",
-      "twitch": "ki11ahb"
+      "title": "Prof",
+      "url": "https://www.twitch.tv/prof",
+      "description": "it's forptown gang. Business Inquiries: ProfOrProf@gmail.com",
+      "twitch": "prof",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/c0f2ab7d-044e-40bc-9fbf-515b4e42a282-profile_image-300x300.png"
+    },
+    {
+      "title": "girldoug",
+      "url": "https://www.twitch.tv/girldoug",
+      "description": "only my people can see me",
+      "twitch": "girldoug",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/7cc58c60-c947-4c48-8d0e-75a73b149c17-profile_image-300x300.png"
     },
     {
       "title": "exzerothree",
       "url": "https://proforprof.com/wikiprofia/exzerothree.html",
-      "description": "Elden Ring WF Shield-Only No Hit! Cat & bat enjoyer.",
-      "avatar": "https://unavatar.io/twitch/exzerothree",
-      "twitch": "exzerothree"
+      "description": "hitless challenge runner and cat enthusiast :3",
+      "twitch": "exzerothree",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/d1506772-2aff-4650-8c9e-419d733fa1da-profile_image-300x300.png",
+      "page": true
+    },
+    {
+      "title": "nogre0",
+      "url": "https://www.twitch.tv/nogre0",
+      "description": "itinerant philosopher. website: http://www.noahgreenstein.com/wordpress/",
+      "twitch": "nogre0",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/73dc674f-148c-486d-aaf9-fb5a77adbb6b-profile_image-300x300.png"
+    },
+    {
+      "title": "AmplSi",
+      "url": "https://www.twitch.tv/amplsi",
+      "description": "ProfCo regional manager and part time circus clown, scraped from the bottom of the Crucible",
+      "twitch": "amplsi",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/3f6c755f-460d-454d-b468-7ed1301f3164-profile_image-300x300.png"
+    },
+    {
+      "title": "pugtatooo",
+      "url": "https://www.twitch.tv/pugtatooo",
+      "description": "Hey! I'm a casual gamer and occasionally funny, never really stream but if I ever do, I'll be live here and it'll be a great time!",
+      "twitch": "pugtatooo",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/pugtatooo-profile_image-dca54c23c761aa5b-300x300.jpeg"
+    },
+    {
+      "title": "BotBandi",
+      "url": "https://www.twitch.tv/botbandi",
+      "description": "I'm Bandi and I like games.",
+      "twitch": "botbandi",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/c82f1d94-a285-4473-bc88-f2b7b2445075-profile_image-300x300.png"
+    },
+    {
+      "title": "KhloeCosmos",
+      "url": "https://www.twitch.tv/khloecosmos",
+      "description": "Join me aboard my spaceship, comrade! 🚀 First playthroughs, endless smiles, and keeping those good vibes flowing. ⭐LIVE WED/FRI 6PM ET, SUN 3PM ET⭐",
+      "twitch": "khloecosmos",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/9e3ea7e7-4741-48bf-a911-2bfa07ee608d-profile_image-300x300.png"
+    },
+    {
+      "title": "VoltSparkle",
+      "url": "https://www.twitch.tv/voltsparkle",
+      "description": "I spend too much time on this website. If you see my live something has gone wrong (probably)",
+      "twitch": "voltsparkle",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/70374e89-4ddd-46b2-8228-580612c50a21-profile_image-300x300.png"
+    },
+    {
+      "title": "KosmKate",
+      "url": "https://www.twitch.tv/kosmkate",
+      "description": "what's up gamers! i'm kate. she/her. let's freakin' game",
+      "twitch": "kosmkate",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/69c3e5bf-eefa-4aa9-8162-fab53c67d754-profile_image-300x300.png"
+    },
+    {
+      "title": "Gig_Tigz",
+      "url": "https://www.twitch.tv/gig_tigz",
+      "description": "A goofy dad and absolute legend! Welcome aboard the Voidship B.B.Q Sausage Sizzle! Blessed Vessel of the Gigmus Tigmus Dynasty! Here we play games of all types, we watch stuff sometimes and we chat sh!t about pretty much anything! Come join the crew, claim your daily ration packs and have fun!",
+      "twitch": "gig_tigz",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/2391e97e-1de5-42eb-8327-3fa4191f2c47-profile_image-300x300.png"
+    },
+    {
+      "title": "Directing_Titan",
+      "url": "https://www.twitch.tv/directing_titan",
+      "description": "DT | The hero you deserve. The stream you settle for. | RPGs, Soulslikes, Variety | Expect games, movie talk, and the occasional (frequent) questionable decision.",
+      "twitch": "directing_titan",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/aab7af51-c32b-4c41-b923-54f09dc1125e-profile_image-300x300.png"
+    },
+    {
+      "title": "T0MY",
+      "url": "https://www.twitch.tv/t0my",
+      "description": "I used to stream. I still do, but I used to, too.",
+      "twitch": "t0my",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/c0920262-b2c1-4ecc-abe7-02c31be1e9e9-profile_image-300x300.png"
+    },
+    {
+      "title": "kelpTV",
+      "url": "https://www.twitch.tv/kelptv",
+      "description": "im kelp | variety & challenge runner |  pnw livin' | d&d enjoyer | rpgs, horror, soulslike, etc. ♡ business inquires: kelptv@outlook.com",
+      "twitch": "kelptv",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/712b2a13-bd62-44b1-9422-b1762d766cdd-profile_image-300x300.png"
+    },
+    {
+      "title": "lovoratorie",
+      "url": "https://www.twitch.tv/lovoratorie",
+      "description": "nao/blossom ☆ 23",
+      "twitch": "lovoratorie",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/c4a16638-8828-4688-af59-b6b77edffe71-profile_image-300x300.jpeg"
+    },
+    {
+      "title": "tinymilkcat",
+      "url": "https://www.twitch.tv/tinymilkcat",
+      "description": "A hotdog sounds so good rn.",
+      "twitch": "tinymilkcat",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/4440fb89-d1b6-4e50-a323-cee0ec0b9b71-profile_image-300x300.png"
+    },
+    {
+      "title": "lucyfitzpatrick",
+      "url": "https://www.twitch.tv/lucyfitzpatrick",
+      "description": "I’m a gamer, streamer, and Soulslike masochist (lots of challenge runs ) Lies of P content creator,  proud Klei ambassador. Occasionally slam random piano keys and call it music. Languages? English, Spanish, and discount Italian :3 For business inquiries:lucyfitzpatrickx@yahoo.com",
+      "twitch": "lucyfitzpatrick",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/98417b17-816c-4503-ab7c-e2ed2f4afa70-profile_image-300x300.png"
+    },
+    {
+      "title": "baeleafff",
+      "url": "https://www.twitch.tv/baeleafff",
+      "description": "I am bae of the leaf and you’re (not) watching Disney Channel.",
+      "twitch": "baeleafff",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/13d27b1d-870b-422f-a162-92307f51442f-profile_image-300x300.png"
+    },
+    {
+      "title": "CrypticChar",
+      "url": "https://www.twitch.tv/crypticchar",
+      "description": "⊹₊⟡⋆ Hello hello! I'm Char! I'm bad at games but I pretend I'm not ⊹₊⟡⋆",
+      "twitch": "crypticchar",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/5904ebe7-c054-4331-b135-fddc4659e489-profile_image-300x300.png"
+    },
+    {
+      "title": "Gary_Asher",
+      "url": "https://www.twitch.tv/gary_asher",
+      "description": "Challenge Runs • Speedruns • Mental Health Advocacy • Moth Enjoyer • First Stream: 7/11/2022",
+      "twitch": "gary_asher",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/3fcb20f5-fec8-4192-8283-b26614c59ec8-profile_image-300x300.png"
+    },
+    {
+      "title": "SamanthaTeapot",
+      "url": "https://www.twitch.tv/samanthateapot",
+      "description": "🌟 | Soulsborne Enjoyer | Drinker of Tea | Mother of Dogs | Lifter of Weights | Bi AF |  ADHD | British Mate |  🌟 For business only: samantha@samanthateapot.com",
+      "twitch": "samanthateapot",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/b5b3b2f2-d03b-47bc-9dec-02d366258ca3-profile_image-300x300.png"
+    },
+    {
+      "title": "Nibiru_Truths",
+      "url": "https://www.twitch.tv/nibiru_truths",
+      "description": "👽ɪ ʜᴀᴠᴇ ʙᴇᴇɴ ᴀʙᴅᴜᴄᴛᴇᴅ ʙʏ ᴀʟɪᴇɴs, ᴀɴᴅ ᴀᴍ ғᴏʀᴄᴇᴅ ᴛᴏ sᴛʀᴇᴀᴍ. ғᴏʀ ʙᴜsɪɴᴇss ɪɴǫᴜɪʀɪᴇs: ɴɪʙɪʀᴜ_ᴛʀᴜᴛʜs@ᴏᴜᴛʟᴏᴏᴋ.ᴄᴏᴍ",
+      "twitch": "nibiru_truths",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/7c3ec59a-7ced-4343-9f8e-8d1deffc6284-profile_image-300x300.png"
+    },
+    {
+      "title": "leech1208",
+      "url": "https://www.twitch.tv/leech1208",
+      "description": "Look what Leech Mouchy Mouch did ...",
+      "twitch": "leech1208",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/bedcf45e-4db8-47d6-9d22-8ac19d141369-profile_image-300x300.png"
+    },
+    {
+      "title": "HvDaedalus",
+      "url": "https://www.twitch.tv/hvdaedalus",
+      "description": "I'm an IRL Software Developer and freetime gamer. Plaidcat of Europe.",
+      "twitch": "hvdaedalus",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/9d587a03-9526-4b7f-a181-44316f399c72-profile_image-300x300.png"
+    },
+    {
+      "title": "5thmelomusic",
+      "url": "https://www.twitch.tv/5thmelomusic",
+      "description": "Coffee addict who does dumb challenge runs :) Business Email: 5thmelomusic@gmail.com",
+      "twitch": "5thmelomusic",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/817c6a0e-ef34-4d4f-9b64-387022ebaa95-profile_image-300x300.png"
+    },
+    {
+      "title": "Muckworm",
+      "url": "https://www.twitch.tv/muckworm",
+      "description": "I beat games without taking any damage! Also Cuphead, Celeste and Blasphemous verifier for Team Hitless. Cuphead: 5000+ hours, Blasphemous: 1000+ hours, Hollow Knight: 800+ hours, Celeste:  600+ hours",
+      "twitch": "muckworm",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/40c8089a-cd7c-41f5-b334-e42cc2e23686-profile_image-300x300.png"
+    },
+    {
+      "title": "scamp_____",
+      "url": "https://www.twitch.tv/scamp_____",
+      "description": "Dark Souls 3 hitless runs | Slay The Spire",
+      "twitch": "scamp_____",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/7086ed5d-5819-4781-b65a-82df8f5b147f-profile_image-300x300.png"
+    },
+    {
+      "title": "GrandFamorian",
+      "url": "https://www.twitch.tv/grandfamorian",
+      "description": "Burly and Surly, Hairy and Feral. I am the bad boi of Bloodborne. No-hit FromSoft runner, Moderator for Gloomshadows. Bloodborne and Elden Ring verifier for Team Hitless. \"Only through desperate battle with the feral wild can one discover a god unique to oneself.\"",
+      "twitch": "grandfamorian",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/9b414f9d-5c93-4e90-b2c6-d36d66976998-profile_image-300x300.png"
+    },
+    {
+      "title": "mastapeet",
+      "url": "https://www.twitch.tv/mastapeet",
+      "description": "Challenge runner, Team Hitless, coffee & beer lover, pitbull advocate (not the rapper), metalhead",
+      "twitch": "mastapeet",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/136b711e-7615-497e-8b08-e4023617f8b0-profile_image-300x300.png"
+    },
+    {
+      "title": "yourgirlsrabbit",
+      "url": "https://www.twitch.tv/yourgirlsrabbit",
+      "description": "Hi, I'm Ziggy! I'm a soulslike streamer, currently suffering through my SOULSLIKE MEGATHON - where I play every soulslike I can get my hands on.",
+      "twitch": "yourgirlsrabbit",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/91a66ef2-15fe-4857-a017-6bca85c09600-profile_image-300x300.png"
+    },
+    {
+      "title": "Apothiosis",
+      "url": "https://www.twitch.tv/apothiosis",
+      "description": "",
+      "twitch": "apothiosis",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/a8802467-b9af-49e3-a688-0c321812fa83-profile_image-300x300.png"
+    },
+    {
+      "title": "MidG0AT",
+      "url": "https://www.twitch.tv/midg0at",
+      "description": "Hii, my name is Mid. I do hitless stuff. Live every Thursday & Friday 12PM EST Powered by ADVANCEDgg (Code Mid10)",
+      "twitch": "midg0at",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/46b9dffc-2cdf-4e4d-b9ec-d7e082f0daeb-profile_image-300x300.png"
+    },
+    {
+      "title": "SarahStrat",
+      "url": "https://www.twitch.tv/sarahstrat",
+      "description": "Writer • Actor • Gamer • Certified Nerd 🫠  Fueled by stories, side quests, cosplays & first-plays ✨ LIVE in the mornings! ☀️ 7am pst 🫶🏻 Business Inquiries: sarahstratttv@gmail.com #TeamStrat",
+      "twitch": "sarahstrat",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/66fb1153-1831-4a51-81db-a793838cdaa7-profile_image-300x300.png"
+    },
+    {
+      "title": "CrisCrisco",
+      "url": "https://www.twitch.tv/criscrisco",
+      "description": "Variety Streamer with a love for Soulslike! Appreciate all the love!",
+      "twitch": "criscrisco",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/20c3a007-b23b-4cf0-8d9d-000eaf713194-profile_image-300x300.jpeg"
+    },
+    {
+      "title": "Falconraven",
+      "url": "https://www.twitch.tv/falconraven",
+      "description": "I'm Falcon a No-Hit Runner of Souls Games and Player of many other games. Chill vibes as we go through and attempt whatever challenge I throw myself into.",
+      "twitch": "falconraven",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/f4a31a1c-8584-42ca-8e63-5a60b58fc85a-profile_image-300x300.png"
+    },
+    {
+      "title": "Nazralla",
+      "url": "https://www.twitch.tv/nazralla",
+      "description": "Welcome to the stream! I enjoy streaming Soulsborne and Metroidvania style games, but I will play other things from time to time. Thank you for coming by the stream, and I hope you have a good time! Don't forget to follow if you enjoy my content.",
+      "twitch": "nazralla",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/9096522d-dd03-4cf2-ba3b-c8e930806c89-profile_image-300x300.png"
+    },
+    {
+      "title": "VONWICKI",
+      "url": "https://www.twitch.tv/vonwicki",
+      "description": "I'm Von! Fortnite creator, Live streamer, and Leader of the Tha Syndicate. 📩 Business: javonwickgaming@gmail.com💜 Creator Code: WICKI",
+      "twitch": "vonwicki",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/112bbb2d-8448-4b6b-9612-f7f604d03bfc-profile_image-300x300.png"
+    },
+    {
+      "title": "snimzee",
+      "url": "https://www.twitch.tv/snimzee",
+      "description": "Just a smol goose honking to the beat of my own drum! Most games are First Plays because I am rather new to gaming so be patient pls. Trying to spread kindness through gaming and creating a community that people feel welcome in! Biz Inquires: snimzee@gmail.com (she/her) 18+",
+      "twitch": "snimzee",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/ac8297c9-846f-4f18-b73f-cd1c0b8954ff-profile_image-300x300.png"
+    },
+    {
+      "title": "Soulslayer434",
+      "url": "https://www.twitch.tv/soulslayer434",
+      "description": "Just some guy who challenge runs Bloodborne and other games w/o a Mic or Cam :)",
+      "twitch": "soulslayer434",
+      "avatar": "https://static-cdn.jtvnw.net/user-default-pictures-uv/ce57700a-def9-11e9-842d-784f43822e80-profile_image-300x300.png"
+    },
+    {
+      "title": "DwarfMountainMittz",
+      "url": "https://www.twitch.tv/dwarfmountainmittz",
+      "description": "Variety Streamer. Son of a Blacksmith. Cat Dad of 7. Modder of Might and Magic 6/7/8. 10:30 AM CST usual start time. Every 250 followers a fantasy weapon will be voted on to make in the shop.",
+      "twitch": "dwarfmountainmittz",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/ca4cd078-93dd-47d8-a15e-754e819ee190-profile_image-300x300.png"
+    },
+    {
+      "title": "nixonfitzpatrick",
+      "url": "https://www.twitch.tv/nixonfitzpatrick",
+      "description": "I'm Jerma, this is my Alt when I feel like slumming it.  Dark Souls, Sekiro, Elden Ring Hitless and Challenge runs, Narrative Choice Games, Spooky Games. Always warm welcoming vibes and hopefully some laughs.  Also I make music, check it out.  It's damn good. I'm entirely unbiased.",
+      "twitch": "nixonfitzpatrick",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/80611560-9da7-4628-b739-0e387f96b598-profile_image-300x300.png"
+    },
+    {
+      "title": "MoonlightGhost",
+      "url": "https://www.twitch.tv/moonlightghost",
+      "description": "Bloodborne challenge runs. (She/They)",
+      "twitch": "moonlightghost",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/9ac249a6-a878-4ded-9560-4b1c7a29643c-profile_image-300x300.png"
+    },
+    {
+      "title": "SamuraiTortoise",
+      "url": "https://www.twitch.tv/samuraitortoise",
+      "description": "Hi, I'm Tort! Welcome to the Dojo! If you like terrible jokes and video games, you've come to the right place. Come share a smile and a laugh, and I hope you enjoy your stay! ~⋆",
+      "twitch": "samuraitortoise",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/845632c7-2741-4429-ad49-d1980affd951-profile_image-300x300.jpeg"
+    },
+    {
+      "title": "BouncyBoat233",
+      "url": "https://www.twitch.tv/bouncyboat233",
+      "description": "Hey! I’m Hannah!! Loud, occasionally funny, and known for crashing out. I mostly play Souls & Souls-like games, with some shooters and random variety thrown in. Business inquiries: bouncyboat23@gmail.com",
+      "twitch": "bouncyboat233",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/8c203e81-a50c-4351-ac19-3ec9a710349f-profile_image-300x300.png"
+    },
+    {
+      "title": "Emukies",
+      "url": "https://www.twitch.tv/emukies",
+      "description": "1% evil 99% hot gas",
+      "twitch": "emukies",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/f05aa016-6568-4fd2-9e05-75a312fe2348-profile_image-300x300.png"
+    },
+    {
+      "title": "valyd__",
+      "url": "https://www.twitch.tv/valyd__",
+      "description": "im the reason games have yellow paint",
+      "twitch": "valyd__",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/2c3b50af-02fb-4365-b3d2-ac3d688a47d0-profile_image-300x300.png"
+    },
+    {
+      "title": "HyruleFashionWeek",
+      "url": "https://www.twitch.tv/hyrulefashionweek",
+      "description": "Coolest mom on Twitch. If you’re bad at video games, you’re in the right place. Contact: hyrulefashionweek@gmail.com",
+      "twitch": "hyrulefashionweek",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/4250f777-11c3-4342-917c-5c9aa72ed24a-profile_image-300x300.png"
+    },
+    {
+      "title": "bzzdbunni",
+      "url": "https://www.twitch.tv/bzzdbunni",
+      "description": "Variety streamer that is typically on a Souls binge. We specialize in doom, chaos, and lots of giggles here! 🖤",
+      "twitch": "bzzdbunni",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/a7980f68-8b4d-47bf-b303-2fce256e17ea-profile_image-300x300.png"
+    },
+    {
+      "title": "ddooggmilk",
+      "url": "https://www.twitch.tv/ddooggmilk",
+      "description": "tomfoolery and miscellaneous shenanigans",
+      "twitch": "ddooggmilk",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/1285301e-29b0-4e8c-921c-f8c9cec7043e-profile_image-300x300.png"
+    },
+    {
+      "title": "LankSSBM",
+      "url": "https://www.twitch.tv/lankssbm",
+      "description": "Elden Ring Challenge runner! I try to beat the difficult Fromsoft games without taking damage from any enemy, otherwise I reset from the start of the game. Come say hi and laugh at my failures",
+      "twitch": "lankssbm",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/cb06cebd-fdb1-4d69-a3d2-56f4b38e8b1a-profile_image-300x300.png"
+    },
+    {
+      "title": "FrankBigTime",
+      "url": "https://www.twitch.tv/frankbigtime",
+      "description": "Yes",
+      "twitch": "frankbigtime",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/76de6df6-1afb-418d-9796-79d1f6d93b37-profile_image-300x300.png"
+    },
+    {
+      "title": "RuinManiacHack",
+      "url": "https://www.twitch.tv/ruinmaniachack",
+      "description": "Stardew Valley, Core Keeper, Terraria, Graveyard Keeper, and Monster Taming RPG's are my regular rotation here. We also occasionally dip our toes into Metroidvanias.  Hang out, enjoy the chill vibes and get to know myself and the community.",
+      "twitch": "ruinmaniachack",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/16b06a08-c551-4e4a-8c0f-4095b4611493-profile_image-300x300.png"
+    },
+    {
+      "title": "nCrumbs",
+      "url": "https://www.twitch.tv/ncrumbs",
+      "description": "Back when I started gaming, there were no memory cards or save spots. I had to beat a game after school before Dad got home from work or I would have to restart and try again the next day.",
+      "twitch": "ncrumbs",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/00d60e97-f968-4eb6-ae30-3b94b7190ab5-profile_image-300x300.png"
+    },
+    {
+      "title": "Sillxex",
+      "url": "https://www.twitch.tv/sillxex",
+      "description": "Juego a videojuegos, y a veces no me golpean en ellos.",
+      "twitch": "sillxex",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/f2388b78-b66b-46bd-8cb9-690e09fa9391-profile_image-300x300.png"
+    },
+    {
+      "title": "The_Mistress_Ivy",
+      "url": "https://www.twitch.tv/the_mistress_ivy",
+      "description": "Welcome! My name is Ivy and I am a challenge runner, dog momma and a book loving hippie.",
+      "twitch": "the_mistress_ivy",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/6ba40c60-3687-4a0e-b1c5-0631fcac5024-profile_image-300x300.jpeg"
+    },
+    {
+      "title": "BigBird884",
+      "url": "https://www.twitch.tv/bigbird884",
+      "description": "heEy call me bb8 everyone calls me that (｀_ゝ´)",
+      "twitch": "bigbird884",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/a252cca9-6e10-4289-bcc8-b6cebd5bdc7b-profile_image-300x300.png"
+    },
+    {
+      "title": "GalaxyEchoes",
+      "url": "https://www.twitch.tv/galaxyechoes",
+      "description": "She/Her - Challenges and Lore - Full Time Video Editor and YouTube Consultant",
+      "twitch": "galaxyechoes",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/f611ddad-4ec5-4ec4-8700-aaef4d21e101-profile_image-300x300.jpeg"
+    },
+    {
+      "title": "wrexler1986",
+      "url": "https://www.twitch.tv/wrexler1986",
+      "description": "ART | MOVEMENT | GAMING - With a Community Focus. I'm a gremlin, you're a gremlin, let's go GRMLIN MODE on Kingston Falls 1984.",
+      "twitch": "wrexler1986",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/04d820d7-c1e1-4a75-9b9b-591ea4ed0c32-profile_image-300x300.png"
+    },
+    {
+      "title": "OnyxElectra",
+      "url": "https://www.twitch.tv/onyxelectra",
+      "description": "Hey! I'm Onyx! Welcome to my nerdy world  =^_^=I am here to make friends ! I plan on streaming late  Nov! !! Make sure to follow and  I look forward to hanging with y’all soon!!! All bits & Gifted Subs go to the Kitty Babies & back into the community!",
+      "twitch": "onyxelectra",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/b95b7204-1390-419e-a043-654e9b58cbdc-profile_image-300x300.png"
+    },
+    {
+      "title": "xquanny",
+      "url": "https://www.twitch.tv/xquanny",
+      "description": "",
+      "twitch": "xquanny",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/a501dcb2-2b21-4b4c-84bc-5f41e7a4c3d6-profile_image-300x300.png"
+    },
+    {
+      "title": "Alochez",
+      "url": "https://www.twitch.tv/alochez",
+      "description": "I like FromSoftware's games. I try streaming as often as I can!",
+      "twitch": "alochez",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/5ff4d715-e2fd-4395-bff6-21e262b4bd75-profile_image-300x300.png"
+    },
+    {
+      "title": "Lecentz",
+      "url": "https://www.twitch.tv/lecentz",
+      "description": "Fromsoft Challenge Runner. Team Hitless Runner. Speedrunner.",
+      "twitch": "lecentz",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/25a30794-d4a0-4150-af64-a04e4a3c1756-profile_image-300x300.png"
+    },
+    {
+      "title": "vinicius_tome",
+      "url": "https://www.twitch.tv/vinicius_tome",
+      "description": "⳩",
+      "twitch": "vinicius_tome",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/bcdccfb1-43dd-4114-aeb3-ec8649038248-profile_image-300x300.png"
+    },
+    {
+      "title": "Anubis520",
+      "url": "https://www.twitch.tv/anubis520",
+      "description": "On this channel you will see a variety of games. I don't stream that consistently but game regularly. Games include the dark souls series, bioshock, overwatch, don't starve, hotline Miami, and planet side 2 to name a few of the different genres.",
+      "twitch": "anubis520",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/74ae2e2c-5431-4b1e-aec0-30716b015e51-profile_image-300x300.png"
+    },
+    {
+      "title": "ThatOneBlue",
+      "url": "https://www.twitch.tv/thatoneblue",
+      "description": "Professional Moderator with a salary of one ruble per month",
+      "twitch": "thatoneblue",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/ff3023ac-1f9a-4777-854b-1cca4286159f-profile_image-300x300.png"
+    },
+    {
+      "title": "whitewolf504",
+      "url": "https://www.twitch.tv/whitewolf504",
+      "description": "White Wolf / Wolfie",
+      "twitch": "whitewolf504",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/33a2e2aa-519a-4791-802b-240b0f82a9b0-profile_image-300x300.jpeg"
+    },
+    {
+      "title": "Crunchpuff",
+      "url": "https://www.twitch.tv/crunchpuff",
+      "description": "Hi I'm Crunchpuff and I like the kinds of games where you hit stuff with a sword",
+      "twitch": "crunchpuff",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/be0b5c2f-cf7b-465f-a4eb-88a50e5f4729-profile_image-300x300.png"
+    },
+    {
+      "title": "me7aTate",
+      "url": "https://www.twitch.tv/me7atate",
+      "description": "Welcome to The Me7a!",
+      "twitch": "me7atate",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/1ebeb4d7-5434-4106-93f6-8326132a21b5-profile_image-300x300.png"
+    },
+    {
+      "title": "well_thatsucks",
+      "url": "https://www.twitch.tv/well_thatsucks",
+      "description": "HORSING",
+      "twitch": "well_thatsucks",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/d41cd720-a5ea-488d-a453-206380b0b019-profile_image-300x300.png"
+    },
+    {
+      "title": "JenIsOnline",
+      "url": "https://www.twitch.tv/jenisonline",
+      "description": "[She/Her] Welcoming 🤗 weird 🤪 and full of heart ❤️ High-energy, comedy-forward Twitch Partner serving late-night laughs, Soulsborne screams, and 2SLGBTQIA+ joy. 🩷💛🩵 Uniting people through events, tournaments, and creator showcases. 💪 Business: JenIsOnline@Outlook.com",
+      "twitch": "jenisonline",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/916c2e36-800e-42ac-b268-e856018c0261-profile_image-300x300.png"
+    },
+    {
+      "title": "hippie_mike",
+      "url": "https://www.twitch.tv/hippie_mike",
+      "description": "Currently in Nursing School! My stream schedule is chaotic and sporadic (just like me tbh). I appreciate you being here!",
+      "twitch": "hippie_mike",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/83f6bdc5-5963-4a11-857d-28d1e0657b61-profile_image-300x300.png"
+    },
+    {
+      "title": "iStefaan",
+      "url": "https://www.twitch.tv/istefaan",
+      "description": "🩵",
+      "twitch": "istefaan",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/811e208c-2aab-499a-aa0b-25dd20028650-profile_image-300x300.jpeg"
+    },
+    {
+      "title": "sandy",
+      "url": "https://www.twitch.tv/sandy",
+      "description": "[Find VODs on my !YouTube @sandyplumbs] Making dance bits, looping improv music, and pausing my games with alarming frequency. Business email: betweenthewheat@gmail.com",
+      "twitch": "sandy",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/4fdfff4d-d757-4382-94eb-29c93bdeb0ac-profile_image-300x300.png"
+    },
+    {
+      "title": "LilKoolAidTV",
+      "url": "https://www.twitch.tv/lilkoolaidtv",
+      "description": "Hi~ and thanks for stopping by. I go by Lil Kool Aid, Kool Aid, or Noel. I started strimming to meet new people and expand my gaming network. Here we do challenge runs, and sometimes music. Proud member of Team Hitless and The Widers! Mod for the wonderful Larxa",
+      "twitch": "lilkoolaidtv",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/283fbe5e-76d8-476d-9203-4813dfbb4af6-profile_image-300x300.png"
+    },
+    {
+      "title": "livv",
+      "url": "https://www.twitch.tv/livv",
+      "description": "✦ Hihi! Its me livv! | a challenge/speed runner that loves Oddish & Neopets! | 💌 livviiy@hotmail.com",
+      "twitch": "livv",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/aeb08a39-e196-47a8-bfde-e9677cafa7b0-profile_image-300x300.png"
+    },
+    {
+      "title": "Patti",
+      "url": "https://www.twitch.tv/patti",
+      "description": "Australian variety Streamer and Souls-like enthusiast, also with a passion for fashion. Community focused streamer with a lot of fun vibes!",
+      "twitch": "patti",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/db024916-58df-4c5a-9ede-9cb907d24ac1-profile_image-300x300.png"
+    },
+    {
+      "title": "WillWalk_",
+      "url": "https://www.twitch.tv/willwalk_",
+      "description": "",
+      "twitch": "willwalk_",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/746c3e5b-ee90-41e8-b3a9-8aee9d3ad4f3-profile_image-300x300.png"
+    },
+    {
+      "title": "albalass",
+      "url": "https://www.twitch.tv/albalass",
+      "description": "🖤 Scottish Lass  🖤 Souls challenge runs and horror games with a touch of variety first playthroughs 🖤 Business enquiries: albalasstv@gmail.com",
+      "twitch": "albalass",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/166399c7-cbcf-425f-85fc-c14b7c75f8c9-profile_image-300x300.png"
+    },
+    {
+      "title": "Cikesss",
+      "url": "https://www.twitch.tv/cikesss",
+      "description": "Soulsborne hitless runner and artist. Commissions and Inquiries - francisdreigg@gmail.com",
+      "twitch": "cikesss",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/16007f86-17de-4e79-880f-6c52d9533d0b-profile_image-300x300.png"
+    },
+    {
+      "title": "MicolashTV",
+      "url": "https://www.twitch.tv/micolashtv",
+      "description": "Just a guy from Hungary. Had a past with Quake, now i mostly play souls. Usually go for no hit and other challenge runs. No leveling, broken sword, no skulls, i prefer doing runs no one ever completed before. Btw i am bad at first plays, so i may suffer on those more than on challenge runs LOL.",
+      "twitch": "micolashtv",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/9de317cb-9601-4cce-9d8a-b943b7909199-profile_image-300x300.png"
+    },
+    {
+      "title": "Itz_Fizy",
+      "url": "https://www.twitch.tv/itz_fizy",
+      "description": "Chatty variety streamer playing 5 different games a week! ✨ Expect cozy vibes, first playthroughs, and plenty of conversation.",
+      "twitch": "itz_fizy",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/2a67e035-67c0-416e-8c90-76581db689b9-profile_image-300x300.jpeg"
+    },
+    {
+      "title": "MiniPsychoGal",
+      "url": "https://www.twitch.tv/minipsychogal",
+      "description": "Your friendly resident Brit suffers on an expedition to join Team Hitless. Come and watch me beat my head against a wall for hours in hopes of joining the ELITE. I play souls games and whatever else I feel like playing. Join the fun!",
+      "twitch": "minipsychogal",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/7dc76de9-087c-4b69-982c-3d746bb43150-profile_image-300x300.png"
+    },
+    {
+      "title": "Natspresso",
+      "url": "https://www.twitch.tv/natspresso",
+      "description": "Hi, I'm Nat! I love video games! Keyboard + Mouse only. I'm a variety streamer that focuses on new releases and first playthrough's with some challenge runs thrown into the mix. Business Email: business.natspresso@gmail.com",
+      "twitch": "natspresso",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/f00c4810-28fa-4dec-a97e-fccb989948b7-profile_image-300x300.png"
+    },
+    {
+      "title": "ChioniLoux",
+      "url": "https://www.twitch.tv/chioniloux",
+      "description": "🌈 they/them | 🔊 (kee-OH-nee LOO) | 🕹️ I mostly stream Souls games | 🥔 Welcome to the Spuddies",
+      "twitch": "chioniloux",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/98105e11-dbe3-428c-a449-f4098294899f-profile_image-300x300.png"
+    },
+    {
+      "title": "QuantumTree",
+      "url": "https://www.twitch.tv/quantumtree",
+      "description": "Hi, I’m QT (she/her).  I'm a newer gamer.  I love Soulsborne games. Now featuring awkwardness at no additional cost.",
+      "twitch": "quantumtree",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/243ccc95-79b2-4e83-b42a-929312d4464d-profile_image-300x300.png"
+    },
+    {
+      "title": "yunobeat",
+      "url": "https://www.twitch.tv/yunobeat",
+      "description": "Im a simple bean... there are three things i dont like : Getting hit (on), Controllers, and leveling up in video games c:",
+      "twitch": "yunobeat",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/0c8efd76-d33a-4198-9c86-4ce6f5368b74-profile_image-300x300.png"
+    },
+    {
+      "title": "PhoebeParryQueen",
+      "url": "https://www.twitch.tv/phoebeparryqueen",
+      "description": "Casual streamer. Here for a relaxed, fun time - at least now my hitless run is done! Lies of P, Elden Ring and Armored Core VI are my current games of obsession. (She/They)",
+      "twitch": "phoebeparryqueen",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/e25f37b8-cfd3-451b-a884-10d26591127b-profile_image-300x300.png"
+    },
+    {
+      "title": "Ki11ahB",
+      "url": "https://proforprof.com/wikiprofia/ki11ahb",
+      "description": "From the heart of where I live, which is in Canada, working through FromSoft hitless runs. Come check out the channel now so that after I get a run you can say, \"This guy isn't really good, I remember when he would get hit all the time.\" Top 10 Elden Ring Player on xBox Ranking, which is so real",
+      "twitch": "ki11ahb",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/df308120-fdd6-4eb2-956d-7b78632bd410-profile_image-300x300.png",
+      "page": true
+    },
+    {
+      "title": "ArcherThe",
+      "url": "https://www.twitch.tv/archerthe",
+      "description": "i speedrun doom, veri fast, yes | occasionaly CS2 , some hitless runs , or casual games",
+      "twitch": "archerthe",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/c84b763a-43bd-4c12-aa26-26407e64bb8d-profile_image-300x300.png"
+    },
+    {
+      "title": "Limmitd",
+      "url": "https://www.twitch.tv/limmitd",
+      "description": "Alloo! My name is Limmitd or Alec and I play a variety of games that mostly include Souls and Path of Exile.",
+      "twitch": "limmitd",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/664cdd22-3f94-4443-a3db-f282d43db64c-profile_image-300x300.png"
+    },
+    {
+      "title": "sandpit08",
+      "url": "https://www.twitch.tv/sandpit08",
+      "description": "I'll try not to get hit but no promises",
+      "twitch": "sandpit08",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/fbf62f72-a583-4de4-b7c0-d7825294a403-profile_image-300x300.png"
+    },
+    {
+      "title": "nnimms",
+      "url": "https://www.twitch.tv/nnimms",
+      "description": "🔥 Nims 🔥 she/her 🔥 variety streamer 🔥Currently living in Finland! 🔥 Business inquiries 📧 nnimms.business@gmail.com",
+      "twitch": "nnimms",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/bd2216e6-cb3c-473e-ac72-4e0faab3e600-profile_image-300x300.png"
+    },
+    {
+      "title": "TheProfessorsWifeX",
+      "url": "https://www.twitch.tv/theprofessorswifex",
+      "description": "Home of Generic Radio Show, a late-night variety show featuring new music, games, karaoke, guests & general nonsesene.",
+      "twitch": "theprofessorswifex",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/b70ca62b-c34f-48e9-b012-dffae8a3c935-profile_image-300x300.png"
+    },
+    {
+      "title": "softyDBG",
+      "url": "https://www.twitch.tv/softydbg",
+      "description": "Detroit Based Gaming",
+      "twitch": "softydbg",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/53afce4b-f0bc-45c6-aebe-d9580ee013e2-profile_image-300x300.png"
+    },
+    {
+      "title": "Quatos",
+      "url": "https://www.twitch.tv/quatos",
+      "description": "Hi! I'm \"Q\", We play games and write silly songs here! | Business inquiries: QuatosXian@gmail.com",
+      "twitch": "quatos",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/760cf326-2597-44e0-ac71-09e917c86ae9-profile_image-300x300.png"
+    },
+    {
+      "title": "scarlettlovelee",
+      "url": "https://www.twitch.tv/scarlettlovelee",
+      "description": "\"I'm Going On An Adventure!\" b*mbo baggin$ 😋 scarlovelee@gmail.com",
+      "twitch": "scarlettlovelee",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/436a75e3-5b82-4f67-a3ca-371bf2f8eb94-profile_image-300x300.jpeg"
+    },
+    {
+      "title": "sydneyeee",
+      "url": "https://www.twitch.tv/sydneyeee",
+      "description": "Just a girl tryna kiss fictional men in video games. Business inquiries sydneyeeettv@gmail.com",
+      "twitch": "sydneyeee",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/dfe7a268-8713-4561-8f99-b8252ab75f36-profile_image-300x300.png"
+    },
+    {
+      "title": "Profsketball",
+      "url": "https://www.twitch.tv/profsketball",
+      "description": "@ProfOrProf's Second Channel - A philosophy professor plays basketball, cooks, and records lectures!",
+      "twitch": "profsketball",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/8c2130b9-5523-4cb9-9b1e-969467e37f21-profile_image-300x300.png"
+    },
+    {
+      "title": "Cirucci",
+      "url": "https://www.twitch.tv/cirucci",
+      "description": "(she/her) bad at Souls-like games (but loves them), cozy and vocally fearless. a welcome place for lurkers and those who may be lonely and want to hang out | 💜 Twitch Women's Guild & Pride Guild member 💜 | 18+ audiences.",
+      "twitch": "cirucci",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/fb4a8767-aaa0-4539-a98d-2dfe1d3abfcf-profile_image-300x300.png"
+    },
+    {
+      "title": "BeeNeato",
+      "url": "https://www.twitch.tv/beeneato",
+      "description": "I’m a variety gamer that plays any game I can get my grubby little hands on. || Live on Twitch: MON, TUES, and some WED || Contact: beeneato.tv@gmail.com",
+      "twitch": "beeneato",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/0518165e-1a01-45df-8c0e-ca358777788a-profile_image-300x300.png"
+    },
+    {
+      "title": "SaltyHeathen",
+      "url": "https://www.twitch.tv/saltyheathen",
+      "description": "Just a degen biker, metalhead nerd. Looking to build a place  for people to come and chill to get away from stresses and adulting. Just want to play games and make friends",
+      "twitch": "saltyheathen",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/b0037be4-dab6-4558-8676-5aef9afea1f9-profile_image-300x300.png"
+    },
+    {
+      "title": "cronys02",
+      "url": "https://www.twitch.tv/cronys02",
+      "description": "Fromsoft no hit and challenge runner! Here to chill and spread good vibes. Come hang out and chat about gaming!For Business inquiries: cronys2002@gmail.com",
+      "twitch": "cronys02",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/dad1fab2-6caf-44e7-8d96-8cc2edc3b212-profile_image-300x300.png"
+    },
+    {
+      "title": "Zennvin",
+      "url": "https://www.twitch.tv/zennvin",
+      "description": "Certified based goofy goober | Soulsborne challenge runner and variety streamer | Most likely laughing way too hard at something chat said… | Inquiries ✉️: zennvin@gmail.com",
+      "twitch": "zennvin",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/cc95cc55-e8d6-40e6-8168-0f5d61c5a7cc-profile_image-300x300.png"
+    },
+    {
+      "title": "evechuu",
+      "url": "https://www.twitch.tv/evechuu",
+      "description": "Love Yourz || Occupied doing nerdy stuff. Will be back soon 🤓",
+      "twitch": "evechuu",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/ae3e373b-0c60-48aa-b10b-714933b36a1f-profile_image-300x300.png"
+    },
+    {
+      "title": "littleoneyouare",
+      "url": "https://www.twitch.tv/littleoneyouare",
+      "description": "she/her | encouraging human | mental health advocate | frequent giggler | average gamer & speedrunner | ✨ live sat/mon/thur 🏳‍🌈 business inquiries & collabs: please email littleoneyouare@gmail.com 💜",
+      "twitch": "littleoneyouare",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/4edfa170-4abb-4c64-8f90-02539952c75f-profile_image-300x300.png"
+    },
+    {
+      "title": "Dbagggy",
+      "url": "https://www.twitch.tv/dbagggy",
+      "description": "i have no idea what im doin",
+      "twitch": "dbagggy",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/ed8459c1-7089-4a32-b634-3b0703cb4d15-profile_image-300x300.png"
+    },
+    {
+      "title": "BestBrisket",
+      "url": "https://www.twitch.tv/bestbrisket",
+      "description": "Just a guy getting by. Often sleepy",
+      "twitch": "bestbrisket",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/ee7ab383-b0d8-4fbe-b412-6e030d1c8c5c-profile_image-300x300.png"
+    },
+    {
+      "title": "cheesygatorcat",
+      "url": "https://www.twitch.tv/cheesygatorcat",
+      "description": "Hey, I'm Cheesy! I play a variety of games on the hardest difficulty.. Expect lots of first play throughs, plenty of swearing, screaming, and some \"opera singing\". I love doing silly voices and making others smile! Come say \"CHEESE!\"",
+      "twitch": "cheesygatorcat",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/06115479-4e67-4158-9bf9-7d376ab698cd-profile_image-300x300.png"
+    },
+    {
+      "title": "Zeezums",
+      "url": "https://www.twitch.tv/zeezums",
+      "description": "18+ USA | Hiya i'm Zeezums (she/her)!! Former dive bar manager turned 911 dispatcher. I love bugs, streamerbot, and yap. Ask me anything about anything and I will over-share whatever information I have 🐛",
+      "twitch": "zeezums",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/00f628f4-15c7-4d30-99b5-07deb458481a-profile_image-300x300.png"
+    },
+    {
+      "title": "SenseiTenacity",
+      "url": "https://www.twitch.tv/senseitenacity",
+      "description": "⛩️Here to save the world of live-streaming⛩️                                 🏯Live Tues-Sun 10am PST 🏯",
+      "twitch": "senseitenacity",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/50673cd3-466a-4534-b3e0-4a9147de8e6c-profile_image-300x300.png"
+    },
+    {
+      "title": "emyUSB",
+      "url": "https://www.twitch.tv/emyusb",
+      "description": "💖 Unicorn Queen 💖 she/her, recovering addict, I focus on first play-throughs and generally do the hardest difficulty (not always).",
+      "twitch": "emyusb",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/9ba34ce9-6786-415c-b453-621d77c9b0a3-profile_image-300x300.png"
+    },
+    {
+      "title": "Vlinky",
+      "url": "https://www.twitch.tv/vlinky",
+      "description": "",
+      "twitch": "vlinky",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/c2d3f3d2-de5b-4def-b889-06e0c7be2ede-profile_image-300x300.png"
+    },
+    {
+      "title": "Saiko_Panda",
+      "url": "https://www.twitch.tv/saiko_panda",
+      "description": "My Milkshake brings everyone to the yard. The chillest Souls Player on the block. Come chat, laugh, watch me die (most likely to gravity (eff you Newton)). I'll die to read chat!",
+      "twitch": "saiko_panda",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/2a8765d4-e568-4ca1-8418-65b3d4adaaa4-profile_image-300x300.png"
+    },
+    {
+      "title": "SpectreEsq",
+      "url": "https://www.twitch.tv/spectreesq",
+      "description": "I make easy games look difficult",
+      "twitch": "spectreesq",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/83dadcc2-4fd8-45b2-a16c-39b855ee56b3-profile_image-300x300.png"
+    },
+    {
+      "title": "aBobOfAllTrades",
+      "url": "https://www.twitch.tv/abobofalltrades",
+      "description": "You can call me A Bob of All Trades, DJ Bobby Trades, Bob, or BMFB (real ones know what is stands for). As a DJ I'm mostly into mixing tech house and minimal/deep tech.",
+      "twitch": "abobofalltrades",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/55dd4090-8b8d-48b3-b18d-44839d5506a6-profile_image-300x300.png"
+    },
+    {
+      "title": "GhostInTheNoice",
+      "url": "https://www.twitch.tv/ghostinthenoice",
+      "description": "Hi there! My name is GhostInTheNoice, but you can call me Ghostie! 👻 I'm a high energy souls (and souls-like) veteran who often enjoys challenge runs, doing metal vocals, and playing with my community.",
+      "twitch": "ghostinthenoice",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/a0fc4882-ff12-4d5d-b4ea-f71ffab24790-profile_image-300x300.png"
+    },
+    {
+      "title": "DrDoot",
+      "url": "https://www.twitch.tv/drdoot",
+      "description": "I play games with a saxophone 🎷Souls No Hit Runner and Challenge Run Dooter",
+      "twitch": "drdoot",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/926ab059-3505-482f-8ff5-da5cc89b1ed5-profile_image-300x300.png"
+    },
+    {
+      "title": "CliffHines",
+      "url": "https://www.twitch.tv/cliffhines",
+      "description": "Guitarist/Electronic Musician Cliff Hines based out of Los Angeles & New Orleans. Souls Gamer, Challenge Runner and Alt Controller Runner.",
+      "twitch": "cliffhines",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/bc50e57e-2f34-47c9-8860-165d935ec0f0-profile_image-300x300.png"
+    },
+    {
+      "title": "CLAWFFLEZ",
+      "url": "https://www.twitch.tv/clawfflez",
+      "description": "🦀Crab Vtuber🦀Hitless Runner",
+      "twitch": "clawfflez",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/fb24a169-6e92-4052-aa36-0fab6299846b-profile_image-300x300.png"
+    },
+    {
+      "title": "ArisTHOTtle",
+      "url": "https://www.twitch.tv/aristhottle",
+      "description": "Don't pay $40,000 for a degree. Instead, hang out with me, a college philosophy professor. Sure, I won't throw any keggers. And no, I'm not the picture of youthful beauty. I guess I can't really get you a job or connections either. Never mind, maybe you should just go to college ...",
+      "twitch": "aristhottle",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/cc262ce6-2a5a-44b1-af09-f9e27216f7ac-profile_image-300x300.png"
+    },
+    {
+      "title": "Cat_a_Clysms",
+      "url": "https://www.twitch.tv/cat_a_clysms",
+      "description": "I’m a walking, talking catastrophe. I also apparently play games now?",
+      "twitch": "cat_a_clysms",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/87e1f70f-d6d5-426a-8ac7-119712999dfa-profile_image-300x300.png"
+    },
+    {
+      "title": "JoshParries",
+      "url": "https://www.twitch.tv/joshparries",
+      "description": "Overlord of all you eggs... That means you",
+      "twitch": "joshparries",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/ab8975b9-d198-4ed2-8bd1-6ab850901d61-profile_image-300x300.png"
+    },
+    {
+      "title": "KaleyStrawberry",
+      "url": "https://www.twitch.tv/kaleystrawberry",
+      "description": "Canadian gal who enjoys gaming! Professional chat reader during boss fights. Souls challenge runner with occasional variety! Business inquiries: KaleyStrawberryTTV@gmail.com",
+      "twitch": "kaleystrawberry",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/9afba4e8-be08-4b5e-abd4-01ad38351680-profile_image-300x300.png"
+    },
+    {
+      "title": "AurenSol",
+      "url": "https://www.twitch.tv/aurensol",
+      "description": "Yo! Welcome in, my people. You’ve stepped into a space where the voibes stay high, the games stay varied, and the music keeps us moving. We’re here for good energy, good company, and frfr connection. Settle in and make yourself at home, homies. **EMAIL: aurensolofficial@gmail.com**",
+      "twitch": "aurensol",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/cc2b6f19-e202-4066-a956-ae7113780791-profile_image-300x300.png"
+    },
+    {
+      "title": "Porge",
+      "url": "https://www.twitch.tv/porge",
+      "description": "1st Playthrough's, Challenge Runs, Horror, Memes Business: porgelandtv@hotmail.com",
+      "twitch": "porge",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/cc89c814-e3b4-4f3c-80e1-92716fc60a74-profile_image-300x300.png"
+    },
+    {
+      "title": "junivyr",
+      "url": "https://www.twitch.tv/junivyr",
+      "description": "You can call me Juni! I play a lot souls/souls-like and story based games! If it has lore, I'll probably play it. Come say hi!",
+      "twitch": "junivyr",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/808e1266-3b19-4787-90f9-0642bac87e45-profile_image-300x300.png"
+    },
+    {
+      "title": "Mortar_Mike",
+      "url": "https://www.twitch.tv/mortar_mike",
+      "description": "Hubby, USMC Veteran and Videographer who just happens to LOVE GAMING! Big on ACTION, HORDE-Based games, and ANYTHING WARHAMMER! It's GO TIME!",
+      "twitch": "mortar_mike",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/afe3ecdc-aa12-478a-afef-ec6efd6f21fa-profile_image-300x300.png"
+    },
+    {
+      "title": "TheRedDullahan",
+      "url": "https://www.twitch.tv/thereddullahan",
+      "description": "Metalhead variety streamer bringing high-energy gameplay and hype moments across shooters, RPGs, and multiplayer brawls. Expect big plays, bad decisions, and plenty of laughs with epic, over-the-top energy. Pull up, hang out, and let’s make some noise.",
+      "twitch": "thereddullahan",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/b9e77e61-746c-4fe9-9fa7-11689a9358fc-profile_image-300x300.png"
+    },
+    {
+      "title": "Gloomshadows",
+      "url": "https://www.twitch.tv/gloomshadows",
+      "description": "Dance Pad Queen 👑 Bratty and Chatty🗣️ Definitely Not A Catgirl 🐈",
+      "twitch": "gloomshadows",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/1d4fb29a-89b9-43ff-a630-2563b85b04e5-profile_image-300x300.png"
+    },
+    {
+      "title": "CannoliSenpai",
+      "url": "https://www.twitch.tv/cannolisenpai",
+      "description": "Italian pastry who streams Soulsborne, Horror & MTG every Tuesday - Friday @ 2PM PST~",
+      "twitch": "cannolisenpai",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/1fa3f97a-0865-4626-b648-52d52cab5410-profile_image-300x300.png"
+    },
+    {
+      "title": "baruday",
+      "url": "https://www.twitch.tv/baruday",
+      "description": "Reader of Philosophy. PhD Candidate. Player of games. Father. I am currently working on my dissertation engaging with philosophy of charisma and critical leadership theory, with a focus on post-Freudian psychoanalytics & Durkheimian sociology. Come and study with me.",
+      "twitch": "baruday",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/f4513da5-55ee-4290-8c10-b09a38c99911-profile_image-300x300.png"
+    },
+    {
+      "title": "ErikLompa",
+      "url": "https://www.twitch.tv/eriklompa",
+      "description": "Norwegian challenge-runner",
+      "twitch": "eriklompa",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/88e2d2c2-ba55-4c16-8a62-e00d080ec77d-profile_image-300x300.png"
+    },
+    {
+      "title": "BlameMedia",
+      "url": "https://www.twitch.tv/blamemedia",
+      "description": "Hey Friends, we are playing more than just games here! I am an intermediate musician and gamer who loves to play all kinds of video game. I incorporate lights show performances, alt controller gameplay, & music streams. Please enjoy your stay as we encourage a welcoming and supportive community.",
+      "twitch": "blamemedia",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/24467f1b-7234-4497-a0a8-03567214da8f-profile_image-300x300.png"
+    },
+    {
+      "title": "WildWaterGoddess",
+      "url": "https://www.twitch.tv/wildwatergoddess",
+      "description": "⋆ Team Hitless ⋆ The Firekeepers Team ⋆ ProfCo Team ⋆ 18+ space ⋆ I'm WildWater (she/her) ⋆ I enjoy Soulsborne games as well as BG3, HK, Fallout, The Last of Us, Silent Hill, and more ⋆ A few of my favorite things to do are roller skate, garden, and burn the Erdtree 💨😶‍🌫️ ⋆",
+      "twitch": "wildwatergoddess",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/a20df1f6-1dcb-43d4-8136-7de16a20742b-profile_image-300x300.jpeg"
+    },
+    {
+      "title": "OH_MANNY",
+      "url": "https://www.twitch.tv/oh_manny",
+      "description": "\"The oldest hands in the game.\" Playing what I love—Soulslikes, roguelikes, rage games and plenty of variety. Community-focused, always happy to help… and yeah, a little bit of a degen sometimes.",
+      "twitch": "oh_manny",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/96a2365c-1998-4f44-89e9-f7e5eef82f95-profile_image-300x300.png"
+    },
+    {
+      "title": "novella_bella",
+      "url": "https://www.twitch.tv/novella_bella",
+      "description": "Elden Ring Maidenless Bingo - Co Owner. Making my way through all Fromsoft Games. currently on DS1 Remastered 1st playthrough. Elden Ring and Sekiro completed! Here for a good time not a long time. 💕Check out my boo who is an absolute goddess!!! SteamPunkAngel: she's a shy funny kind Gamer Girl!",
+      "twitch": "novella_bella",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/820bd97e-7d43-474b-b267-bb37de1cebd7-profile_image-300x300.jpeg"
+    },
+    {
+      "title": "Phetri",
+      "url": "https://www.twitch.tv/phetri",
+      "description": "Nowadays I do no-hit runs in Elden Ring and Sekiro. He/Him",
+      "twitch": "phetri",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/fadd3c1f-e566-4ab1-87a7-49ced2d23bde-profile_image-300x300.png"
+    },
+    {
+      "title": "AshOfWar_",
+      "url": "https://www.twitch.tv/ashofwar_",
+      "description": "",
+      "twitch": "ashofwar_",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/98f0567a-4bdb-48bf-930f-2ba409eadab1-profile_image-300x300.png"
+    },
+    {
+      "title": "psiphicode",
+      "url": "https://www.twitch.tv/psiphicode",
+      "description": "Yo, I’m psiphicode 👾 I build Elden Ring randomizers, break games for fun, and host Elden Ring events. Expect chaos, laughs, and the occasional accidental genius play.",
+      "twitch": "psiphicode",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/1d89a77f-a860-400c-8e6e-15da4a865a22-profile_image-300x300.png"
     }
   ]
 }
