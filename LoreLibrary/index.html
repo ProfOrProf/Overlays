@@ -257,6 +257,9 @@
   #zoomclose:hover{border-color:var(--grace);background:rgba(200,163,78,.08)}
   #zoomhint{padding:14px 0 22px;text-align:center;font-size:11px;letter-spacing:.18em;
     text-transform:uppercase;color:rgba(200,163,78,.46)}
+  #zoom.loadingfull #zoomhint::after{content:" \00b7  loading full resolution";
+    color:var(--grace);opacity:.85;animation:zpulse 1.1s ease-in-out infinite}
+  @keyframes zpulse{50%{opacity:.35}}
 </style>
 
 <canvas id="motes"></canvas>
@@ -415,11 +418,12 @@ async function loadRealm(k){
 }
 
 const ICONCACHE = new Map();
-async function iconURL(realm, key){
-  const id = realm + '/' + key;
+async function iconURL(realm, key, tier){
+  const dir = tier === 'full' ? 'iconsfull' : 'icons';
+  const id = dir + '/' + realm + '/' + key;
   if (ICONCACHE.has(id)) return ICONCACHE.get(id);
   const job = (async () => {
-    const res = await fetch('data/icons/' + realm + '/' + key + '.bin');
+    const res = await fetch('data/' + dir + '/' + realm + '/' + key + '.bin');
     if (!res.ok) throw new Error(res.status);
     const plain = await gcmDecrypt(DK, new Uint8Array(await res.arrayBuffer()));
     return URL.createObjectURL(new Blob([plain], {type: 'image/webp'}));
@@ -429,11 +433,13 @@ async function iconURL(realm, key){
 }
 
 let iconToken = 0;
+let shownIcon = null;
 async function paintIcon(it){
   const box = $('iconbox'), img = $('iconimg');
   const key = (window.LORE_ICONS && window.LORE_ICONS[it.g] || {})[it.name];
   const mine = ++iconToken;
   img.classList.remove('in');
+  shownIcon = key ? {realm: it.g, key} : null;
   if (!key){ box.classList.remove('on'); img.removeAttribute('src'); return; }
   const url = await iconURL(it.g, key);
   if (mine !== iconToken) return;
@@ -1158,14 +1164,30 @@ function zapply(){
   $('zoomimg').style.transform = `translate(${zx}px,${zy}px) scale(${zs})`;
 }
 function zreset(){ zx = 0; zy = 0; zs = 1; zapply(); }
-function openZoom(){
+let zoomToken = 0;
+async function openZoom(){
   const src = $('iconimg').getAttribute('src');
   if (!src) return;
+  const mine = ++zoomToken;
+  const want = shownIcon;
   $('zoomimg').src = src;
   zreset();
   $('zoom').classList.remove('hidden');
+  if (!want) return;
+  $('zoom').classList.add('loadingfull');
+  const hi = await iconURL(want.realm, want.key, 'full');
+  if (mine !== zoomToken) return;
+  $('zoom').classList.remove('loadingfull');
+  if (!hi) return;
+  const pre = new Image();
+  pre.onload = () => { if (mine === zoomToken) $('zoomimg').src = hi; };
+  pre.src = hi;
 }
-function closeZoom(){ $('zoom').classList.add('hidden'); }
+function closeZoom(){
+  zoomToken++;
+  $('zoom').classList.remove('loadingfull');
+  $('zoom').classList.add('hidden');
+}
 
 $('iconbox').addEventListener('click', openZoom);
 $('zoomclose').addEventListener('click', closeZoom);
