@@ -1,253 +1,136 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<title>This is not a site.</title>
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<meta charset="utf-8"/>
+<title>Prof or Prof</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="description" content="Prof or Prof — the Lore Library, Prof Saves, Wikiprofia, and the stream."/>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://proforprof.com/"/>
+<meta property="og:title" content="Prof or Prof"/>
+<meta property="og:description" content="The Lore Library, Prof Saves, Wikiprofia, and the stream."/>
+<meta name="theme-color" content="#070606"/>
+<link rel="canonical" href="https://proforprof.com/"/>
 <style>
   :root{
-    --ps-green:#00ff57;
-    --outline:#ffffff;
-    --glow:#bfbfbf;
-    --term-green:#7CFC00;
-    --caret:#7CFC00;
+    --ink:#efe6d6; --ink-dim:#b3a68f; --ink-faint:#6f665a; --grace:#f0b13c;
+    --panel:#0c0a09; --line:rgba(179,144,80,.22);
+    --serif:"Palatino Linotype",Palatino,"Book Antiqua","Iowan Old Style",Georgia,serif;
   }
-  html,body{height:100%;margin:0;background:#000;overflow:hidden}
-  #stage{position:fixed;inset:0;background:#000}
-  canvas{width:100vw;height:100vh;display:block}
-
-  #terminal{
-    position:fixed; inset:0;
-    background:#000;
-    color:var(--term-green);
-    font:16px/1.4 "Press Start 2P", monospace;
-    padding:32px;
-    overflow:auto;
-    display:none;
-  }
-  #terminal a{ color:var(--term-green); text-decoration:none; border-bottom:1px dotted var(--term-green); }
-  #terminal a:hover{ color:#b7ffb7; border-bottom-color:#b7ffb7; }
-  .prompt::before{ content:"C:\\Prof> "; color:#fff; }
-  .caret{ display:inline-block;width:.75ch;margin-left:2px;background:var(--caret);animation:blink 1s steps(1,end) infinite; }
-  @keyframes blink{50%{background:transparent}}
+  *{box-sizing:border-box}
+  html{color-scheme:dark}
+  html,body{margin:0;min-height:100%;background:#070606;color:var(--ink);font-family:var(--serif)}
+  ::selection{background:rgba(240,177,60,.25)}
+  #motes{position:fixed;inset:0;pointer-events:none;opacity:.5;z-index:0}
+  .vignette{position:fixed;inset:0;pointer-events:none;z-index:1;
+    background:radial-gradient(ellipse at 50% 42%,transparent 20%,rgba(0,0,0,.72) 78%)}
+  main{position:relative;z-index:2;max-width:1000px;margin:0 auto;
+    padding:clamp(48px,9vh,110px) 24px 120px;text-align:center}
+  h1.title{font-weight:400;font-size:clamp(26px,5vw,52px);letter-spacing:.42em;text-indent:.42em;
+    margin:0;color:var(--grace);text-transform:uppercase;line-height:1.3;
+    text-shadow:0 0 34px rgba(240,177,60,.5),0 0 90px rgba(240,177,60,.22)}
+  h1.title span{display:block}
+  .rule{width:min(340px,46vw);height:1px;margin:26px auto 22px;
+    background:linear-gradient(90deg,transparent,rgba(240,177,60,.8),transparent)}
+  .lede{margin:0 auto 46px;max-width:56ch;font-style:italic;
+    font-size:clamp(13.5px,1.6vw,16.5px);letter-spacing:.1em;color:var(--ink-dim);line-height:1.85}
+  .doors{display:grid;grid-template-columns:repeat(auto-fit,minmax(232px,1fr));gap:16px;
+    max-width:820px;margin:0 auto;text-align:left}
+  a.door{position:relative;display:flex;flex-direction:column;min-height:150px;
+    padding:19px 20px;text-decoration:none;color:inherit;overflow:hidden;
+    border:1px solid var(--line);background:rgba(255,255,255,.012);
+    transition:border-color .28s,background .28s,transform .28s,box-shadow .28s}
+  a.door:hover{border-color:var(--rc);background:rgba(240,177,60,.05);transform:translateY(-3px);
+    box-shadow:0 14px 40px rgba(0,0,0,.55)}
+  a.door::after{content:"";position:absolute;left:0;top:0;width:2px;height:100%;
+    background:var(--rc);opacity:.55;transition:opacity .28s}
+  a.door:hover::after{opacity:1}
+  .door .nm{font-size:14px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink);
+    display:flex;align-items:center;gap:10px}
+  .door .nm::before{content:"";width:7px;height:7px;background:var(--rc);
+    transform:rotate(45deg);flex:0 0 auto}
+  .door .sub{margin-top:10px;font-size:12.5px;font-style:italic;color:var(--ink-faint);
+    letter-spacing:.06em;line-height:1.65}
+  .door .cnt{margin-top:auto;padding-top:14px;font-size:10.5px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--rc);opacity:.8}
+  footer{position:relative;z-index:2;text-align:center;padding:0 24px 46px;
+    font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-faint);opacity:.6}
+  footer a{color:inherit}
+  @media (prefers-reduced-motion:reduce){#motes{display:none}a.door:hover{transform:none}}
 </style>
 </head>
 <body>
-  <div id="stage"><canvas id="c"></canvas></div>
-  <div id="terminal" aria-live="polite"></div>
+<canvas id="motes"></canvas>
+<div class="vignette"></div>
+
+<main>
+  <h1 class="title"><span>Prof</span><span>or</span><span>Prof</span></h1>
+  <div class="rule"></div>
+  <p class="lede">A stream, a save manager, and a library of everything FromSoftware ever
+    wrote down. Pick a door.</p>
+
+  <div class="doors">
+    <a class="door" href="/lorelibrary/" style="--rc:#f0b13c">
+      <div class="nm">The Lore Library</div>
+      <div class="sub">Every item description across seven realms, in English and Japanese,
+        with the art that came with them.</div>
+      <div class="cnt">9,566 descriptions · gated</div>
+    </a>
+
+    <a class="door" href="/profsaves/" style="--rc:#21ff63">
+      <div class="nm">Prof Saves</div>
+      <div class="sub">Save manager for any and all games forever. Back them up, swap them,
+        never lose a run again.</div>
+      <div class="cnt">Free download · Windows</div>
+    </a>
+
+    <a class="door" href="/wikiprofia/" style="--rc:#9a86b8">
+      <div class="nm">Wikiprofia</div>
+      <div class="sub">The ProfCo stream team — who they are and where to find them.</div>
+      <div class="cnt">Streamer archive</div>
+    </a>
+
+    <a class="door" href="https://twitch.tv/proforprof" style="--rc:#a970ff">
+      <div class="nm">The Stream</div>
+      <div class="sub">Souls games, mostly. Occasionally a lecture breaks out.</div>
+      <div class="cnt">twitch.tv/proforprof</div>
+    </a>
+  </div>
+</main>
+
+<footer>
+  <a href="https://www.twitch.tv/team/profco">ProfCo</a> &nbsp;·&nbsp;
+  <a href="mailto:proforprof@gmail.com">proforprof@gmail.com</a>
+</footer>
 
 <script>
-(() => {
-  const CAN = document.getElementById('c');
-  const CTX = CAN.getContext('2d');
-  const LAYER = document.createElement('canvas');
-  const LCTX  = LAYER.getContext('2d', { willReadFrequently:true });
-
-  const TEXT = 'Remember kids...';
-  const FONT = 'Press Start 2P';
-
-  // TEXT: long on-screen + slow dissolve (unchanged)
-  const BLINKS = 5;
-  const BLINK_PERIOD = 1000;
-  const STAR_TIME_TEXT = 8000;
-
-  // IMAGE: FAST APPEAR, LONGER HOLD, SLOWER DISSOLVE OUT
-  const IMG_FADE_MS = 250;      // faster appearance
-  const IMG_HOLD_MS = 1800;     // longer on-screen
-  const STAR_TIME_IMG = 6000;   // slower dissolve out
-  const STAR_SPINS = 8;
-
-  let bounds = {x:0,y:0,w:0,h:0,px:0};
-  let t0, phase=0, phaseStart=0, finished=false;
-
-  const img = new Image();
-  img.crossOrigin = "anonymous";
-  img.src = "https://proforprof.com/profsaves/ProfSaves2.png";
-  let imgReady = false;
-  img.onload = () => { imgReady = true; if (phase >= 2) drawImageToLayer(); };
-
-  function css(n){ return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
-
-  function resize(){
-    const dpr = Math.max(1, Math.floor(window.devicePixelRatio || 1));
-    CAN.width  = Math.floor(CAN.clientWidth * dpr);
-    CAN.height = Math.floor(CAN.clientHeight * dpr);
-    CTX.setTransform(dpr,0,0,dpr,0,0);
-
-    LAYER.width  = CAN.clientWidth;
-    LAYER.height = CAN.clientHeight;
-    LCTX.setTransform(1,0,0,1,0,0);
-
-    if (phase <= 1) drawTextLayer();
-    else if (imgReady) drawImageToLayer();
+(function(){
+  var cv=document.getElementById('motes'),cx=cv.getContext('2d'),W,H,dust=[];
+  function size(){
+    var d=window.devicePixelRatio||1;
+    W=cv.width=innerWidth*d; H=cv.height=innerHeight*d;
+    cv.style.width=innerWidth+'px'; cv.style.height=innerHeight+'px';
+    dust=Array.from({length:Math.min(90,Math.round(innerWidth/16))},function(){
+      return {x:Math.random()*W,y:Math.random()*H,r:(Math.random()*1.6+0.4)*d,
+              s:Math.random()*0.22+0.04,a:Math.random()*0.5+0.12,p:Math.random()*Math.PI*2};
+    });
   }
-  addEventListener('resize', resize, {passive:true});
-
-  function drawTextLayer(){
-    const W=LAYER.width, H=LAYER.height;
-    const base = Math.min(W,H);
-    const px = Math.max(28, Math.floor(base*0.085));
-
-    LCTX.clearRect(0,0,W,H);
-    LCTX.font = `${px}px "${FONT}", monospace`;
-    LCTX.textBaseline = 'alphabetic';
-
-    const m = LCTX.measureText(TEXT);
-    const textW = m.width;
-    const textH = (m.actualBoundingBoxAscent||0)+(m.actualBoundingBoxDescent||0) || px*1.1;
-    const x = Math.round((W-textW)/2);
-    const y = Math.round((H+textH)/2 - textH*0.2);
-
-    LCTX.lineJoin='round';
-    LCTX.strokeStyle = css('--outline');
-    LCTX.lineWidth = Math.max(3, Math.round(px*0.22));
-    LCTX.strokeText(TEXT,x,y);
-
-    LCTX.fillStyle = css('--ps-green');
-    LCTX.fillText(TEXT,x,y);
-
-    LCTX.save(); LCTX.shadowColor=css('--glow'); LCTX.shadowBlur=6; LCTX.fillRect(x, y-textH, 1, 1); LCTX.restore();
-
-    bounds = {x,y,w:textW,h:textH,px};
-  }
-
-  function drawImageToLayer(){
-    const W=LAYER.width, H=LAYER.height;
-    LCTX.clearRect(0,0,W,H);
-    if (!imgReady) return;
-
-    const s = Math.min(W/img.width, H/img.height);
-    const w = Math.round(img.width*s);
-    const h = Math.round(img.height*s);
-    const x = Math.round((W-w)/2);
-    const y = Math.round((H-h)/2);
-    LCTX.drawImage(img,x,y,w,h);
-
-    bounds = {x, y:y+h, w, h, px: Math.max(16, Math.round(Math.min(W,H)*0.06))};
-  }
-
-  const easeOutCubic = t => 1 - Math.pow(1 - t, 3);
-
-  function eraseWithSpinningStar(t){
-    const {x,y,w,h,px} = bounds;
-    const cx = x + w/2;
-    const cy = (phase <= 1) ? (y - h/2*0.1) : (y - h/2);
-
-    const angle = (Math.PI*2) * (STAR_SPINS*t);
-    const L = easeOutCubic(t);
-
-    const fullLen = Math.sqrt(CAN.width*CAN.width + CAN.height*CAN.height);
-    const lenNow  = fullLen * L;
-    const barH = Math.max(3, Math.round(px*0.09));
-
-    LCTX.save();
-    LCTX.globalCompositeOperation='destination-out';
-    LCTX.translate(Math.round(cx), Math.round(cy));
-    LCTX.rotate(angle);
-    for(let i=0;i<5;i++){
-      LCTX.save(); LCTX.rotate(i*(2*Math.PI/5));
-      const x0=Math.round(-lenNow/2), y0=Math.round(-barH/2);
-      LCTX.fillStyle='#000'; LCTX.fillRect(x0,y0, Math.round(lenNow)+2, barH+2);
-      LCTX.restore();
+  size(); addEventListener('resize',size);
+  (function tick(){
+    var d=window.devicePixelRatio||1;
+    cx.clearRect(0,0,W,H);
+    for(var i=0;i<dust.length;i++){
+      var m=dust[i];
+      m.y-=m.s*d; m.p+=0.01;
+      if(m.y<-8){ m.y=H+8; m.x=Math.random()*W; }
+      cx.beginPath();
+      cx.arc(m.x+Math.sin(m.p)*9*d,m.y,m.r,0,6.284);
+      cx.fillStyle='rgba(240,177,60,'+(m.a*(0.55+0.45*Math.sin(m.p*1.7)))+')';
+      cx.fill();
     }
-    LCTX.restore();
-  }
-
-  function scrubTransparency(){
-    const w=LAYER.width,h=LAYER.height;
-    try{
-      const im=LCTX.getImageData(0,0,w,h), d=im.data;
-      for(let i=0;i<d.length;i+=4){ if(d[i+3]<8){ d[i]=d[i+1]=d[i+2]=d[i+3]=0; } }
-      LCTX.putImageData(im,0,0);
-    }catch(e){ LCTX.clearRect(0,0,w,h); }
-  }
-
-  function drawLayer(alpha=1){
-    CTX.clearRect(0,0,CAN.clientWidth,CAN.clientHeight);
-    if(alpha>0){ CTX.globalAlpha=alpha; CTX.drawImage(LAYER,0,0); CTX.globalAlpha=1; }
-  }
-
-  function nextPhase(now){ phase++; phaseStart=now; if(phase===2 && imgReady) drawImageToLayer(); }
-
-  function frame(now){
-    if(!t0){ t0=now; phaseStart=now; }
-
-    if(phase===0){
-      const elapsed = now - phaseStart;
-      const blinkEnd = BLINKS*BLINK_PERIOD;
-      const f = ((elapsed)%BLINK_PERIOD)/BLINK_PERIOD;
-      drawLayer(f<0.5?1:0);
-      if(elapsed>=blinkEnd) nextPhase(now);
-      requestAnimationFrame(frame); return;
-    }
-    if(phase===1){ // slow text disintegration
-      const t = Math.min(1,(now-phaseStart)/STAR_TIME_TEXT);
-      eraseWithSpinningStar(t); drawLayer(1);
-      if(t>=1){ scrubTransparency(); nextPhase(now); }
-      requestAnimationFrame(frame); return;
-    }
-    if(phase===2){ // FAST image fade-in
-      const t = Math.min(1,(now-phaseStart)/IMG_FADE_MS);
-      drawLayer(t);
-      if(t>=1) nextPhase(now);
-      requestAnimationFrame(frame); return;
-    }
-    if(phase===3){ // LONGER HOLD
-      drawLayer(1);
-      if((now-phaseStart)>=IMG_HOLD_MS) nextPhase(now);
-      requestAnimationFrame(frame); return;
-    }
-    if(phase===4){ // SLOWER image disintegration
-      const t = Math.min(1,(now-phaseStart)/STAR_TIME_IMG);
-      eraseWithSpinningStar(t); drawLayer(1);
-      if(t>=1){ scrubTransparency(); nextPhase(now); }
-      requestAnimationFrame(frame); return;
-    }
-    if(phase===5 && !finished){
-      finished=true;
-      document.getElementById('stage').style.display='none';
-      startTerminal();
-    }
-  }
-
-  document.fonts?.load(`16px "${FONT}"`).then(()=>{ resize(); requestAnimationFrame(frame); });
+    requestAnimationFrame(tick);
+  })();
 })();
-</script>
-
-<script>
-function startTerminal(){
-  const term = document.getElementById('terminal');
-  term.style.display='block';
-
-  const urls = [
-    "https://twitch.tv/proforprof/",
-    "https://proforprof.com/",
-    "https://proforprof.com/profsaves/downloads.html",
-    "https://proforprof.com/wikiprofia/",
-    "mailto:proforprof@gmail.com",
-    "https://www.teamhitless.com/project/proforprof/",
-    "https://www.twitch.tv/team/starborn",
-    "https://www.twitch.tv/team/cutieco",
-    "https://www.twitch.tv/team/thefirekeepers"
-  ];
-
-  function addPrompt(){
-    const row = document.createElement('div');
-    row.className='prompt';
-    term.appendChild(row);
-    return row;
-  }
-
-  // one link per line with its own prompt
-  for (const url of urls){
-    const row = addPrompt();
-    const a   = document.createElement('a');
-    a.href=url; a.target="_blank"; a.rel="noopener"; a.textContent=url;
-    row.appendChild(a);
-  }
-  term.scrollTop = term.scrollHeight;
-}
 </script>
 </body>
 </html>
