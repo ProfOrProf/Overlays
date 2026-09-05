@@ -447,8 +447,12 @@
     #app.collab .cb-panel{padding-bottom:66px}
     #app.collab .cb-notes{grid-template-columns:1fr;gap:14px}
     .cb-pencil{padding:9px 14px;font-size:20px;opacity:1;border-radius:3px}
+    #app button,#app label,#app .cb-row,#app .cb-tabs,#app .cb-tools{touch-action:manipulation}
+    #app.collab .cb-tabs{position:sticky;top:0;z-index:5;background:var(--panel);
+      box-shadow:0 6px 12px 4px var(--panel);margin-top:-2px;padding-top:2px}
     #app.collab .cb-tools{gap:6px}
     #app.collab .cb-tools .cb-w{width:24px;height:24px}
+    #app.collab .cb-tools .cb-sw{width:19px;height:19px}
     #app.collab .cb-tools .cb-break{display:block;flex:1 0 100%;height:0;margin:0}
     #app.collab #mid{padding-top:14px}
     #app.collab.cb-boardfull[data-col="mid"] .colframe[data-c="mid"]>.col,
@@ -457,13 +461,27 @@
     #app.collab.cb-boardfull[data-col="mid"] .cb-canvaswrap{margin-left:-18px;margin-right:-18px;border-left:0;border-right:0}
     #app.collab.cb-boardfull[data-col="mid"] .cb-gallery{margin-left:-18px;margin-right:-18px;padding-left:18px;padding-right:18px}
     #app.collab.cb-boardfull[data-col="mid"] .cb-panel{touch-action:pan-y}
-    #app.collab.cb-boardfull[data-col="mid"] .cb-board{gap:12px;touch-action:pan-y}
+    #app.collab.cb-boardfull[data-col="mid"] .cb-board{gap:10px;touch-action:pan-y;
+      flex:1 1 auto;min-height:0}
+    #app.collab.cb-boardfull[data-col="mid"] .cb-body{display:flex;flex-direction:column;min-height:0}
+    #app.collab.cb-boardfull[data-col="mid"] .cb-canvaswrap{flex:1 1 auto;min-height:130px;aspect-ratio:auto}
+    #app.collab.cb-boardfull[data-col="mid"] .cb-gallery,
+    #app.collab.cb-boardfull[data-col="mid"] .cb-actions,
+    #app.collab.cb-boardfull[data-col="mid"] .cb-board>.cb-cap{flex:0 0 auto}
+    #app.collab.cb-boardfull[data-col="mid"] .cb-board>.cb-cap{margin-top:0}
     #app.collab.cb-boardfull[data-col="mid"] .cb-actions{position:sticky;bottom:66px;z-index:4;
-      background:var(--panel);box-shadow:0 -10px 18px 6px var(--panel);padding:8px 0 6px;touch-action:auto}
+      background:var(--panel);box-shadow:0 -10px 18px 6px var(--panel);padding:8px 0 6px}
     #app.collab.cb-boardfull[data-col="mid"] .cb-actions #cb-addvideo{flex:1 1 auto;text-align:center}
     #app.collab.cb-boardfull[data-col="mid"] .cb-attachhint,
     #app.collab.cb-boardfull[data-col="mid"] .cb-actions .cb-empty{flex:1 1 100%;padding:0 2px}
     #app.collab.cb-boardfull[data-col="mid"] .cb-gallery{touch-action:pan-x}
+  }
+
+  @media (max-width:380px){
+    #app.collab .cb-tools{gap:5px}
+    #app.collab .cb-tools .cb-btn{padding:7px 9px;letter-spacing:.16em}
+    #app.collab .cb-tools .cb-w{width:22px;height:22px}
+    #app.collab .cb-tools .cb-sw{width:18px;height:18px}
   }
 </style>
 
@@ -1554,6 +1572,7 @@ function collabBoot(){
   cbWireSelection();
   cbLoadIdeas();
   document.addEventListener('visibilitychange', () => { if (document.hidden) cbStopPoll(); else if (cbIdea) cbStartPoll(); });
+  addEventListener('resize', () => { if (cbTab === 'board') requestAnimationFrame(cbFitCanvas); });
 }
 
 function cbSetSplit(f, save){
@@ -2004,10 +2023,28 @@ function cbPaintBoard(keepCanvas){
     const board = body.querySelector('.cb-board');
     for (const t of ['gesturestart', 'gesturechange', 'gestureend']) board.addEventListener(t, e => e.preventDefault());
     $('cb-mid').scrollTop = 0;
+    requestAnimationFrame(cbFitCanvas);
   }
   const hint = $('cb-attachhint');
   if (hint) hint.textContent = cbLastSpan ? 'Last highlighted line: “' + cbLastSpan.quote.slice(0, 60) + (cbLastSpan.quote.length > 60 ? '…' : '') + '”' : 'Highlight a line in the script to attach a drawing to it.';
   cbPaintGallery();
+}
+
+function cbFitCanvas(){
+  const cv = $('cb-canvas'); if (!cv) return;
+  const r = cv.getBoundingClientRect();
+  const w = Math.max(2, Math.round(r.width)), h = Math.max(2, Math.round(r.height));
+  if (!w || !h || (cv.width === w && cv.height === h)) return;
+  const prev = cv.width > 2 && cv.height > 2 ? cv.toDataURL() : null;
+  const pw = cv.width, ph = cv.height;
+  cv.width = w; cv.height = h;
+  const ctx = cv.getContext('2d');
+  ctx.fillStyle = '#0c0a09'; ctx.fillRect(0, 0, w, h);
+  if (prev){
+    const img = new Image();
+    img.onload = () => { const s = Math.min(w / pw, h / ph); ctx.drawImage(img, 0, 0, pw, ph, 0, 0, pw * s, ph * s); };
+    img.src = prev;
+  }
 }
 
 function cbClearCanvas(remember){
