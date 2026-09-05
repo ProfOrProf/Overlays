@@ -446,6 +446,7 @@
   @media (max-width:900px){
     #app.collab .cb-panel{padding-bottom:66px}
     #app.collab .cb-notes{grid-template-columns:1fr;gap:14px}
+    .cb-pencil{padding:9px 14px;font-size:20px;opacity:1;border-radius:3px}
     #app.collab .cb-tools{gap:6px}
     #app.collab .cb-tools .cb-w{width:24px;height:24px}
     #app.collab .cb-tools .cb-break{display:block;flex:1 0 100%;height:0;margin:0}
@@ -1600,7 +1601,12 @@ function cbBuildPanels(){
   if (!document.querySelector('.cb-pencil')){
     const p = document.createElement('button'); p.className = 'cb-pencil'; p.type = 'button'; p.textContent = '✎'; p.title = 'Add a comment on these words';
     p.addEventListener('mousedown', e => e.preventDefault());
-    p.addEventListener('click', () => { if (cbLastSpan) cbOpenComposer(cbLastSpan); p.classList.remove('on'); });
+    p.addEventListener('click', () => {
+      p.classList.remove('on');
+      if (!cbLastSpan) return;
+      if (cbNarrow()) colTo('right');
+      cbOpenComposer(cbLastSpan);
+    });
     document.body.appendChild(p);
     const l = document.createElement('div'); l.className = 'cb-light'; l.innerHTML = '<img alt=""><div class="cb-lcap"></div>';
     l.addEventListener('click', () => l.classList.remove('on'));
@@ -1887,10 +1893,14 @@ function cbWireSelection(){
     if (end <= start){ p.classList.remove('on'); return; }
     cbLastSpan = {kind: a.dataset.cbKind, target: a.dataset.cbTarget, start, end, quote: a.textContent.slice(start, end)};
     const r = range.getBoundingClientRect();
-    p.style.left = Math.min(innerWidth - 40, r.right + 6) + 'px';
-    p.style.top = Math.max(4, r.top - 6) + 'px';
     p.classList.add('on');
+    const w = p.offsetWidth || 34, h = p.offsetHeight || 30;
+    p.style.left = Math.max(6, Math.min(innerWidth - w - 6, r.left + r.width / 2 - w / 2)) + 'px';
+    const below = r.bottom + 10;
+    p.style.top = (below + h < innerHeight - 62 ? below : Math.max(6, r.top - h - 10)) + 'px';
   };
+  let selTimer = null;
+  document.addEventListener('selectionchange', () => { clearTimeout(selTimer); selTimer = setTimeout(check, 160); });
   document.addEventListener('mouseup', e => { if (e.target.closest && e.target.closest('#cb-body')) setTimeout(check, 0); });
   document.addEventListener('keyup', e => { if (e.target.closest && e.target.closest('#cb-body') && e.shiftKey) setTimeout(check, 0); });
   document.addEventListener('mousedown', e => { if (!e.target.closest || !e.target.closest('.cb-pencil')) document.querySelector('.cb-pencil').classList.remove('on'); });
@@ -1922,6 +1932,7 @@ function cbOpenComposer(span){
       cbPaintComments(); cbPaintTab();
     } catch {}
   });
+  host.scrollIntoView({block: 'nearest'});
   host.querySelector('#cb-ctext').focus();
 }
 
