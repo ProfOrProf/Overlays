@@ -9,7 +9,7 @@
     --serif:"Palatino Linotype",Palatino,"Book Antiqua","Iowan Old Style",Georgia,serif;
   }
   *{box-sizing:border-box}
-  html{color-scheme:dark}
+  html{color-scheme:dark;-webkit-text-size-adjust:100%;text-size-adjust:100%}
   html,body{margin:0;height:100%;background:#070606;color:var(--ink);font-family:var(--serif)}
   ::selection{background:rgba(240,177,60,.25)}
   /* gold scrollbars so the chrome belongs to the site, not to Windows */
@@ -270,10 +270,12 @@
   @media (max-width:900px){
     #app{height:100dvh}
     header{flex-wrap:wrap;gap:9px 12px;padding:10px 13px}
-    header .brand{font-size:12.5px;letter-spacing:.2em}
+    header .brand{font-size:12.5px;letter-spacing:.2em;flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}
     header .stat{display:none}
-    #search{order:3;flex:1 1 100%;max-width:none;font-size:15.5px;padding:10px 13px}
-    .realmpick{margin-left:auto}
+    .realmpick{order:2;margin-left:auto}
+    .realmpick>button{font-size:12px;letter-spacing:.1em;padding:7px 10px;gap:6px}
+    #search{order:3;flex:1 1 190px;max-width:none;font-size:15.5px;padding:10px 13px}
+    .iconbtn{order:4;font-size:11.5px;letter-spacing:.14em;padding:9px 12px}
     .menu{min-width:min(88vw,290px)}
     main.cols{grid-template-columns:1fr;padding:0}
     main.cols > .colframe{display:none}
@@ -284,7 +286,9 @@
     .col{padding:16px 16px 68px}
     #mid{padding:18px 16px 68px;align-items:stretch}
     #card{max-width:100%;margin:0}
-    #entry{padding-right:0}
+    #entry{padding-right:0;max-width:100%}
+    #mid,#left,#right{overflow-x:hidden}
+    #flavor,#eff,#jp{max-width:100%;overflow-wrap:anywhere}
     #iconbox{position:relative;top:auto;right:auto;width:132px;height:132px;margin:0 0 16px}
     #iname{white-space:normal;font-size:27px !important;letter-spacing:.06em;line-height:1.3}
     #flavor,#flavor.dialogue{max-width:none}
@@ -441,6 +445,12 @@
     #app.collab .cb-panel{padding-bottom:66px}
     #app.collab .cb-notes{grid-template-columns:1fr;gap:14px}
     #app.collab #mid{padding-top:14px}
+    #app.collab.cb-boardfull[data-col="mid"] .colframe[data-c="mid"]>.col,
+    #app.collab.cb-boardfull[data-col="mid"] .colframe[data-c="mid"]>.cb-divider{display:none}
+    #app.collab.cb-boardfull[data-col="mid"] .colframe[data-c="mid"]>.cb-panel{flex:1 1 auto}
+    #app.collab.cb-boardfull[data-col="mid"] .cb-canvaswrap{margin-left:-18px;margin-right:-18px;border-left:0;border-right:0}
+    #app.collab.cb-boardfull[data-col="mid"] .cb-gallery{margin-left:-18px;margin-right:-18px;padding-left:18px;padding-right:18px}
+    #app.collab.cb-boardfull[data-col="mid"] .cb-board{gap:12px}
   }
 </style>
 
@@ -1479,6 +1489,7 @@ let cbArmedDrop = null;
 let cbArmTimer = null;
 let cbPaint = { tool: 'pen', color: '#f0b13c', width: 5, undo: [], drawing: false, last: null };
 const CB_TAGS = new Set(['b','i','em','strong','u','ul','ol','li','br','p','div']);
+const cbNarrow = () => matchMedia('(max-width:900px)').matches;
 const cbWho = () => sessionStorage.getItem('lore.who') || '';
 const cbTok = () => sessionStorage.getItem('lore.tok') || '';
 const cbMint = () => [...crypto.getRandomValues(new Uint8Array(8))].map(b => b.toString(16).padStart(2, '0')).join('');
@@ -1706,6 +1717,7 @@ function cbPaintTools(){
 
 function cbPaintTab(keepCanvas){
   document.querySelectorAll('#cb-mid .cb-tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === cbTab));
+  $('app').classList.toggle('cb-boardfull', cbNarrow() && cbTab === 'board' && !!cbIdea);
   cbPaintTools();
   const body = $('cb-body');
   if (!cbIdea){ body.innerHTML = '<div class="cb-empty">Choose a video, or add a new one.</div>'; return; }
