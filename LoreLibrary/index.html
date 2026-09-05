@@ -292,6 +292,7 @@
   .cb-btn.on{color:var(--grace);border-color:var(--grace)}
   .cb-x{background:none;border:0;color:var(--ink-faint);font-family:var(--serif);font-size:15px;cursor:pointer;padding:0 4px;line-height:1}
   .cb-x:hover{color:var(--bad)}
+  .cb-x.cb-armed{color:var(--bad);font-size:11px;letter-spacing:.18em;text-transform:uppercase;border:1px solid var(--bad);padding:2px 6px}
   .cb-empty{font-size:14.5px;font-style:italic;color:var(--ink-faint);line-height:1.7;padding:7px 2px}
   .cb-field{display:block;width:100%;background:var(--field);border:1px solid var(--line);color:var(--ink);font-family:var(--serif);font-size:15px;padding:9px 12px;border-radius:2px;letter-spacing:.04em;margin-bottom:9px}
   .cb-field:focus{outline:1px solid var(--grace);outline-offset:1px}
@@ -1406,6 +1407,8 @@ let cbDirty = false;
 let cbSealed = false;
 let cbPngCache = {};
 let cbSaveTimers = {};
+let cbArmedDrop = null;
+let cbArmTimer = null;
 let cbPaint = { tool: 'pen', color: '#f0b13c', width: 5, undo: [], drawing: false, last: null };
 const CB_TAGS = new Set(['b','i','em','strong','u','ul','ol','li','br','p','div']);
 const cbWho = () => sessionStorage.getItem('lore.who') || '';
@@ -1525,17 +1528,40 @@ async function cbLoadIdeas(){
 
 function cbPaintIdeas(){
   const host = $('cb-ideas'); if (!host) return;
+  const me = cbWho();
   const rows = cbIdeas.map(i => {
     const on = cbIdea && cbIdea.meta.id === i.id ? ' on' : '';
-    return `<div class="cb-row${on}" data-idea="${i.id}"><span class="dot" style="background:${cbColor(i.primary)}"></span><span class="cb-body"><span class="cb-author">${esc(i.by)}</span><span class="cb-title" title="${esc(i.name)}">${esc(i.name)}</span><span class="cb-meta">edited by ${esc(i.editedBy)}, ${esc(cbWhen(i.editedAt))}</span></span></div>`;
+    const armed = cbArmedDrop === i.id;
+    const x = i.by === me ? `<button class="cb-x${armed ? ' cb-armed' : ''}" data-drop="${i.id}" title="Remove this video and everything on it">${armed ? 'Remove?' : '✕'}</button>` : '';
+    return `<div class="cb-row${on}" data-idea="${i.id}"><span class="dot" style="background:${cbColor(i.primary)}"></span><span class="cb-body"><span class="cb-author">${esc(i.by)}</span><span class="cb-title" title="${esc(i.name)}">${esc(i.name)}</span><span class="cb-meta">edited by ${esc(i.editedBy)}, ${esc(cbWhen(i.editedAt))}</span></span>${x}</div>`;
   });
   rows.push('<div class="cb-row cb-add" data-add="1">Add new (+)</div>');
   host.innerHTML = rows.join('');
   host.querySelectorAll('.cb-title').forEach(t => { if (t.scrollWidth > t.clientWidth + 2) t.classList.add('cb-long'); });
   host.onclick = e => {
+    const drop = e.target.closest('[data-drop]');
+    if (drop){ e.stopPropagation(); cbArmDrop(drop); return; }
     const add = e.target.closest('[data-add]'); if (add){ cbAddForm(); return; }
     const row = e.target.closest('[data-idea]'); if (row) cbOpenIdea(row.dataset.idea);
   };
+}
+
+function cbArmDrop(btn){
+  const id = btn.dataset.drop;
+  clearTimeout(cbArmTimer);
+  if (cbArmedDrop === id){
+    cbArmedDrop = null;
+    cbApi('DELETE', '/ideas/' + id).then(() => {
+      if (cbIdea && cbIdea.meta.id === id){ cbIdea = null; cbIdeaJSON = ''; cbStopPoll(); $('cb-export').disabled = true; cbPaintTab(); cbPaintComments(); cbPaintPins(); }
+      cbIdeas = cbIdeas.filter(i => i.id !== id);
+      cbPaintIdeas();
+      cbToast('Removed.');
+    }).catch(() => cbPaintIdeas());
+    return;
+  }
+  cbArmedDrop = id;
+  cbPaintIdeas();
+  cbArmTimer = setTimeout(() => { cbArmedDrop = null; cbPaintIdeas(); }, 6000);
 }
 
 function cbAddForm(){

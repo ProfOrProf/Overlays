@@ -194,6 +194,14 @@ export function createHandler({ store, users, mint = defaultMint, now = defaultN
         await writeJSON(metaKey, meta);
         return json(200, meta);
       }
+      if (method === "DELETE") {
+        const meta = await readJSON(metaKey);
+        if (!meta) return json(404, { error: "no such idea" });
+        if (meta.by !== user) return json(403, { error: "not yours" });
+        const keys = await store.list(key("idea", id) + "/");
+        for (const k of keys) await store.del(k);
+        return json(200, { ok: true, removed: keys.length });
+      }
       return json(405, { error: "not that way" });
     }
 
