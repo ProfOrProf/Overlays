@@ -5,7 +5,7 @@
 <style>
   :root{
     --ink:#efe6d6; --ink-dim:#b3a68f; --ink-faint:#6f665a; --grace:#f0b13c;
-    --panel:#0c0a09; --line:rgba(179,144,80,.22); --bad:#c2544a;
+    --panel:#0c0a09; --field:#141110; --line:rgba(179,144,80,.22); --bad:#c2544a;
     --serif:"Palatino Linotype",Palatino,"Book Antiqua","Iowan Old Style",Georgia,serif;
   }
   *{box-sizing:border-box}
@@ -264,6 +264,131 @@
   #zoom.loadingfull #zoomhint::after{content:" \00b7  loading full resolution";
     color:var(--grace);opacity:.85;animation:zpulse 1.1s ease-in-out infinite}
   @keyframes zpulse{50%{opacity:.35}}
+
+
+  .colframe{display:flex;flex-direction:column;min-height:0}
+  .colframe>.col{flex:1 1 auto;min-height:0}
+  .cb-divider,.cb-panel{display:none}
+  #app.collab{--cb-split:.55}
+  #app.collab .cb-divider{display:block;flex:0 0 7px;cursor:row-resize;background:linear-gradient(180deg,transparent 3px,var(--line) 3px,var(--line) 4px,transparent 4px);position:relative;z-index:3}
+  #app.collab .cb-divider:hover{background:linear-gradient(180deg,transparent 3px,rgba(240,177,60,.55) 3px,rgba(240,177,60,.55) 4px,transparent 4px)}
+  #app.collab .cb-panel{display:flex;flex-direction:column;flex:0 0 calc((1 - var(--cb-split)) * 100%);min-height:0;overflow-y:auto;background:var(--panel);padding:14px 18px 18px;font-size:15px;color:var(--ink-dim)}
+  #app.collab.cb-top .cb-panel,#app.collab.cb-top .cb-divider{display:none}
+  #app.collab.cb-bottom .col{display:none}
+  #app.collab.cb-bottom .cb-divider{display:none}
+  #app.collab.cb-bottom .cb-panel{flex:1 1 auto}
+  #app.collab #mid{padding-top:2vh}
+  #app.collab #entry{margin-top:18px}
+  #app.collab #iname{margin-left:6px}
+  #app.collab #jp{margin-left:12px}
+
+  .cb-cap{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-faint);padding-bottom:7px;border-bottom:1px solid var(--line);margin:0 0 10px;display:flex;align-items:baseline;gap:10px}
+  .cb-cap .cb-btn{margin-left:auto}
+  .cb-head{display:flex;align-items:baseline;gap:10px;margin-bottom:10px;padding-bottom:7px;border-bottom:1px solid var(--line)}
+  .cb-head .cb-cap{border:0;margin:0;padding:0}
+  .cb-btn{font-family:var(--serif);font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;background:none;border:1px solid var(--line);color:var(--ink-dim);padding:7px 12px;cursor:pointer;white-space:nowrap;transition:color .3s,border-color .3s,letter-spacing .3s,box-shadow .3s}
+  .cb-btn:hover{color:var(--grace);border-color:var(--grace);letter-spacing:.3em;box-shadow:0 0 22px rgba(240,177,60,.18)}
+  .cb-btn:disabled{opacity:.4;cursor:default;letter-spacing:.22em;box-shadow:none;border-color:var(--line);color:var(--ink-dim)}
+  .cb-btn.on{color:var(--grace);border-color:var(--grace)}
+  .cb-x{background:none;border:0;color:var(--ink-faint);font-family:var(--serif);font-size:15px;cursor:pointer;padding:0 4px;line-height:1}
+  .cb-x:hover{color:var(--bad)}
+  .cb-empty{font-size:14.5px;font-style:italic;color:var(--ink-faint);line-height:1.7;padding:7px 2px}
+  .cb-field{display:block;width:100%;background:var(--field);border:1px solid var(--line);color:var(--ink);font-family:var(--serif);font-size:15px;padding:9px 12px;border-radius:2px;letter-spacing:.04em;margin-bottom:9px}
+  .cb-field:focus{outline:1px solid var(--grace);outline-offset:1px}
+  .cb-toast{position:fixed;left:50%;bottom:36px;transform:translateX(-50%);background:var(--field);border:1px solid var(--line);color:var(--ink-dim);font-style:italic;font-size:14px;letter-spacing:.06em;padding:10px 18px;z-index:70;opacity:0;transition:opacity .3s;pointer-events:none}
+  .cb-toast.on{opacity:1}
+
+  .cb-row{padding:9px 12px;font-size:19px;cursor:pointer;border-left:2px solid transparent;color:var(--ink-dim);line-height:1.4;display:flex;gap:12px;align-items:baseline;margin-bottom:2px;min-width:0}
+  .cb-row:hover{color:var(--ink);background:rgba(240,177,60,.06)}
+  .cb-row.on{color:var(--grace);border-left-color:var(--grace);background:rgba(240,177,60,.08)}
+  .cb-row .dot{margin-top:4px}
+  .cb-row .cb-body{min-width:0;flex:1 1 auto;display:block}
+  .cb-row .cb-author,.cb-row .cb-meta{font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);display:block}
+  .cb-row .cb-author{margin-bottom:3px}
+  .cb-row .cb-meta{margin-top:4px}
+  .cb-row .cb-title{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cb-row:hover .cb-title.cb-long{text-overflow:clip;animation:cbmarquee 6s linear infinite}
+  @keyframes cbmarquee{0%,12%{text-indent:0}88%,100%{text-indent:-60%}}
+  .cb-row .cb-x{margin-left:auto;align-self:center}
+  .cb-row.cb-add{color:var(--grace);letter-spacing:.14em;font-size:15px;text-transform:uppercase;border-left-color:transparent}
+  .cb-form{padding:10px 12px 6px;border-left:2px solid var(--grace);margin-bottom:8px}
+  .cb-form label{display:flex;align-items:center;gap:9px;padding:5px 2px;font-size:13.5px;letter-spacing:.06em;color:var(--ink-dim);cursor:pointer}
+  .cb-form label.on{color:var(--ink)}
+  .cb-form label .dot{width:9px;height:9px}
+  .cb-form .cb-btns{display:flex;gap:8px;margin-top:9px}
+
+  .cb-tabs{display:flex;gap:22px;border-bottom:1px solid var(--line);margin-bottom:9px}
+  .cb-tabs button{font-family:var(--serif);font-size:13px;letter-spacing:.24em;text-transform:uppercase;background:none;border:0;border-bottom:1px solid transparent;color:var(--ink-faint);padding:4px 2px 9px;margin-bottom:-1px;cursor:pointer;transition:color .3s,letter-spacing .3s}
+  .cb-tabs button:hover{color:var(--ink-dim)}
+  .cb-tabs button.on{color:var(--grace);border-bottom-color:var(--grace)}
+  .cb-tools{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-bottom:10px;min-height:32px}
+  .cb-tools .cb-pin{margin-left:auto}
+  .cb-tools .cb-sw{width:20px;height:20px;border:1px solid var(--line);cursor:pointer;border-radius:2px;padding:0;background:none}
+  .cb-tools .cb-sw.on{outline:1px solid var(--grace);outline-offset:2px}
+  .cb-tools .cb-w{width:26px;height:26px;border:1px solid var(--line);background:none;cursor:pointer;display:grid;place-items:center;padding:0}
+  .cb-tools .cb-w.on{border-color:var(--grace)}
+  .cb-tools .cb-w i{display:block;background:var(--ink-dim);border-radius:50%}
+  .cb-tools .cb-w.on i{background:var(--grace)}
+  .cb-body{flex:1 1 auto;min-height:0}
+
+  .cb-notes{display:grid;grid-template-columns:1fr 1fr;gap:18px;min-height:0}
+  .cb-notes>div{min-width:0}
+  .cb-mine{min-height:120px;font-size:16.5px;line-height:1.75;color:var(--grace);outline:none;padding:6px 2px;white-space:pre-wrap;word-break:break-word}
+  .cb-mine:empty:before{content:"Overall notes. Yours, in gold.";font-style:italic;color:var(--ink-faint)}
+  .cb-mine:focus{background:rgba(240,177,60,.04)}
+  .cb-theirs .cb-note{margin-bottom:14px}
+  .cb-theirs .cb-who{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:3px}
+  .cb-theirs .cb-text{font-size:16.5px;line-height:1.75;color:var(--ink-dim);white-space:pre-wrap;word-break:break-word}
+  .cb-note ul,.cb-note ol,.cb-mine ul,.cb-mine ol{margin:.2em 0 .2em 1.3em;padding:0}
+
+  .cb-script{padding:2px 0 24px}
+  .cb-block{font-size:17px;line-height:1.8;white-space:pre-wrap;word-break:break-word;padding:6px 10px;border-left:2px solid transparent;outline:none;min-height:1.8em}
+  .cb-block.mine{color:var(--grace)}
+  .cb-block.mine:focus{background:rgba(240,177,60,.04);border-left-color:var(--grace)}
+  .cb-block.mine:empty:before{content:"Write here. This block is yours.";font-style:italic;color:var(--ink-faint)}
+  .cb-block.theirs{color:var(--ink-dim)}
+  .cb-blockmeta{font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);padding:0 10px 4px;display:flex;gap:10px;align-items:center}
+  .cb-blockmeta .cb-mark{color:var(--grace);font-size:14px;letter-spacing:0}
+  .cb-writehere{font-size:12px;font-style:italic;letter-spacing:.08em;color:transparent;padding:2px 10px;cursor:text;border-top:1px dashed transparent;margin:2px 0 8px;transition:color .2s,border-color .2s}
+  .cb-writehere:hover,.cb-script:hover .cb-writehere.cb-last{color:var(--ink-faint);border-top-color:var(--line)}
+  .cb-hit{color:var(--grace);background:linear-gradient(180deg,transparent 88%,rgba(240,177,60,.5) 88%)}
+  .cb-block.theirs .cb-hit,.cb-theirs .cb-hit{color:var(--ink)}
+  .cb-pulse{animation:arrive 1.1s ease-out 1}
+  .cb-pencil{position:fixed;z-index:60;display:none;border:0;padding:2px 5px;font-size:15px;line-height:1;color:var(--grace);background:var(--field);box-shadow:0 0 0 1px var(--line),0 8px 24px rgba(0,0,0,.6);cursor:pointer;opacity:.85;font-family:var(--serif)}
+  .cb-pencil.on{display:block}
+  .cb-pencil:hover{opacity:1;box-shadow:0 0 0 1px var(--grace),0 0 22px rgba(240,177,60,.3)}
+
+  .cb-board{display:flex;flex-direction:column;gap:10px}
+  .cb-canvaswrap{position:relative;background:#0c0a09;border:1px solid var(--line);aspect-ratio:16/9}
+  #cb-canvas{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair}
+  .cb-menu{position:absolute;right:10px;bottom:10px;background:var(--field);border:1px solid var(--line);padding:8px;display:none;flex-direction:column;gap:6px;z-index:5;box-shadow:0 14px 44px rgba(0,0,0,.75);max-width:70%}
+  .cb-menu.on{display:flex}
+  .cb-menu .cb-btn{text-transform:none;letter-spacing:.06em;font-size:13px;text-align:left;white-space:normal}
+  .cb-gallery{display:flex;gap:10px;overflow-x:auto;padding:4px 2px 8px}
+  .cb-thumb{flex:0 0 150px;cursor:pointer;border:1px solid var(--line);background:#0c0a09;position:relative}
+  .cb-thumb img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover}
+  .cb-thumb .cb-cap2{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);padding:4px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cb-thumb .cb-cap2 b{font-weight:400;color:var(--ink-dim)}
+  .cb-thumb .cb-x{position:absolute;top:2px;right:2px;background:rgba(12,10,9,.8)}
+  .cb-light{position:fixed;inset:0;z-index:85;background:rgba(7,6,6,.9);display:none;place-items:center;cursor:zoom-out}
+  .cb-light.on{display:grid}
+  .cb-light img{max-width:92vw;max-height:88vh;border:1px solid var(--line);box-shadow:0 30px 90px rgba(0,0,0,.8)}
+  .cb-light .cb-lcap{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint)}
+
+  .cb-composer{border-left:2px solid var(--grace);padding:8px 12px 10px;margin-bottom:12px;background:rgba(240,177,60,.04)}
+  .cb-composer .cb-quote{font-style:italic;color:var(--ink-dim);font-size:14px;line-height:1.6;margin-bottom:8px}
+  .cb-composer textarea{width:100%;min-height:74px;background:var(--field);border:1px solid var(--line);color:var(--ink);font-family:var(--serif);font-size:15px;line-height:1.6;padding:9px 12px;border-radius:2px;resize:vertical}
+  .cb-composer textarea:focus{outline:1px solid var(--grace);outline-offset:1px}
+  .cb-composer .cb-btns{display:flex;gap:8px;margin-top:8px}
+  .cb-comment{padding:8px 10px;border-left:2px solid transparent;margin-bottom:6px;cursor:pointer}
+  .cb-comment:hover{background:rgba(240,177,60,.05);border-left-color:var(--line)}
+  .cb-comment .cb-who{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);display:flex;gap:10px;align-items:baseline}
+  .cb-comment .cb-who .cb-x{margin-left:auto}
+  .cb-comment .cb-quote{font-style:italic;color:var(--ink-faint);font-size:13.5px;line-height:1.5;margin:3px 0}
+  .cb-comment .cb-text{font-size:15.5px;line-height:1.6;color:var(--ink-dim)}
+  .cb-comment.mine .cb-text{color:var(--grace)}
+  .cb-comment.cb-detached .cb-quote:after{content:" (the words have moved)"}
+  #cb-pins .cb-row{font-size:17px}
 </style>
 
 <canvas id="motes"></canvas>
@@ -311,10 +436,15 @@
     </div>
   </header>
   <main class="cols">
+    <div class="colframe">
     <div class="col" id="left">
       <select id="facet"><option value="">all categories</option></select>
       <div id="list"></div>
     </div>
+    <div class="cb-divider"></div>
+    <div class="cb-panel" id="cb-left"></div>
+    </div>
+    <div class="colframe">
     <div class="col" id="mid">
       <div id="card">
         <div id="splash" class="splash">Welcome to the Library.</div>
@@ -329,6 +459,10 @@
         </div>
       </div>
     </div>
+    <div class="cb-divider"></div>
+    <div class="cb-panel" id="cb-mid"></div>
+    </div>
+    <div class="colframe">
     <div class="col" id="right">
       <div id="termhead"></div>
       <div id="termsub">click a word or phrase in a description</div>
@@ -338,6 +472,9 @@
         <div class="grouphead trailhead">Trail <button id="trailclear">clear</button></div>
         <div id="trail"></div>
       </div>
+    </div>
+    <div class="cb-divider"></div>
+    <div class="cb-panel" id="cb-right"></div>
     </div>
   </main>
 </div>
@@ -397,6 +534,12 @@ async function signIn(user, pw){
   DK = await importDK(raw);
   sessionStorage.setItem('lore.dk', btoa(String.fromCharCode(...raw)));
   sessionStorage.setItem('lore.who', rec.u);
+  sessionStorage.removeItem('lore.tok');
+  if (rec.c && rec.as){
+    const base = await SUB.importKey('raw', new TextEncoder().encode(pw), 'PBKDF2', false, ['deriveBits']);
+    const bits = await SUB.deriveBits({name:'PBKDF2', salt: b64d(rec.as), iterations: rec.i, hash:'SHA-256'}, base, 256);
+    sessionStorage.setItem('lore.tok', [...new Uint8Array(bits)].map(b => b.toString(16).padStart(2, '0')).join(''));
+  }
 }
 async function restore(){
   const k = sessionStorage.getItem('lore.dk');
@@ -1033,6 +1176,7 @@ async function openLibrary(keys, want){
     if (t) showTerm(t, true);
   }
   writeURL(false);
+  if (typeof collabBoot === 'function') collabBoot();
 }
 
 /* ── wiring ────────────────────────────────────────────────────────────── */
@@ -1140,7 +1284,7 @@ $('trail').addEventListener('click', e => {
   }
 });
 addEventListener('keydown', e => {
-  if (e.key === '/' && $('app') && !$('app').classList.contains('hidden') && document.activeElement !== $('search')){
+  if (e.key === '/' && $('app') && !$('app').classList.contains('hidden') && document.activeElement !== $('search') && !(e.target && e.target.isContentEditable)){
     e.preventDefault(); $('search').focus();
   }
   if (e.key === 'Escape'){ $('search').blur(); $('menu').classList.remove('on'); $('chips').className = ''; }
@@ -1248,5 +1392,593 @@ for (const ev of ['pointerup', 'pointercancel'])
   $('zoomstage').addEventListener(ev, () => { zdrag = null; $('zoomstage').classList.remove('drag'); });
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && !$('zoom').classList.contains('hidden')) closeZoom();
+});
+
+
+let cbBooted = false;
+let cbIdeas = [];
+let cbIdea = null;
+let cbIdeaJSON = '';
+let cbTab = 'notes';
+let cbLastSpan = null;
+let cbPollTimer = null;
+let cbDirty = false;
+let cbSealed = false;
+let cbPngCache = {};
+let cbSaveTimers = {};
+let cbPaint = { tool: 'pen', color: '#f0b13c', width: 5, undo: [], drawing: false, last: null };
+const CB_TAGS = new Set(['b','i','em','strong','u','ul','ol','li','br','p','div']);
+const cbWho = () => sessionStorage.getItem('lore.who') || '';
+const cbTok = () => sessionStorage.getItem('lore.tok') || '';
+const cbMint = () => [...crypto.getRandomValues(new Uint8Array(8))].map(b => b.toString(16).padStart(2, '0')).join('');
+const cbWhen = iso => { try { return new Date(iso).toLocaleString(undefined, {month:'short', day:'numeric', hour:'numeric', minute:'2-digit'}); } catch { return iso; } };
+const cbColor = k => (GBY[k] && GBY[k].color) || '#f0b13c';
+
+function cbSanitize(html){
+  return String(html || '').replace(/<!--[\s\S]*?-->/g, '').replace(/<\/?([a-zA-Z0-9]+)[^>]*>/g, (m, tag) => {
+    const t = tag.toLowerCase();
+    if (!CB_TAGS.has(t)) return '';
+    return m.startsWith('</') ? '</' + t + '>' : '<' + t + '>';
+  });
+}
+
+async function cbApi(method, path, body){
+  const res = await fetch('/api/collab' + path, {
+    method,
+    headers: {'authorization': 'Bearer ' + cbTok(), ...(body !== undefined ? {'content-type': 'application/json'} : {})},
+    body: body !== undefined ? JSON.stringify(body) : undefined,
+  });
+  if (res.status === 401){ cbSeal(); throw new Error('sealed'); }
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok){ cbToast(data.error || 'the room did not answer'); throw new Error(data.error || res.status); }
+  return data;
+}
+
+function cbToast(msg){
+  let t = document.querySelector('.cb-toast');
+  if (!t){ t = document.createElement('div'); t.className = 'cb-toast'; document.body.appendChild(t); }
+  t.textContent = msg; t.classList.add('on');
+  clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('on'), 2600);
+}
+
+function cbSeal(){
+  if (cbSealed) return;
+  cbSealed = true;
+  cbStopPoll();
+  $('cb-left').innerHTML = '<div class="cb-empty">The room is sealed. Sign in again to enter it.</div>';
+}
+
+function collabBoot(){
+  if (!cbTok() || cbBooted) return;
+  cbBooted = true;
+  $('app').classList.add('collab');
+  const split = parseFloat(localStorage.getItem('lore.split') || '0.55');
+  cbSetSplit(isFinite(split) ? split : 0.55, false);
+  cbBuildPanels();
+  cbWireDividers();
+  cbWireSelection();
+  cbLoadIdeas();
+  document.addEventListener('visibilitychange', () => { if (document.hidden) cbStopPoll(); else if (cbIdea) cbStartPoll(); });
+}
+
+function cbSetSplit(f, save){
+  const v = Math.min(0.85, Math.max(0.15, f));
+  $('app').style.setProperty('--cb-split', v);
+  if (save) localStorage.setItem('lore.split', String(v));
+}
+
+function cbWireDividers(){
+  const main = document.querySelector('main.cols');
+  document.querySelectorAll('.cb-divider').forEach(d => {
+    d.addEventListener('pointerdown', e => {
+      e.preventDefault(); d.setPointerCapture(e.pointerId);
+      const r = main.getBoundingClientRect();
+      const move = ev => cbSetSplit((ev.clientY - r.top) / r.height, false);
+      const up = () => { d.removeEventListener('pointermove', move); d.removeEventListener('pointerup', up); cbSetSplit(parseFloat(getComputedStyle($('app')).getPropertyValue('--cb-split')) || 0.55, true); };
+      d.addEventListener('pointermove', move); d.addEventListener('pointerup', up);
+    });
+    d.addEventListener('dblclick', () => cbToggle('cb-bottom'));
+  });
+  ['facet', 'termhead'].forEach(id => { const el = $(id); if (el) el.addEventListener('dblclick', () => cbToggle('cb-top')); });
+}
+
+function cbToggle(cls){
+  const app = $('app');
+  const other = cls === 'cb-top' ? 'cb-bottom' : 'cb-top';
+  if (app.classList.contains(cls)) app.classList.remove(cls);
+  else { app.classList.remove(other); app.classList.add(cls); }
+  if (cur) fitTitle();
+}
+
+function cbBuildPanels(){
+  $('cb-left').innerHTML = '<div class="cb-head"><span class="cb-cap">Videos</span><button class="cb-btn" id="cb-export" disabled>Export</button></div><div id="cb-ideas"></div>';
+  $('cb-mid').innerHTML = '<div class="cb-tabs"><button data-tab="notes" class="on">Notes</button><button data-tab="script">Script</button><button data-tab="board">Board</button></div><div class="cb-tools" id="cb-tools"></div><div class="cb-body" id="cb-body"><div class="cb-empty">Pick a video on the left, or add a new one.</div></div>';
+  $('cb-right').innerHTML = '<div class="cb-cap">Comments</div><div id="cb-composer"></div><div id="cb-comments"><div class="cb-empty">Highlight words in the notes or the script and press the pencil.</div></div><div class="cb-cap" style="margin-top:18px">Pinned items</div><div id="cb-pins"><div class="cb-empty">Nothing pinned yet.</div></div>';
+  document.querySelector('#cb-mid .cb-tabs').addEventListener('click', e => {
+    const b = e.target.closest('button[data-tab]'); if (!b) return;
+    cbTab = b.dataset.tab; cbPaintTab();
+  });
+  document.querySelector('#cb-mid .cb-tabs').addEventListener('dblclick', () => cbToggle('cb-bottom'));
+  $('cb-export').addEventListener('click', cbExport);
+  $('cb-mid').addEventListener('keydown', e => { if (e.key === '/') e.stopPropagation(); });
+  $('cb-right').addEventListener('keydown', e => { if (e.key === '/') e.stopPropagation(); });
+  $('cb-left').addEventListener('keydown', e => { if (e.key === '/') e.stopPropagation(); });
+  if (!document.querySelector('.cb-pencil')){
+    const p = document.createElement('button'); p.className = 'cb-pencil'; p.type = 'button'; p.textContent = '✎'; p.title = 'Add a comment on these words';
+    p.addEventListener('mousedown', e => e.preventDefault());
+    p.addEventListener('click', () => { if (cbLastSpan) cbOpenComposer(cbLastSpan); p.classList.remove('on'); });
+    document.body.appendChild(p);
+    const l = document.createElement('div'); l.className = 'cb-light'; l.innerHTML = '<img alt=""><div class="cb-lcap"></div>';
+    l.addEventListener('click', () => l.classList.remove('on'));
+    document.body.appendChild(l);
+  }
+  cbPaintTools();
+}
+
+async function cbLoadIdeas(){
+  try {
+    const r = await cbApi('GET', '/ideas');
+    cbIdeas = r.ideas || [];
+    cbPaintIdeas();
+  } catch {}
+}
+
+function cbPaintIdeas(){
+  const host = $('cb-ideas'); if (!host) return;
+  const rows = cbIdeas.map(i => {
+    const on = cbIdea && cbIdea.meta.id === i.id ? ' on' : '';
+    return `<div class="cb-row${on}" data-idea="${i.id}"><span class="dot" style="background:${cbColor(i.primary)}"></span><span class="cb-body"><span class="cb-author">${esc(i.by)}</span><span class="cb-title" title="${esc(i.name)}">${esc(i.name)}</span><span class="cb-meta">edited by ${esc(i.editedBy)}, ${esc(cbWhen(i.editedAt))}</span></span></div>`;
+  });
+  rows.push('<div class="cb-row cb-add" data-add="1">Add new (+)</div>');
+  host.innerHTML = rows.join('');
+  host.querySelectorAll('.cb-title').forEach(t => { if (t.scrollWidth > t.clientWidth + 2) t.classList.add('cb-long'); });
+  host.onclick = e => {
+    const add = e.target.closest('[data-add]'); if (add){ cbAddForm(); return; }
+    const row = e.target.closest('[data-idea]'); if (row) cbOpenIdea(row.dataset.idea);
+  };
+}
+
+function cbAddForm(){
+  const host = $('cb-ideas');
+  if (host.querySelector('.cb-form')) return;
+  const games = GAMES.map(g => `<label data-k="${g.key}"><span class="dot" style="background:${g.color}"></span>${esc(g.name)}</label>`).join('');
+  const f = document.createElement('div'); f.className = 'cb-form';
+  f.innerHTML = `<input class="cb-field" id="cb-newname" placeholder="Name the video" maxlength="120"><div class="cb-games">${games}</div><div class="cb-btns"><button class="cb-btn" id="cb-create">Create</button><button class="cb-btn" id="cb-nevermind">Never mind</button></div>`;
+  host.insertBefore(f, host.querySelector('.cb-add'));
+  const picked = [];
+  f.querySelector('.cb-games').addEventListener('click', e => {
+    const l = e.target.closest('label'); if (!l) return;
+    const k = l.dataset.k; const i = picked.indexOf(k);
+    if (i > -1){ picked.splice(i, 1); l.classList.remove('on'); } else { picked.push(k); l.classList.add('on'); }
+  });
+  f.querySelector('#cb-nevermind').addEventListener('click', () => f.remove());
+  f.querySelector('#cb-create').addEventListener('click', async () => {
+    const name = f.querySelector('#cb-newname').value.trim();
+    if (!name){ cbToast('An idea needs a name.'); return; }
+    if (!picked.length){ cbToast('Pick at least one game. The first is the primary.'); return; }
+    try { const meta = await cbApi('POST', '/ideas', {name, games: picked}); await cbLoadIdeas(); cbOpenIdea(meta.id); } catch {}
+  });
+  f.querySelector('#cb-newname').focus();
+}
+
+async function cbOpenIdea(id){
+  try {
+    const doc = await cbApi('GET', '/ideas/' + id);
+    cbIdea = doc; cbIdeaJSON = JSON.stringify(doc); cbLastSpan = null;
+    $('cb-export').disabled = false;
+    cbPaintIdeas(); cbPaintTab(); cbPaintComments(); cbPaintPins();
+    cbStartPoll();
+  } catch {}
+}
+
+function cbStartPoll(){ cbStopPoll(); cbPollTimer = setInterval(cbRefresh, 4000); }
+function cbStopPoll(){ if (cbPollTimer){ clearInterval(cbPollTimer); cbPollTimer = null; } }
+
+async function cbRefresh(){
+  if (!cbIdea) return;
+  let doc;
+  try { doc = await cbApi('GET', '/ideas/' + cbIdea.meta.id); } catch { return; }
+  const j = JSON.stringify(doc);
+  if (j === cbIdeaJSON) return;
+  cbIdea = doc; cbIdeaJSON = j;
+  const editing = document.activeElement && document.activeElement.isContentEditable && $('cb-body').contains(document.activeElement);
+  if (editing){ cbDirty = true; } else { cbPaintTab(true); }
+  cbPaintComments(); cbPaintPins();
+  const row = cbIdeas.find(i => i.id === doc.meta.id);
+  if (row && (row.editedAt !== doc.meta.editedAt)){ Object.assign(row, doc.meta); cbIdeas.sort((a, b) => a.editedAt < b.editedAt ? 1 : -1); cbPaintIdeas(); }
+}
+
+function cbPaintTools(){
+  const t = $('cb-tools'); if (!t) return;
+  if (cbTab === 'board'){
+    const sw = ['#f0b13c', '#efe6d6', '#c2544a', '#7fb2e6'].map(c => `<button class="cb-sw${cbPaint.color === c && cbPaint.tool === 'pen' ? ' on' : ''}" data-color="${c}" style="background:${c}" title="colour"></button>`).join('');
+    const ws = [2, 5, 12].map(w => `<button class="cb-w${cbPaint.width === w ? ' on' : ''}" data-width="${w}" title="width"><i style="width:${Math.min(w, 14)}px;height:${Math.min(w, 14)}px"></i></button>`).join('');
+    t.innerHTML = `<button class="cb-btn${cbPaint.tool === 'pen' ? ' on' : ''}" data-tool="pen">Pen</button><button class="cb-btn${cbPaint.tool === 'eraser' ? ' on' : ''}" data-tool="eraser">Eraser</button>${sw}${ws}<button class="cb-btn" data-act="undo">Undo</button><button class="cb-btn" data-act="clear">Clear</button><button class="cb-btn cb-pin" id="cb-pinbtn">Pin item</button>`;
+  } else {
+    t.innerHTML = `<button class="cb-btn" data-cmd="italic" title="italic">Italic</button><button class="cb-btn" data-cmd="bold" title="bold">Bold</button><button class="cb-btn" data-cmd="insertUnorderedList" title="bullet">Bullet</button><button class="cb-btn cb-pin" id="cb-pinbtn">Pin item</button>`;
+  }
+  t.onmousedown = e => { if (e.target.closest('[data-cmd]')) e.preventDefault(); };
+  t.onclick = e => {
+    const cmd = e.target.closest('[data-cmd]');
+    if (cmd){ const ed = $('cb-body').querySelector('.cb-mine'); if (ed && (document.activeElement === ed || ed.contains(document.activeElement))) document.execCommand(cmd.dataset.cmd); else cbToast('Click into your notes first.'); return; }
+    const tool = e.target.closest('[data-tool]'); if (tool){ cbPaint.tool = tool.dataset.tool; cbPaintTools(); return; }
+    const col = e.target.closest('[data-color]'); if (col){ cbPaint.color = col.dataset.color; cbPaint.tool = 'pen'; cbPaintTools(); return; }
+    const w = e.target.closest('[data-width]'); if (w){ cbPaint.width = +w.dataset.width; cbPaintTools(); return; }
+    const act = e.target.closest('[data-act]'); if (act){ if (act.dataset.act === 'undo') cbUndo(); else cbClearCanvas(true); return; }
+    if (e.target.closest('#cb-pinbtn')) cbPinCurrent();
+  };
+  const pin = $('cb-pinbtn'); if (pin) pin.disabled = !cbIdea;
+}
+
+function cbPaintTab(keepCanvas){
+  document.querySelectorAll('#cb-mid .cb-tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === cbTab));
+  cbPaintTools();
+  const body = $('cb-body');
+  if (!cbIdea){ body.innerHTML = '<div class="cb-empty">Pick a video on the left, or add a new one.</div>'; return; }
+  if (cbTab === 'notes') cbPaintNotes();
+  else if (cbTab === 'script') cbPaintScript();
+  else cbPaintBoard(keepCanvas);
+  cbDirty = false;
+}
+
+function cbSpansFor(kind, target){
+  const out = [];
+  for (const c of cbIdea.comments) if (c.span.kind === kind && c.span.target === target) out.push(c.span);
+  for (const d of cbIdea.drawings) if (d.attach.kind === 'span' && d.attach.span.kind === kind && d.attach.span.target === target) out.push(d.attach.span);
+  return out;
+}
+
+function cbDecorate(el, spans){
+  for (const s of spans){
+    const text = el.textContent;
+    let start = s.start, end = s.end;
+    if (s.quote && text.slice(start, end) !== s.quote){
+      const i = text.indexOf(s.quote);
+      if (i < 0) continue;
+      start = i; end = i + s.quote.length;
+    }
+    cbWrap(el, start, end);
+  }
+}
+
+function cbWrap(el, start, end){
+  const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+  const nodes = []; let n; let pos = 0;
+  while ((n = walker.nextNode())){ nodes.push([n, pos, pos + n.data.length]); pos += n.data.length; }
+  for (const [node, a, b] of nodes){
+    if (b <= start || a >= end) continue;
+    const from = Math.max(start, a) - a, to = Math.min(end, b) - a;
+    let target = node;
+    if (from > 0) target = target.splitText(from);
+    if (to - from < target.data.length) target.splitText(to - from);
+    const span = document.createElement('span'); span.className = 'cb-hit';
+    target.parentNode.insertBefore(span, target); span.appendChild(target);
+  }
+}
+
+function cbPaintNotes(){
+  const me = cbWho();
+  const mine = cbIdea.notes.find(n => n.by === me);
+  const theirs = cbIdea.notes.filter(n => n.by !== me);
+  const body = $('cb-body');
+  body.innerHTML = `<div class="cb-notes"><div><div class="cb-cap">My notes</div><div class="cb-mine cb-note" contenteditable="true" data-cb-kind="note" data-cb-target="${esc(me)}"></div></div><div class="cb-theirs"><div class="cb-cap">Other's notes</div>${theirs.length ? '' : '<div class="cb-empty">Nobody else has written yet.</div>'}${theirs.map(n => `<div class="cb-note"><div class="cb-who">${esc(n.by)}, ${esc(cbWhen(n.at))}</div><div class="cb-text" data-cb-kind="note" data-cb-target="${esc(n.by)}"></div></div>`).join('')}</div></div>`;
+  const ed = body.querySelector('.cb-mine');
+  ed.innerHTML = cbSanitize(mine ? mine.html : '');
+  cbDecorate(ed, cbSpansFor('note', me));
+  ed.addEventListener('focus', () => { ed.innerHTML = cbSanitize(ed.innerHTML.replace(/<\/?span[^>]*>/g, '')); });
+  ed.addEventListener('input', () => cbQueue('note', () => cbSaveNote(ed)));
+  ed.addEventListener('blur', () => { cbFlush('note'); cbSaveNote(ed).then(() => { if (cbDirty) cbPaintTab(); else cbDecorate(ed, cbSpansFor('note', me)); }); });
+  body.querySelectorAll('.cb-theirs .cb-text').forEach(el => {
+    const n = theirs.find(x => x.by === el.dataset.cbTarget);
+    el.innerHTML = cbSanitize(n.html);
+    cbDecorate(el, cbSpansFor('note', n.by));
+  });
+}
+
+function cbQueue(key, fn){ clearTimeout(cbSaveTimers[key]); cbSaveTimers[key] = setTimeout(() => { cbSaveTimers[key] = null; fn(); }, 800); }
+function cbFlush(key){ clearTimeout(cbSaveTimers[key]); cbSaveTimers[key] = null; }
+
+async function cbSaveNote(ed){
+  if (!cbIdea) return;
+  const html = cbSanitize(ed.innerHTML.replace(/<\/?span[^>]*>/g, ''));
+  const me = cbWho();
+  const mine = cbIdea.notes.find(n => n.by === me);
+  if (mine && mine.html === html) return;
+  try {
+    const d = await cbApi('PUT', `/ideas/${cbIdea.meta.id}/note`, {html});
+    if (mine) Object.assign(mine, d); else cbIdea.notes.push(d);
+    cbIdeaJSON = JSON.stringify(cbIdea);
+  } catch {}
+}
+
+function cbPaintScript(){
+  const me = cbWho();
+  const body = $('cb-body');
+  const blocks = cbIdea.blocks;
+  const drawn = new Set(cbIdea.drawings.filter(d => d.attach.kind === 'span' && d.attach.span.kind === 'block').map(d => d.attach.span.target));
+  let html = '<div class="cb-script">';
+  html += `<div class="cb-writehere" data-before="${blocks.length ? esc(blocks[0].id) : ''}">write here</div>`;
+  for (const b of blocks){
+    const mine = b.by === me;
+    html += `<div class="cb-block ${mine ? 'mine' : 'theirs'}" data-cb-kind="block" data-cb-target="${esc(b.id)}"${mine ? ' contenteditable="plaintext-only"' : ''}></div>`;
+    html += `<div class="cb-blockmeta">${esc(b.by)}${drawn.has(b.id) ? '<span class="cb-mark" title="a drawing is attached to this line">◫</span>' : ''}</div>`;
+    html += `<div class="cb-writehere${b === blocks[blocks.length - 1] ? ' cb-last' : ''}" data-after="${esc(b.id)}">write here</div>`;
+  }
+  html += '</div>';
+  body.innerHTML = html;
+  body.querySelectorAll('.cb-block').forEach(el => {
+    const b = blocks.find(x => x.id === el.dataset.cbTarget);
+    el.textContent = b.text;
+    cbDecorate(el, cbSpansFor('block', b.id));
+    if (b.by !== me) return;
+    el.addEventListener('focus', () => { el.textContent = (blocks.find(x => x.id === b.id) || b).text; });
+    el.addEventListener('input', () => cbQueue('block:' + b.id, () => cbSaveBlock(b.id, el)));
+    el.addEventListener('blur', async () => {
+      cbFlush('block:' + b.id);
+      await cbSaveBlock(b.id, el);
+      if (cbDirty || !el.isConnected) { if (cbTab === 'script') cbPaintTab(); }
+      else cbDecorate(el, cbSpansFor('block', b.id));
+    });
+    el.addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)){ e.preventDefault(); el.blur(); cbNewBlock(b.id, null); } });
+  });
+  body.querySelectorAll('.cb-writehere').forEach(w => w.addEventListener('click', () => cbNewBlock(w.dataset.after || null, w.dataset.before || null)));
+}
+
+async function cbSaveBlock(id, el){
+  if (!cbIdea) return;
+  const b = cbIdea.blocks.find(x => x.id === id); if (!b) return;
+  const text = el.innerText.replace(/\r/g, '').replace(/\n$/, '');
+  if (text.trim() === ''){
+    try { await cbApi('DELETE', `/ideas/${cbIdea.meta.id}/blocks/${id}`); cbIdea.blocks = cbIdea.blocks.filter(x => x.id !== id); cbIdeaJSON = JSON.stringify(cbIdea); cbPaintTab(); } catch {}
+    return;
+  }
+  if (b.text === text) return;
+  try { const d = await cbApi('PUT', `/ideas/${cbIdea.meta.id}/blocks/${id}`, {text, pos: b.pos}); Object.assign(b, d); cbIdeaJSON = JSON.stringify(cbIdea); } catch {}
+}
+
+async function cbNewBlock(afterId, beforeId){
+  const blocks = cbIdea.blocks;
+  let pos;
+  if (!blocks.length) pos = 1;
+  else if (beforeId){ pos = blocks[0].pos - 1; }
+  else {
+    const i = blocks.findIndex(b => b.id === afterId);
+    const a = blocks[i] ? blocks[i].pos : blocks[blocks.length - 1].pos;
+    const n = blocks[i + 1];
+    pos = n ? (a + n.pos) / 2 : a + 1;
+  }
+  const id = cbMint();
+  try {
+    const d = await cbApi('PUT', `/ideas/${cbIdea.meta.id}/blocks/${id}`, {text: '', pos});
+    cbIdea.blocks.push(d); cbIdea.blocks.sort((x, y) => x.pos - y.pos || (x.at < y.at ? -1 : 1)); cbIdeaJSON = JSON.stringify(cbIdea);
+    cbPaintTab();
+    const el = $('cb-body').querySelector(`.cb-block[data-cb-target="${id}"]`); if (el) el.focus();
+  } catch {}
+}
+
+function cbWireSelection(){
+  const check = () => {
+    const p = document.querySelector('.cb-pencil');
+    const sel = getSelection();
+    if (!sel || sel.isCollapsed || !sel.rangeCount){ p.classList.remove('on'); return; }
+    const range = sel.getRangeAt(0);
+    const a = cbTargetOf(range.startContainer), b = cbTargetOf(range.endContainer);
+    if (!a || a !== b){ p.classList.remove('on'); return; }
+    const start = cbOffset(a, range.startContainer, range.startOffset);
+    const end = cbOffset(a, range.endContainer, range.endOffset);
+    if (end <= start){ p.classList.remove('on'); return; }
+    cbLastSpan = {kind: a.dataset.cbKind, target: a.dataset.cbTarget, start, end, quote: a.textContent.slice(start, end)};
+    const r = range.getBoundingClientRect();
+    p.style.left = Math.min(innerWidth - 40, r.right + 6) + 'px';
+    p.style.top = Math.max(4, r.top - 6) + 'px';
+    p.classList.add('on');
+  };
+  document.addEventListener('mouseup', e => { if (e.target.closest && e.target.closest('#cb-body')) setTimeout(check, 0); });
+  document.addEventListener('keyup', e => { if (e.target.closest && e.target.closest('#cb-body') && e.shiftKey) setTimeout(check, 0); });
+  document.addEventListener('mousedown', e => { if (!e.target.closest || !e.target.closest('.cb-pencil')) document.querySelector('.cb-pencil').classList.remove('on'); });
+}
+
+function cbTargetOf(node){
+  const el = node.nodeType === 1 ? node : node.parentElement;
+  return el ? el.closest('[data-cb-target]') : null;
+}
+
+function cbOffset(root, node, offset){
+  const range = document.createRange();
+  range.selectNodeContents(root);
+  range.setEnd(node, offset);
+  return range.toString().length;
+}
+
+function cbOpenComposer(span){
+  const host = $('cb-composer');
+  host.innerHTML = `<div class="cb-composer"><div class="cb-quote">“${esc(span.quote)}”</div><textarea id="cb-ctext" placeholder="Your comment. Start with ★ ● or ✕ to rate the beat."></textarea><div class="cb-btns"><button class="cb-btn" id="cb-cdone">Done</button><button class="cb-btn" id="cb-cnever">Never mind</button></div></div>`;
+  host.querySelector('#cb-cnever').addEventListener('click', () => { host.innerHTML = ''; });
+  host.querySelector('#cb-cdone').addEventListener('click', async () => {
+    const text = host.querySelector('#cb-ctext').value.trim();
+    if (!text){ cbToast('A comment needs words.'); return; }
+    try {
+      const d = await cbApi('POST', `/ideas/${cbIdea.meta.id}/comments`, {text, span});
+      cbIdea.comments.push(d); cbIdeaJSON = JSON.stringify(cbIdea);
+      host.innerHTML = '';
+      cbPaintComments(); cbPaintTab();
+    } catch {}
+  });
+  host.querySelector('#cb-ctext').focus();
+}
+
+function cbPaintComments(){
+  const host = $('cb-comments'); if (!host) return;
+  const me = cbWho();
+  if (!cbIdea || !cbIdea.comments.length){ host.innerHTML = '<div class="cb-empty">Highlight words in the notes or the script and press the pencil.</div>'; return; }
+  const targets = new Map();
+  for (const b of cbIdea.blocks) targets.set('block:' + b.id, b.text);
+  for (const n of cbIdea.notes) targets.set('note:' + n.by, cbNoteText(n.html));
+  host.innerHTML = cbIdea.comments.map(c => {
+    const t = targets.get(c.span.kind + ':' + c.span.target);
+    const detached = t === undefined || (c.span.quote && !t.includes(c.span.quote));
+    return `<div class="cb-comment${c.by === me ? ' mine' : ''}${detached ? ' cb-detached' : ''}" data-cid="${c.id}"><div class="cb-who"><span>${esc(c.by)}</span><span>${esc(cbWhen(c.at))}</span>${c.by === me ? '<button class="cb-x" data-del="' + c.id + '" title="Remove your comment">✕</button>' : ''}</div><div class="cb-quote">“${esc(c.span.quote)}”</div><div class="cb-text">${esc(c.text)}</div></div>`;
+  }).join('');
+  host.onclick = async e => {
+    const del = e.target.closest('[data-del]');
+    if (del){ try { await cbApi('DELETE', `/ideas/${cbIdea.meta.id}/comments/${del.dataset.del}`); cbIdea.comments = cbIdea.comments.filter(c => c.id !== del.dataset.del); cbIdeaJSON = JSON.stringify(cbIdea); cbPaintComments(); cbPaintTab(); } catch {} return; }
+    const row = e.target.closest('[data-cid]'); if (!row) return;
+    const c = cbIdea.comments.find(x => x.id === row.dataset.cid); if (!c) return;
+    const want = c.span.kind === 'block' ? 'script' : 'notes';
+    if (cbTab !== want){ cbTab = want; cbPaintTab(); }
+    const el = $('cb-body').querySelector(`[data-cb-kind="${c.span.kind}"][data-cb-target="${CSS.escape(c.span.target)}"]`);
+    if (el){ el.scrollIntoView({block: 'center', behavior: 'smooth'}); el.classList.remove('cb-pulse'); void el.offsetWidth; el.classList.add('cb-pulse'); }
+  };
+}
+
+function cbNoteText(html){
+  const d = document.createElement('div'); d.innerHTML = cbSanitize(html); return d.textContent;
+}
+
+async function cbPinCurrent(){
+  if (!cbIdea || !cur){ cbToast('Open an entry in the library first.'); return; }
+  const body = {realm: cur.g, name: cur.name, jp: cur.jp_name || '', category: cur.wiki_class || cur.type || cur.category || '', flavor: cur.flavor || '', jpFlavor: cur.jp_flavor || '', slug: slugify(cur.name), span: cbLastSpan || undefined};
+  try {
+    const d = await cbApi('POST', `/ideas/${cbIdea.meta.id}/pins`, body);
+    cbIdea.pins.push(d); cbIdeaJSON = JSON.stringify(cbIdea); cbPaintPins();
+    cbToast(cur.name + ' pinned to ' + cbIdea.meta.name + '.');
+  } catch {}
+}
+
+function cbPaintPins(){
+  const host = $('cb-pins'); if (!host) return;
+  const me = cbWho();
+  if (!cbIdea || !cbIdea.pins.length){ host.innerHTML = '<div class="cb-empty">Nothing pinned yet.</div>'; return; }
+  host.innerHTML = cbIdea.pins.map(p => `<div class="cb-row" data-pin="${p.id}"><span class="dot" style="background:${cbColor(p.realm)}"></span><span class="cb-body"><span class="cb-title" title="${esc(p.name)}">${esc(p.name)}</span><span class="cb-meta">${esc(p.category || (GBY[p.realm] ? GBY[p.realm].short : p.realm))}, ${esc(p.by)}${p.span && p.span.quote ? ', on “' + esc(p.span.quote.slice(0, 40)) + '”' : ''}</span></span>${p.by === me ? '<button class="cb-x" data-unpin="' + p.id + '" title="Unpin">✕</button>' : ''}</div>`).join('');
+  host.onclick = async e => {
+    const un = e.target.closest('[data-unpin]');
+    if (un){ try { await cbApi('DELETE', `/ideas/${cbIdea.meta.id}/pins/${un.dataset.unpin}`); cbIdea.pins = cbIdea.pins.filter(p => p.id !== un.dataset.unpin); cbIdeaJSON = JSON.stringify(cbIdea); cbPaintPins(); } catch {} return; }
+    const row = e.target.closest('[data-pin]'); if (!row) return;
+    const p = cbIdea.pins.find(x => x.id === row.dataset.pin); if (!p) return;
+    const hit = ITEMS.find(i => i.g === p.realm && i.name === p.name);
+    if (hit) render(hit); else cbToast('Open ' + (GBY[p.realm] ? GBY[p.realm].name : p.realm) + ' from the realm menu first.');
+  };
+}
+
+function cbPaintBoard(keepCanvas){
+  const body = $('cb-body');
+  const existing = body.querySelector('#cb-canvas');
+  if (!existing || !keepCanvas){
+    let saved = null;
+    if (existing) saved = existing.toDataURL();
+    body.innerHTML = `<div class="cb-board"><div class="cb-canvaswrap"><canvas id="cb-canvas" width="960" height="540"></canvas><div class="cb-menu" id="cb-menu"></div></div><div style="display:flex;gap:8px;align-items:center"><button class="cb-btn" id="cb-addvideo">Add to video</button><span class="cb-empty" id="cb-attachhint"></span></div><div class="cb-cap" style="margin-top:6px">Drawings</div><div class="cb-gallery" id="cb-gallery"></div></div>`;
+    const cv = $('cb-canvas');
+    cbClearCanvas(false);
+    if (saved){ const img = new Image(); img.onload = () => cv.getContext('2d').drawImage(img, 0, 0); img.src = saved; }
+    cbWireCanvas(cv);
+    $('cb-addvideo').addEventListener('click', cbAddToVideo);
+  }
+  const hint = $('cb-attachhint');
+  if (hint) hint.textContent = cbLastSpan ? 'Last highlighted line: “' + cbLastSpan.quote.slice(0, 60) + (cbLastSpan.quote.length > 60 ? '…' : '') + '”' : 'Highlight a line in the script to attach a drawing to it.';
+  cbPaintGallery();
+}
+
+function cbClearCanvas(remember){
+  const cv = $('cb-canvas'); if (!cv) return;
+  const ctx = cv.getContext('2d');
+  if (remember) cbPaint.undo.push(cv.toDataURL());
+  ctx.fillStyle = '#0c0a09'; ctx.fillRect(0, 0, cv.width, cv.height);
+}
+
+function cbUndo(){
+  const cv = $('cb-canvas'); if (!cv || !cbPaint.undo.length) return;
+  const img = new Image();
+  img.onload = () => { const ctx = cv.getContext('2d'); ctx.globalCompositeOperation = 'source-over'; ctx.drawImage(img, 0, 0); };
+  img.src = cbPaint.undo.pop();
+}
+
+function cbWireCanvas(cv){
+  const ctx = cv.getContext('2d');
+  const pt = e => { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) * cv.width / r.width, (e.clientY - r.top) * cv.height / r.height]; };
+  cv.addEventListener('pointerdown', e => {
+    e.preventDefault(); cv.setPointerCapture(e.pointerId);
+    cbPaint.undo.push(cv.toDataURL()); if (cbPaint.undo.length > 30) cbPaint.undo.shift();
+    cbPaint.drawing = true; cbPaint.last = pt(e);
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.lineWidth = cbPaint.tool === 'eraser' ? cbPaint.width * 3 : cbPaint.width;
+    ctx.strokeStyle = cbPaint.tool === 'eraser' ? '#0c0a09' : cbPaint.color;
+    ctx.beginPath(); ctx.moveTo(cbPaint.last[0], cbPaint.last[1]); ctx.lineTo(cbPaint.last[0] + 0.01, cbPaint.last[1]); ctx.stroke();
+  });
+  cv.addEventListener('pointermove', e => {
+    if (!cbPaint.drawing) return;
+    const p = pt(e);
+    ctx.beginPath(); ctx.moveTo(cbPaint.last[0], cbPaint.last[1]); ctx.lineTo(p[0], p[1]); ctx.stroke();
+    cbPaint.last = p;
+  });
+  const stop = () => { cbPaint.drawing = false; };
+  cv.addEventListener('pointerup', stop); cv.addEventListener('pointercancel', stop); cv.addEventListener('pointerleave', stop);
+}
+
+function cbAddToVideo(){
+  const menu = $('cb-menu'); if (!menu) return;
+  const line = cbLastSpan ? `<button class="cb-btn" data-attach="span">That line: “${esc(cbLastSpan.quote.slice(0, 80))}${cbLastSpan.quote.length > 80 ? '…' : ''}”</button>` : '';
+  menu.innerHTML = `${line}<button class="cb-btn" data-attach="idea">Whole video</button><button class="cb-btn" data-attach="no">Never mind</button>`;
+  menu.classList.add('on');
+  menu.onclick = async e => {
+    const b = e.target.closest('[data-attach]'); if (!b) return;
+    menu.classList.remove('on');
+    if (b.dataset.attach === 'no') return;
+    const attach = b.dataset.attach === 'span' ? {kind: 'span', span: cbLastSpan} : {kind: 'idea'};
+    const png = $('cb-canvas').toDataURL('image/png');
+    try {
+      const d = await cbApi('POST', `/ideas/${cbIdea.meta.id}/drawings`, {png, attach});
+      cbPngCache[d.id] = png;
+      cbIdea.drawings.push(d); cbIdeaJSON = JSON.stringify(cbIdea);
+      cbPaint.undo = []; cbClearCanvas(false);
+      cbPaintGallery();
+      cbToast('Added to ' + cbIdea.meta.name + '.');
+    } catch {}
+  };
+}
+
+async function cbPng(id){
+  if (cbPngCache[id]) return cbPngCache[id];
+  try { const d = await cbApi('GET', `/ideas/${cbIdea.meta.id}/drawings/${id}`); cbPngCache[id] = d.png; return d.png; } catch { return null; }
+}
+
+function cbPaintGallery(){
+  const g = $('cb-gallery'); if (!g) return;
+  const me = cbWho();
+  const ds = cbIdea.drawings.slice().reverse();
+  if (!ds.length){ g.innerHTML = '<div class="cb-empty">No drawings yet. Draw above and add it to the video.</div>'; return; }
+  g.innerHTML = ds.map(d => `<div class="cb-thumb" data-did="${d.id}"><img alt=""><div class="cb-cap2"><b>${esc(d.by)}</b> ${d.attach.kind === 'span' ? '“' + esc(d.attach.span.quote.slice(0, 40)) + '”' : 'whole video'}</div>${d.by === me ? '<button class="cb-x" data-ddel="' + d.id + '" title="Remove your drawing">✕</button>' : ''}</div>`).join('');
+  ds.forEach(async d => { const png = await cbPng(d.id); const img = g.querySelector(`[data-did="${d.id}"] img`); if (img && png) img.src = png; });
+  g.onclick = async e => {
+    const del = e.target.closest('[data-ddel]');
+    if (del){ e.stopPropagation(); try { await cbApi('DELETE', `/ideas/${cbIdea.meta.id}/drawings/${del.dataset.ddel}`); cbIdea.drawings = cbIdea.drawings.filter(x => x.id !== del.dataset.ddel); cbIdeaJSON = JSON.stringify(cbIdea); cbPaintGallery(); } catch {} return; }
+    const t = e.target.closest('[data-did]'); if (!t) return;
+    const d = cbIdea.drawings.find(x => x.id === t.dataset.did);
+    const png = await cbPng(t.dataset.did); if (!png) return;
+    const l = document.querySelector('.cb-light');
+    l.querySelector('img').src = png;
+    l.querySelector('.cb-lcap').textContent = d.by + ', ' + cbWhen(d.at) + (d.attach.kind === 'span' ? ', on “' + d.attach.span.quote.slice(0, 60) + '”' : ', whole video');
+    l.classList.add('on');
+  };
+}
+
+async function cbExport(){
+  if (!cbIdea) return;
+  try {
+    const ex = await cbApi('GET', `/ideas/${cbIdea.meta.id}/export`);
+    for (const d of ex.drawings) d.png = await cbPng(d.id);
+    const blob = new Blob([JSON.stringify(ex, null, 1)], {type: 'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = slugify(cbIdea.meta.name) + '_' + new Date().toISOString().slice(0, 10) + '.collab.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+    cbToast('Exported ' + cbIdea.meta.name + '.');
+  } catch {}
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  const l = document.querySelector('.cb-light'); if (l) l.classList.remove('on');
+  const m = $('cb-menu'); if (m) m.classList.remove('on');
 });
 </script>
