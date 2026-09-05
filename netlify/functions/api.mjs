@@ -164,11 +164,13 @@ export function createHandler({ store, users, mint = defaultMint, now = defaultN
       if (method === "POST") {
         const name = str(body.name, 120);
         const games = validGames(body.games);
+        const abstract = str(body.abstract, 6000);
         if (!name) return bad("an idea needs a name");
+        if (!abstract) return bad("an idea needs an abstract, a few lines on what the video is about");
         if (!games) return bad("pick at least one game");
         const id = mint();
         const at = now();
-        const meta = { id, name, games, primary: games[0], by: user, at, editedBy: user, editedAt: at };
+        const meta = { id, name, games, primary: games[0], abstract, abstractBy: user, abstractAt: at, by: user, at, editedBy: user, editedAt: at };
         await writeJSON(key("idea", id, "meta"), meta);
         return json(201, meta);
       }
@@ -190,6 +192,11 @@ export function createHandler({ store, users, mint = defaultMint, now = defaultN
         if (meta.by !== user) return json(403, { error: "not yours" });
         if (body.name !== undefined) { const n = str(body.name, 120); if (!n) return bad("an idea needs a name"); meta.name = n; }
         if (body.games !== undefined) { const g = validGames(body.games); if (!g) return bad("pick at least one game"); meta.games = g; meta.primary = g[0]; }
+        if (body.abstract !== undefined) {
+          const a = str(body.abstract, 6000);
+          if (!a) return bad("the abstract cannot be emptied");
+          if (a !== meta.abstract) { meta.abstract = a; meta.abstractBy = user; meta.abstractAt = now(); }
+        }
         meta.editedBy = user; meta.editedAt = now();
         await writeJSON(metaKey, meta);
         return json(200, meta);

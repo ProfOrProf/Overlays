@@ -484,6 +484,28 @@
     #app.collab .cb-tools .cb-w{width:22px;height:22px}
     #app.collab .cb-tools .cb-sw{width:18px;height:18px}
   }
+
+  .cb-abslabel{margin:12px 0 4px}
+  .cb-absguide{padding:0 2px 6px}
+  .cb-absfield{resize:vertical;line-height:1.65;min-height:96px;font-size:15.5px}
+  .cb-abscard{border-left:2px solid var(--grace);padding:10px 14px 12px;margin-bottom:8px}
+  .cb-absbar{display:flex;align-items:baseline;gap:10px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+  .cb-abstitle{font-size:15px;letter-spacing:.18em;text-transform:uppercase;color:var(--grace)}
+  .cb-absbar .cb-x{margin-left:auto;font-size:17px}
+  .cb-abstext{font-size:16.5px;line-height:1.85;color:var(--ink);padding:12px 0 4px}
+  .cb-abstext p{margin:0 0 .8em}
+  .cb-absfoot{display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding-top:9px;border-top:1px solid var(--line)}
+  .cb-absfoot .cb-meta{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);flex:1 1 auto}
+  .cb-absenter{color:var(--grace);border-color:rgba(240,177,60,.5)}
+  .cb-grad{position:fixed;z-index:60;display:none;border:0;padding:4px 9px;font-size:11.5px;letter-spacing:.16em;
+    text-transform:uppercase;line-height:1.6;color:var(--grace);background:var(--field);
+    box-shadow:0 0 0 1px var(--line),0 8px 24px rgba(0,0,0,.6);cursor:pointer;font-family:var(--serif)}
+  .cb-grad.on{display:block}
+  .cb-grad:hover{box-shadow:0 0 0 1px var(--grace),0 0 22px rgba(240,177,60,.3)}
+  @media (max-width:900px){
+    .cb-grad{padding:9px 12px;font-size:13px}
+    .cb-abstext{font-size:17px}
+  }
 </style>
 
 <canvas id="motes"></canvas>
@@ -1606,7 +1628,8 @@ function cbToggle(cls){
 }
 
 function cbBuildPanels(){
-  $('cb-left').innerHTML = '<div class="cb-head"><span class="cb-cap">Videos</span><button class="cb-btn" id="cb-export" disabled>Export</button></div><div id="cb-ideas"></div>';
+  $('cb-left').innerHTML = '<div class="cb-head"><span class="cb-cap">Videos</span><button class="cb-btn" id="cb-abs" disabled>Abstract</button><button class="cb-btn" id="cb-export" disabled>Export</button></div><div id="cb-ideas"></div>';
+  $('cb-abs').addEventListener('click', () => { if (cbIdea) cbShowAbstract(cbIdea.meta); });
   $('cb-mid').innerHTML = '<div class="cb-tabs"><button data-tab="notes" class="on">Notes</button><button data-tab="script">Script</button><button data-tab="board">Board</button></div><div class="cb-tools" id="cb-tools"></div><div class="cb-body" id="cb-body"><div class="cb-empty">Choose a video, or add a new one.</div></div>';
   $('cb-right').innerHTML = '<div class="cb-cap">Comments</div><div id="cb-composer"></div><div id="cb-comments"><div class="cb-empty">Highlight words in the notes or the script and press the pencil.</div></div><div class="cb-cap" style="margin-top:18px">Pinned items</div><div id="cb-pins"><div class="cb-empty">Nothing pinned yet.</div></div>';
   document.querySelector('#cb-mid .cb-tabs').addEventListener('click', e => {
@@ -1628,6 +1651,12 @@ function cbBuildPanels(){
       cbOpenComposer(cbLastSpan);
     });
     document.body.appendChild(p);
+    const g = document.createElement('button');
+    g.className = 'cb-grad'; g.type = 'button'; g.textContent = 'To script';
+    g.title = 'Move these words into the script';
+    g.addEventListener('mousedown', e => e.preventDefault());
+    g.addEventListener('click', cbGraduate);
+    document.body.appendChild(g);
     const l = document.createElement('div'); l.className = 'cb-light'; l.innerHTML = '<img alt=""><div class="cb-lcap"></div>';
     l.addEventListener('click', () => l.classList.remove('on'));
     document.body.appendChild(l);
@@ -1659,8 +1688,60 @@ function cbPaintIdeas(){
     const drop = e.target.closest('[data-drop]');
     if (drop){ e.stopPropagation(); cbArmDrop(drop); return; }
     const add = e.target.closest('[data-add]'); if (add){ cbAddForm(); return; }
-    const row = e.target.closest('[data-idea]'); if (row) cbOpenIdea(row.dataset.idea);
+    const row = e.target.closest('[data-idea]'); if (!row) return;
+    const meta = cbIdeas.find(i => i.id === row.dataset.idea);
+    if (meta && meta.abstract && !cbHasSeen(meta)) cbShowAbstract(meta);
+    else cbOpenIdea(row.dataset.idea);
   };
+}
+
+const cbSeenKey = id => 'lore.abs.' + cbWho() + '.' + id;
+function cbHasSeen(meta){
+  try { return localStorage.getItem(cbSeenKey(meta.id)) === String(meta.abstractAt || ''); } catch { return true; }
+}
+function cbMarkSeen(meta){
+  try { localStorage.setItem(cbSeenKey(meta.id), String(meta.abstractAt || '')); } catch {}
+}
+
+function cbShowAbstract(meta, andClose){
+  const host = $('cb-ideas'); if (!host) return;
+  const mine = meta.by === cbWho();
+  const body = String(meta.abstract || '').split(/\n+/).filter(s => s.trim()).map(s => `<p>${esc(s)}</p>`).join('');
+  host.innerHTML = `<div class="cb-abscard"><div class="cb-absbar"><span class="cb-abstitle">${esc(meta.name)}</span><button class="cb-x" data-abs="close" title="Back to the videos">✕</button></div><div class="cb-abstext">${body}</div><div class="cb-absfoot"><span class="cb-meta">${esc(meta.abstractBy || meta.by)}, ${esc(cbWhen(meta.abstractAt || meta.at))}</span>${mine ? '<button class="cb-btn" data-abs="rewrite">Rewrite</button>' : ''}<button class="cb-btn cb-absenter" data-abs="enter">✓ Enter</button></div></div>`;
+  host.onclick = e => {
+    const b = e.target.closest('[data-abs]'); if (!b) return;
+    const what = b.dataset.abs;
+    if (what === 'close'){ if (andClose) andClose(); else cbPaintIdeas(); return; }
+    if (what === 'enter'){ cbMarkSeen(meta); cbPaintIdeas(); cbOpenIdea(meta.id); return; }
+    if (what === 'rewrite') cbRewriteAbstract(meta);
+  };
+}
+
+function cbRewriteAbstract(meta){
+  const card = $('cb-ideas').querySelector('.cb-abscard'); if (!card) return;
+  card.querySelector('.cb-abstext').innerHTML = `<textarea class="cb-field cb-absfield" id="cb-absedit" rows="6" maxlength="6000"></textarea>`;
+  const box = card.querySelector('#cb-absedit');
+  box.value = meta.abstract || '';
+  card.querySelector('.cb-absfoot').innerHTML = `<span class="cb-meta">Everyone sees the new one at the door.</span><button class="cb-btn" data-abs="save">Save</button><button class="cb-btn" data-abs="cancel">Never mind</button>`;
+  card.onclick = async e => {
+    const b = e.target.closest('[data-abs]'); if (!b) return;
+    e.stopPropagation();
+    if (b.dataset.abs === 'cancel'){ card.onclick = null; cbShowAbstract(meta); return; }
+    if (b.dataset.abs !== 'save') return;
+    const text = box.value.trim();
+    if (!text){ cbToast('The abstract cannot be emptied.'); return; }
+    try {
+      const next = await cbApi('PATCH', '/ideas/' + meta.id, {abstract: text});
+      Object.assign(meta, next);
+      if (cbIdea && cbIdea.meta.id === meta.id) Object.assign(cbIdea.meta, next);
+      const row = cbIdeas.find(i => i.id === meta.id); if (row) Object.assign(row, next);
+      cbMarkSeen(next);
+      card.onclick = null;
+      cbShowAbstract(next);
+      cbToast('Rewritten. Everyone meets the new one at the door.');
+    } catch {}
+  };
+  box.focus();
 }
 
 function cbArmDrop(btn){
@@ -1669,7 +1750,7 @@ function cbArmDrop(btn){
   if (cbArmedDrop === id){
     cbArmedDrop = null;
     cbApi('DELETE', '/ideas/' + id).then(() => {
-      if (cbIdea && cbIdea.meta.id === id){ cbIdea = null; cbIdeaJSON = ''; cbStopPoll(); $('cb-export').disabled = true; cbPaintTab(); cbPaintComments(); cbPaintPins(); }
+      if (cbIdea && cbIdea.meta.id === id){ cbIdea = null; cbIdeaJSON = ''; cbStopPoll(); $('cb-export').disabled = true; $('cb-abs').disabled = true; cbPaintTab(); cbPaintComments(); cbPaintPins(); }
       cbIdeas = cbIdeas.filter(i => i.id !== id);
       cbPaintIdeas();
       cbToast('Removed.');
@@ -1686,7 +1767,7 @@ function cbAddForm(){
   if (host.querySelector('.cb-form')) return;
   const games = GAMES.map(g => `<label data-k="${g.key}"><span class="dot" style="background:${g.color}"></span>${esc(g.name)}</label>`).join('');
   const f = document.createElement('div'); f.className = 'cb-form';
-  f.innerHTML = `<input class="cb-field" id="cb-newname" placeholder="Name the video" maxlength="120"><div class="cb-games">${games}</div><div class="cb-btns"><button class="cb-btn" id="cb-create">Create</button><button class="cb-btn" id="cb-nevermind">Never mind</button></div>`;
+  f.innerHTML = `<input class="cb-field" id="cb-newname" placeholder="Title of the video" maxlength="120"><div class="cb-cap cb-abslabel">Abstract</div><div class="cb-empty cb-absguide">Write a few lines about what you think this video is supposed to be about.</div><textarea class="cb-field cb-absfield" id="cb-newabstract" rows="5" maxlength="6000"></textarea><div class="cb-games">${games}</div><div class="cb-btns"><button class="cb-btn" id="cb-create">Create</button><button class="cb-btn" id="cb-nevermind">Never mind</button></div>`;
   host.insertBefore(f, host.querySelector('.cb-add'));
   const picked = [];
   f.querySelector('.cb-games').addEventListener('click', e => {
@@ -1697,9 +1778,11 @@ function cbAddForm(){
   f.querySelector('#cb-nevermind').addEventListener('click', () => f.remove());
   f.querySelector('#cb-create').addEventListener('click', async () => {
     const name = f.querySelector('#cb-newname').value.trim();
-    if (!name){ cbToast('An idea needs a name.'); return; }
+    const abstract = f.querySelector('#cb-newabstract').value.trim();
+    if (!name){ cbToast('The video needs a title.'); return; }
+    if (!abstract){ cbToast('Write the abstract first. It is what everyone reads before they open this.'); f.querySelector('#cb-newabstract').focus(); return; }
     if (!picked.length){ cbToast('Pick at least one game. The first is the primary.'); return; }
-    try { const meta = await cbApi('POST', '/ideas', {name, games: picked}); await cbLoadIdeas(); cbOpenIdea(meta.id); } catch {}
+    try { const meta = await cbApi('POST', '/ideas', {name, abstract, games: picked}); cbMarkSeen(meta); await cbLoadIdeas(); cbOpenIdea(meta.id); } catch {}
   });
   f.querySelector('#cb-newname').focus();
 }
@@ -1709,6 +1792,7 @@ async function cbOpenIdea(id){
     const doc = await cbApi('GET', '/ideas/' + id);
     cbIdea = doc; cbIdeaJSON = JSON.stringify(doc); cbLastSpan = null;
     $('cb-export').disabled = false;
+    $('cb-abs').disabled = false;
     cbPaintIdeas(); cbPaintTab(); cbPaintComments(); cbPaintPins();
     cbStartPoll();
   } catch {}
@@ -1904,26 +1988,37 @@ function cbWireSelection(){
   const check = () => {
     const p = document.querySelector('.cb-pencil');
     const sel = getSelection();
-    if (!sel || sel.isCollapsed || !sel.rangeCount){ p.classList.remove('on'); return; }
+    const hide = () => { p.classList.remove('on'); const gg = document.querySelector('.cb-grad'); if (gg) gg.classList.remove('on'); };
+    if (!sel || sel.isCollapsed || !sel.rangeCount){ hide(); return; }
     const range = sel.getRangeAt(0);
     const a = cbTargetOf(range.startContainer), b = cbTargetOf(range.endContainer);
-    if (!a || a !== b){ p.classList.remove('on'); return; }
+    if (!a || a !== b){ hide(); return; }
     const start = cbOffset(a, range.startContainer, range.startOffset);
     const end = cbOffset(a, range.endContainer, range.endOffset);
-    if (end <= start){ p.classList.remove('on'); return; }
+    if (end <= start){ hide(); return; }
     cbLastSpan = {kind: a.dataset.cbKind, target: a.dataset.cbTarget, start, end, quote: a.textContent.slice(start, end)};
+    const g = document.querySelector('.cb-grad');
+    const canGraduate = a.dataset.cbKind === 'note' && a.dataset.cbTarget === cbWho() && !!cbIdea;
     const r = range.getBoundingClientRect();
     p.classList.add('on');
-    const w = p.offsetWidth || 34, h = p.offsetHeight || 30;
-    p.style.left = Math.max(6, Math.min(innerWidth - w - 6, r.left + r.width / 2 - w / 2)) + 'px';
+    g.classList.toggle('on', canGraduate);
+    const pw = p.offsetWidth || 34, h = p.offsetHeight || 30;
+    const gw = canGraduate ? (g.offsetWidth || 78) + 6 : 0;
+    const left = Math.max(6, Math.min(innerWidth - pw - gw - 6, r.left + r.width / 2 - (pw + gw) / 2));
     const below = r.bottom + 10;
-    p.style.top = (below + h < innerHeight - 62 ? below : Math.max(6, r.top - h - 10)) + 'px';
+    const top = below + h < innerHeight - 62 ? below : Math.max(6, r.top - h - 10);
+    p.style.left = left + 'px'; p.style.top = top + 'px';
+    g.style.left = (left + pw + 6) + 'px'; g.style.top = top + 'px';
   };
   let selTimer = null;
   document.addEventListener('selectionchange', () => { clearTimeout(selTimer); selTimer = setTimeout(check, 160); });
   document.addEventListener('mouseup', e => { if (e.target.closest && e.target.closest('#cb-body')) setTimeout(check, 0); });
   document.addEventListener('keyup', e => { if (e.target.closest && e.target.closest('#cb-body') && e.shiftKey) setTimeout(check, 0); });
-  document.addEventListener('mousedown', e => { if (!e.target.closest || !e.target.closest('.cb-pencil')) document.querySelector('.cb-pencil').classList.remove('on'); });
+  document.addEventListener('mousedown', e => {
+    if (e.target.closest && (e.target.closest('.cb-pencil') || e.target.closest('.cb-grad'))) return;
+    document.querySelector('.cb-pencil').classList.remove('on');
+    const g = document.querySelector('.cb-grad'); if (g) g.classList.remove('on');
+  });
 }
 
 function cbTargetOf(node){
@@ -1936,6 +2031,27 @@ function cbOffset(root, node, offset){
   range.selectNodeContents(root);
   range.setEnd(node, offset);
   return range.toString().length;
+}
+
+async function cbGraduate(){
+  const g = document.querySelector('.cb-grad');
+  g.classList.remove('on');
+  document.querySelector('.cb-pencil').classList.remove('on');
+  if (!cbIdea || !cbLastSpan) return;
+  const text = cbLastSpan.quote.replace(/\s+/g, ' ').trim();
+  if (!text){ cbToast('Nothing highlighted.'); return; }
+  const blocks = cbIdea.blocks;
+  const pos = blocks.length ? blocks[blocks.length - 1].pos + 1 : 1;
+  const id = cbMint();
+  try {
+    const d = await cbApi('PUT', `/ideas/${cbIdea.meta.id}/blocks/${id}`, {text, pos});
+    cbIdea.blocks.push(d);
+    cbIdea.blocks.sort((x, y) => x.pos - y.pos || (x.at < y.at ? -1 : 1));
+    cbIdeaJSON = JSON.stringify(cbIdea);
+    cbTab = 'script';
+    cbPaintTab();
+    cbToast('Moved into the script. Your note is untouched.');
+  } catch {}
 }
 
 function cbOpenComposer(span){
