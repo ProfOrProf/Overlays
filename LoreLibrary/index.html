@@ -285,7 +285,7 @@
     #mid{padding:18px 16px 68px;align-items:stretch}
     #card{max-width:100%;margin:0}
     #entry{padding-right:0}
-    #iconbox{position:static;width:132px;height:132px;margin:0 0 16px}
+    #iconbox{position:relative;top:auto;right:auto;width:132px;height:132px;margin:0 0 16px}
     #iname{white-space:normal;font-size:27px !important;letter-spacing:.06em;line-height:1.3}
     #flavor,#flavor.dialogue{max-width:none}
     #flavor{font-size:18.5px;line-height:1.85}
@@ -1563,7 +1563,7 @@ function cbToggle(cls){
 
 function cbBuildPanels(){
   $('cb-left').innerHTML = '<div class="cb-head"><span class="cb-cap">Videos</span><button class="cb-btn" id="cb-export" disabled>Export</button></div><div id="cb-ideas"></div>';
-  $('cb-mid').innerHTML = '<div class="cb-tabs"><button data-tab="notes" class="on">Notes</button><button data-tab="script">Script</button><button data-tab="board">Board</button></div><div class="cb-tools" id="cb-tools"></div><div class="cb-body" id="cb-body"><div class="cb-empty">Pick a video on the left, or add a new one.</div></div>';
+  $('cb-mid').innerHTML = '<div class="cb-tabs"><button data-tab="notes" class="on">Notes</button><button data-tab="script">Script</button><button data-tab="board">Board</button></div><div class="cb-tools" id="cb-tools"></div><div class="cb-body" id="cb-body"><div class="cb-empty">Choose a video, or add a new one.</div></div>';
   $('cb-right').innerHTML = '<div class="cb-cap">Comments</div><div id="cb-composer"></div><div id="cb-comments"><div class="cb-empty">Highlight words in the notes or the script and press the pencil.</div></div><div class="cb-cap" style="margin-top:18px">Pinned items</div><div id="cb-pins"><div class="cb-empty">Nothing pinned yet.</div></div>';
   document.querySelector('#cb-mid .cb-tabs').addEventListener('click', e => {
     const b = e.target.closest('button[data-tab]'); if (!b) return;
@@ -1708,7 +1708,7 @@ function cbPaintTab(keepCanvas){
   document.querySelectorAll('#cb-mid .cb-tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === cbTab));
   cbPaintTools();
   const body = $('cb-body');
-  if (!cbIdea){ body.innerHTML = '<div class="cb-empty">Pick a video on the left, or add a new one.</div>'; return; }
+  if (!cbIdea){ body.innerHTML = '<div class="cb-empty">Choose a video, or add a new one.</div>'; return; }
   if (cbTab === 'notes') cbPaintNotes();
   else if (cbTab === 'script') cbPaintScript();
   else cbPaintBoard(keepCanvas);
@@ -2039,7 +2039,7 @@ function cbPaintGallery(){
   const g = $('cb-gallery'); if (!g) return;
   const me = cbWho();
   const ds = cbIdea.drawings.slice().reverse();
-  if (!ds.length){ g.innerHTML = '<div class="cb-empty">No drawings yet. Draw above and add it to the video.</div>'; return; }
+  if (!ds.length){ g.innerHTML = '<div class="cb-empty">No drawings yet. Draw one and add it to the video.</div>'; return; }
   g.innerHTML = ds.map(d => `<div class="cb-thumb" data-did="${d.id}"><img alt=""><div class="cb-cap2"><b>${esc(d.by)}</b> ${d.attach.kind === 'span' ? '“' + esc(d.attach.span.quote.slice(0, 40)) + '”' : 'whole video'}</div>${d.by === me ? '<button class="cb-x" data-ddel="' + d.id + '" title="Remove your drawing">✕</button>' : ''}</div>`).join('');
   ds.forEach(async d => { const png = await cbPng(d.id); const img = g.querySelector(`[data-did="${d.id}"] img`); if (img && png) img.src = png; });
   g.onclick = async e => {
