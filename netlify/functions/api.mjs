@@ -226,6 +226,22 @@ export function createHandler({ store, users, mint = defaultMint, now = defaultN
       return json(200, d);
     }
 
+    if (kind === "blocks" && seg.length === 3 && method === "PUT") {
+      const list = Array.isArray(body.blocks) ? body.blocks : null;
+      if (!list || !list.length || list.length > 800) return bad("send between one and eight hundred blocks");
+      const stamp = now();
+      const made = [];
+      for (const b of list) {
+        const text = optStr(b && b.text, 20000);
+        const pos = b && typeof b.pos === "number" && Number.isFinite(b.pos) ? b.pos : null;
+        if (text === null || pos === null) return bad("every block needs text and a position");
+        made.push({ id: mint(), ideaId: id, by: user, pos, text, at: stamp });
+      }
+      for (const d of made) await writeJSON(key("idea", id, "block", d.id), d);
+      await touch(id, user);
+      return json(201, { blocks: made });
+    }
+
     if (kind === "blocks" && seg.length === 4) {
       if (!ID.test(rid)) return bad("bad id");
       const k = key("idea", id, "block", rid);
