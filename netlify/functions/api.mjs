@@ -6,6 +6,9 @@ const ID = /^[a-z0-9]{1,32}$/;
 const TOKEN = /^[0-9a-f]{64}$/;
 const PNG = "data:image/png;base64,";
 const PNG_MAX = 2900000;
+const AUDIO = "data:audio/";
+const AUDIO_MAX = 3400000;
+const SUGGESTION_KINDS = new Set(["fill", "shot", "card"]);
 
 const sha256 = (s) => createHash("sha256").update(s, "utf8").digest("hex");
 const defaultMint = () => randomUUID().replace(/-/g, "").slice(0, 16);
@@ -103,7 +106,7 @@ export function createHandler({ store, users, mint = defaultMint, now = defaultN
     if (!meta) return null;
     const keys = await store.list(key("idea", id) + "/");
     const docs = await Promise.all(keys.map(async (k) => [k, await readJSON(k)]));
-    const out = { meta, notes: [], blocks: [], comments: [], drawings: [], pins: [] };
+    const out = { meta, notes: [], blocks: [], comments: [], drawings: [], pins: [], suggestions: [], reads: [] };
     for (const [k, d] of docs) {
       if (!d) continue;
       const kind = k.slice(key("idea", id).length + 1).split("/")[0];
@@ -111,6 +114,8 @@ export function createHandler({ store, users, mint = defaultMint, now = defaultN
       else if (kind === "block") out.blocks.push(d);
       else if (kind === "comment") out.comments.push(d);
       else if (kind === "pin") out.pins.push(d);
+      else if (kind === "suggestion") out.suggestions.push(d);
+      else if (kind === "read") { const { audio, ...rest } = d; out.reads.push(rest); }
       else if (kind === "drawing") { const { png, ...rest } = d; out.drawings.push(rest); }
     }
     const byAt = (a, b) => a.at < b.at ? -1 : a.at > b.at ? 1 : 0;
@@ -119,6 +124,8 @@ export function createHandler({ store, users, mint = defaultMint, now = defaultN
     out.comments.sort(byAt);
     out.drawings.sort(byAt);
     out.pins.sort(byAt);
+    out.suggestions.sort(byAt);
+    out.reads.sort(byAt);
     return out;
   }
 
@@ -299,6 +306,45 @@ export function createHandler({ store, users, mint = defaultMint, now = defaultN
       return json(405, { error: "not that way" });
     }
 
+    if (kind === "suggestions") {
+      if (seg.length === 3 && method === "POST") {
+        const text = str(body.text, 6000);
+        const span = validSpan(body.span);
+        const shape = SUGGESTION_KINDS.has(body.kind) ? body.kind : null;
+        if (!shape) return bad("a suggestion is a fill shot, a specific shot or a card");
+        if (!text) return bad("say what you want to see");
+        if (!span) return bad("a suggestion hangs on a highlighted run");
+        const d = { id: mint(), ideaId: id, by: user, at: now(), kind: shape, text, span };
+        await writeJSON(key("idea", id, "suggestion", d.id), d);
+        await touch(id, user);
+        return json(201, d);
+      }
+      if (seg.length === 4 && method === "DELETE") return ownedDelete(id, "suggestion", rid, user);
+      return json(405, { error: "not that way" });
+    }
+
+    if (kind === "reads") {
+      if (seg.length === 3 && method === "POST") {
+        const audio = typeof body.audio === "string" && body.audio.startsWith(AUDIO) && body.audio.length <= AUDIO_MAX ? body.audio : null;
+        const span = validSpan(body.span);
+        if (!audio) return bad("a read must be audio under three megabytes");
+        if (!span) return bad("a read hangs on a highlighted run");
+        const seconds = typeof body.seconds === "number" && body.seconds > 0 && body.seconds < 3600 ? Math.round(body.seconds * 10) / 10 : null;
+        const d = { id: mint(), ideaId: id, by: user, at: now(), span, seconds, audio };
+        await writeJSON(key("idea", id, "read", d.id), d);
+        await touch(id, user);
+        const { audio: _a, ...rest } = d;
+        return json(201, rest);
+      }
+      if (seg.length === 4 && method === "GET") {
+        if (!ID.test(rid)) return bad("bad id");
+        const d = await readJSON(key("idea", id, "read", rid));
+        return d ? json(200, d) : json(404, { error: "no such read" });
+      }
+      if (seg.length === 4 && method === "DELETE") return ownedDelete(id, "read", rid, user);
+      return json(405, { error: "not that way" });
+    }
+
     if (kind === "pins") {
       if (seg.length === 3 && method === "POST") {
         const realm = str(body.realm, 8);
@@ -330,6 +376,8 @@ export function createHandler({ store, users, mint = defaultMint, now = defaultN
         notes,
         script: idea.blocks,
         comments: idea.comments,
+        suggestions: idea.suggestions,
+        reads: idea.reads,
         drawings: idea.drawings,
         pins: idea.pins,
         scriptMarkdown: scriptMarkdown(idea.meta, idea.blocks, idea.pins),
