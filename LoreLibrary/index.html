@@ -506,6 +506,8 @@
     .cb-grad{padding:9px 12px;font-size:13px}
     .cb-abstext{font-size:17px}
   }
+
+  .cb-file{position:fixed;left:-9999px;width:1px;height:1px;opacity:0}
 </style>
 
 <canvas id="motes"></canvas>
@@ -1822,7 +1824,8 @@ function cbPaintTools(){
     const ws = [2, 5, 12].map(w => `<button class="cb-w${cbPaint.width === w ? ' on' : ''}" data-width="${w}" title="width"><i style="width:${Math.min(w, 14)}px;height:${Math.min(w, 14)}px"></i></button>`).join('');
     t.innerHTML = `<button class="cb-btn${cbPaint.tool === 'pen' ? ' on' : ''}" data-tool="pen">Pen</button><button class="cb-btn${cbPaint.tool === 'eraser' ? ' on' : ''}" data-tool="eraser">Eraser</button>${sw}${ws}<span class="cb-break"></span><button class="cb-btn" data-act="undo">Undo</button><button class="cb-btn" data-act="clear">Clear</button><button class="cb-btn cb-pin" id="cb-pinbtn">Pin item</button>`;
   } else {
-    t.innerHTML = `<button class="cb-btn" data-cmd="italic" title="italic">Italic</button><button class="cb-btn" data-cmd="bold" title="bold">Bold</button><button class="cb-btn" data-cmd="insertUnorderedList" title="bullet">Bullet</button><button class="cb-btn cb-pin" id="cb-pinbtn">Pin item</button>`;
+    const up = cbTab === 'script' ? '<button class="cb-btn" data-act="upload" title="Bring in a txt, md or docx">Upload</button>' : '<button class="cb-btn" data-cmd="italic" title="italic">Italic</button><button class="cb-btn" data-cmd="bold" title="bold">Bold</button><button class="cb-btn" data-cmd="insertUnorderedList" title="bullet">Bullet</button>';
+    t.innerHTML = `${up}<button class="cb-btn cb-pin" id="cb-pinbtn">Pin item</button>`;
   }
   t.onmousedown = e => { if (e.target.closest('[data-cmd]')) e.preventDefault(); };
   t.onclick = e => {
@@ -1831,10 +1834,17 @@ function cbPaintTools(){
     const tool = e.target.closest('[data-tool]'); if (tool){ cbPaint.tool = tool.dataset.tool; cbPaintTools(); return; }
     const col = e.target.closest('[data-color]'); if (col){ cbPaint.color = col.dataset.color; cbPaint.tool = 'pen'; cbPaintTools(); return; }
     const w = e.target.closest('[data-width]'); if (w){ cbPaint.width = +w.dataset.width; cbPaintTools(); return; }
-    const act = e.target.closest('[data-act]'); if (act){ if (act.dataset.act === 'undo') cbUndo(); else cbClearCanvas(true); return; }
+    const act = e.target.closest('[data-act]');
+    if (act){
+      if (act.dataset.act === 'upload') cbAskUpload();
+      else if (act.dataset.act === 'undo') cbUndo();
+      else cbClearCanvas(true);
+      return;
+    }
     if (e.target.closest('#cb-pinbtn')) cbPinCurrent();
   };
   const pin = $('cb-pinbtn'); if (pin) pin.disabled = !cbIdea;
+  const upBtn = t.querySelector('[data-act="upload"]'); if (upBtn) upBtn.disabled = !cbIdea;
 }
 
 function cbPaintTab(keepCanvas){
@@ -2031,6 +2041,99 @@ function cbOffset(root, node, offset){
   range.selectNodeContents(root);
   range.setEnd(node, offset);
   return range.toString().length;
+}
+
+const CB_W_NS = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
+
+async function cbZipEntry(buf, wanted){
+  const dv = new DataView(buf), u8 = new Uint8Array(buf);
+  let eocd = -1;
+  for (let i = buf.byteLength - 22; i >= 0 && i > buf.byteLength - 66000; i--){
+    if (dv.getUint32(i, true) === 0x06054b50){ eocd = i; break; }
+  }
+  if (eocd < 0) throw new Error('that does not look like a docx');
+  const count = dv.getUint16(eocd + 10, true);
+  let p = dv.getUint32(eocd + 16, true);
+  const dec = new TextDecoder();
+  for (let n = 0; n < count; n++){
+    if (dv.getUint32(p, true) !== 0x02014b50) break;
+    const method = dv.getUint16(p + 10, true);
+    const csize = dv.getUint32(p + 20, true);
+    const nameLen = dv.getUint16(p + 28, true);
+    const extraLen = dv.getUint16(p + 30, true);
+    const commentLen = dv.getUint16(p + 32, true);
+    const local = dv.getUint32(p + 42, true);
+    const name = dec.decode(u8.subarray(p + 46, p + 46 + nameLen));
+    if (name === wanted){
+      const start = local + 30 + dv.getUint16(local + 26, true) + dv.getUint16(local + 28, true);
+      const bytes = u8.subarray(start, start + csize);
+      if (method === 0) return dec.decode(bytes);
+      const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+      return dec.decode(await new Response(stream).arrayBuffer());
+    }
+    p += 46 + nameLen + extraLen + commentLen;
+  }
+  throw new Error('no ' + wanted + ' inside that file');
+}
+
+async function cbDocxParagraphs(file){
+  const xml = await cbZipEntry(await file.arrayBuffer(), 'word/document.xml');
+  const doc = new DOMParser().parseFromString(xml, 'application/xml');
+  if (doc.getElementsByTagName('parsererror').length) throw new Error('that docx could not be read');
+  const out = [];
+  for (const p of doc.getElementsByTagNameNS(CB_W_NS, 'p')){
+    let text = '';
+    for (const n of p.getElementsByTagNameNS(CB_W_NS, '*')){
+      if (n.localName === 't') text += n.textContent;
+      else if (n.localName === 'tab') text += ' ';
+      else if (n.localName === 'br') text += ' ';
+    }
+    text = text.replace(/\s+/g, ' ').trim();
+    if (text) out.push(text);
+  }
+  return out;
+}
+
+function cbPlainParagraphs(text){
+  return String(text).replace(/\r\n?/g, '\n').split(/\n\s*\n+/)
+    .map(s => s.split('\n').map(x => x.trim()).filter(Boolean).join(' ').trim())
+    .filter(Boolean);
+}
+
+async function cbUploadScript(file){
+  if (!cbIdea || !file) return;
+  const name = (file.name || '').toLowerCase();
+  if (file.size > 8000000){ cbToast('That file is too large. Eight megabytes is the limit.'); return; }
+  let paras;
+  try {
+    if (name.endsWith('.docx')) paras = await cbDocxParagraphs(file);
+    else if (/\.(txt|md|markdown)$/.test(name)) paras = cbPlainParagraphs(await file.text());
+    else { cbToast('Upload a .txt, a .md or a .docx.'); return; }
+  } catch (e){ cbToast(e.message || 'that file could not be read'); return; }
+  if (!paras.length){ cbToast('There was no text in that file.'); return; }
+  const blocks = cbIdea.blocks;
+  const base = blocks.length ? blocks[blocks.length - 1].pos + 1 : 1;
+  try {
+    const r = await cbApi('PUT', `/ideas/${cbIdea.meta.id}/blocks`, {blocks: paras.map((text, i) => ({text, pos: base + i}))});
+    cbIdea.blocks.push(...r.blocks);
+    cbIdea.blocks.sort((x, y) => x.pos - y.pos || (x.at < y.at ? -1 : 1));
+    cbIdeaJSON = JSON.stringify(cbIdea);
+    cbTab = 'script';
+    cbPaintTab();
+    cbToast(paras.length + (paras.length === 1 ? ' paragraph is in the script.' : ' paragraphs are in the script.'));
+  } catch {}
+}
+
+function cbAskUpload(){
+  if (!cbIdea){ cbToast('Choose a video first.'); return; }
+  let input = document.querySelector('.cb-file');
+  if (!input){
+    input = document.createElement('input');
+    input.type = 'file'; input.className = 'cb-file'; input.accept = '.txt,.md,.markdown,.docx';
+    input.addEventListener('change', () => { const f = input.files && input.files[0]; input.value = ''; if (f) cbUploadScript(f); });
+    document.body.appendChild(input);
+  }
+  input.click();
 }
 
 async function cbGraduate(){
