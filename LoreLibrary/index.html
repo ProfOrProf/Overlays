@@ -240,7 +240,7 @@
   .copied.on{opacity:1}
 
   #iconbox{position:relative;grid-column:2;grid-row:1/span 4;
-    width:clamp(132px,30cqi,250px);aspect-ratio:1;padding:0;
+    width:clamp(132px,22cqi,250px);aspect-ratio:1;padding:0;
     background:radial-gradient(circle at 50% 46%,rgba(226,192,116,.30),
       rgba(206,168,82,.135) 34%,rgba(150,116,48,.05) 56%,rgba(0,0,0,0) 74%),rgba(0,0,0,.34);
     border:1px solid rgba(200,163,78,.30);border-radius:2px;
@@ -743,12 +743,13 @@ async function paintIcon(it){
   const mine = ++iconToken;
   img.classList.remove('in');
   shownIcon = key ? {realm: it.g, key} : null;
-  if (!key){ box.classList.remove('on'); img.removeAttribute('src'); return; }
+  if (!key){ box.classList.remove('on'); img.removeAttribute('src'); fitTitle(); return; }
   const url = await iconURL(it.g, key);
   if (mine !== iconToken) return;
-  if (!url){ box.classList.remove('on'); return; }
+  if (!url){ box.classList.remove('on'); fitTitle(); return; }
   img.src = url;
   box.classList.add('on');
+  fitTitle();
   requestAnimationFrame(() => { if (mine === iconToken) img.classList.add('in'); });
 }
 
@@ -934,20 +935,21 @@ function browse(){
 }
 
 /* ── entry ─────────────────────────────────────────────────────────────── */
-/* Long names must not wrap, so step the size down until the line fits the card.
-   44 chars of "Cursed and Defiled Root Chalice" style titles still land large. */
+const TITLE_NEVER_BELOW_BODY = 22;
+
 function fitTitle(){
   const el = $('iname');
-  const box = el.parentElement;
   el.style.fontSize = '';
-  const pad = getComputedStyle(box);
-  const max = box.clientWidth - parseFloat(pad.paddingLeft) - parseFloat(pad.paddingRight);
-  if (!(max > 0)) return;
+  el.style.whiteSpace = '';
+  if (!(el.clientWidth > 0)) return;
   let size = parseFloat(getComputedStyle(el).fontSize) || 40;
-  while (el.scrollWidth > max && size > 15){
+  while (el.scrollWidth > el.clientWidth && size > TITLE_NEVER_BELOW_BODY){
     size -= 1;
     el.style.fontSize = size + 'px';
   }
+  if (el.scrollWidth <= el.clientWidth) return;
+  el.style.fontSize = TITLE_NEVER_BELOW_BODY + 'px';
+  el.style.whiteSpace = 'normal';
 }
 addEventListener('resize', () => { if (cur) fitTitle(); });
 if (typeof ResizeObserver === 'function'){
