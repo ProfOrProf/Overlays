@@ -151,6 +151,8 @@ export function createHandler({ store, users, mint = defaultMint, now = defaultN
     const tok = auth.startsWith("Bearer ") ? auth.slice(7).trim() : "";
     const sealed = TOKEN.test(tok) ? users[sha256(tok)] : undefined;
     const user = sealed ? openName(tok, sealed) : undefined;
+    const knock = method === "GET" && seg.length === 1 && seg[0] === "me";
+    if (!user && knock && TOKEN.test(tok)) return json(200, { user: null });
     if (!user) return json(401, { error: "not in the room" });
 
     let body = null;
