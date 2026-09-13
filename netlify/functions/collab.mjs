@@ -1,6 +1,6 @@
 import { createHandler } from "./api.mjs";
 import { createBlobStore } from "./store_blobs.mjs";
-import users from "../../LoreLibrary/data/collab_users.mjs";
+import users from "./collab_users.mjs";
 
 let handle = null;
 
