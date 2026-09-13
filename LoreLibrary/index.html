@@ -2,6 +2,8 @@
 <title>Prof's Lore Library</title>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <meta name="robots" content="noindex,nofollow"/>
+<meta name="referrer" content="no-referrer"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-lO6HcGFJTfn+sqKGYpluiTM+S/qhLQ9Y1MP79Y34aUw='; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; media-src 'self' blob: data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'"/>
 <style>
   :root{
     --ink:#efe6d6; --ink-dim:#b3a68f; --ink-faint:#6f665a; --grace:#f0b13c;
@@ -680,21 +682,37 @@ async function gunzip(bytes){
   return new Uint8Array(await new Response(stream).arrayBuffer());
 }
 
+const hex = bytes => [...new Uint8Array(bytes)].map(b => b.toString(16).padStart(2, '0')).join('');
+async function handleOf(name){
+  return hex(await SUB.digest('SHA-256', new TextEncoder().encode('lorelibrary\0' + name)));
+}
+async function roomToken(pw, rec){
+  const base = await SUB.importKey('raw', new TextEncoder().encode(pw), 'PBKDF2', false, ['deriveBits']);
+  return hex(await SUB.deriveBits({name:'PBKDF2', salt: b64d(rec.as), iterations: rec.i, hash:'SHA-256'}, base, 256));
+}
+async function roomMember(tok){
+  try {
+    const res = await fetch('/api/collab/me', {headers: {'authorization': 'Bearer ' + tok}});
+    return res.ok ? ((await res.json()).user || null) : null;
+  } catch { return null; }
+}
 async function signIn(user, pw){
-  const rec = (window.LORE_AUTH || []).find(a => a.u.toLowerCase() === user.trim().toLowerCase());
+  const name = user.trim().toLowerCase();
+  const h = await handleOf(name);
+  const rec = (window.LORE_AUTH || []).find(a => a.h === h);
   if (!rec) throw new Error('No such name in the ledger.');
-  const kek = await deriveKEK(pw, b64d(rec.s), rec.i);
+  const [kek, tok] = await Promise.all([deriveKEK(pw, b64d(rec.s), rec.i), rec.as ? roomToken(pw, rec) : null]);
   let raw;
   try { raw = await gcmDecrypt(kek, b64d(rec.w)); }
   catch { throw new Error('That word does not open it.'); }
   DK = await importDK(raw);
   sessionStorage.setItem('lore.dk', btoa(String.fromCharCode(...raw)));
-  sessionStorage.setItem('lore.who', rec.u);
+  sessionStorage.setItem('lore.who', name);
   sessionStorage.removeItem('lore.tok');
-  if (rec.c && rec.as){
-    const base = await SUB.importKey('raw', new TextEncoder().encode(pw), 'PBKDF2', false, ['deriveBits']);
-    const bits = await SUB.deriveBits({name:'PBKDF2', salt: b64d(rec.as), iterations: rec.i, hash:'SHA-256'}, base, 256);
-    sessionStorage.setItem('lore.tok', [...new Uint8Array(bits)].map(b => b.toString(16).padStart(2, '0')).join(''));
+  const member = tok && await roomMember(tok);
+  if (member){
+    sessionStorage.setItem('lore.tok', tok);
+    sessionStorage.setItem('lore.who', member);
   }
 }
 async function restore(){

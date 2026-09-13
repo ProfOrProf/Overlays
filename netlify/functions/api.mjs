@@ -1,4 +1,5 @@
 import { createHash, randomUUID } from "node:crypto";
+import { openName } from "./room_names.mjs";
 
 const PREFIX = "/api/collab";
 const NOTE_TAGS = new Set(["b", "i", "em", "strong", "u", "ul", "ol", "li", "br", "p", "div"]);
@@ -148,7 +149,8 @@ export function createHandler({ store, users, mint = defaultMint, now = defaultN
     const method = req.method.toUpperCase();
     const auth = req.headers.get("authorization") || "";
     const tok = auth.startsWith("Bearer ") ? auth.slice(7).trim() : "";
-    const user = TOKEN.test(tok) ? users[sha256(tok)] : undefined;
+    const sealed = TOKEN.test(tok) ? users[sha256(tok)] : undefined;
+    const user = sealed ? openName(tok, sealed) : undefined;
     if (!user) return json(401, { error: "not in the room" });
 
     let body = null;
