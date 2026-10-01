@@ -4,10 +4,10 @@
 <meta charset="utf-8"/>
 <title>TinyKelpReign Seed</title>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<meta name="description" content="A Nightreign seed shared from TinyKelpReign, the Nightreign seed picker by Profware, Inc."/>
+<meta name="description" content="Someone loves you enough to share peak with you. Answer the siren's song. (It's probably ED Libra...). TinyKelpReign, only at Profware, Inc.!"/>
 <meta property="og:type" content="website"/>
 <meta property="og:title" content="TinyKelpReign Seed"/>
-<meta property="og:description" content="Open this Nightreign seed in TinyKelpReign."/>
+<meta property="og:description" content="Incoming: TinyKelpReign seed!"/>
 <meta name="theme-color" content="#05070b"/>
 <meta name="robots" content="noindex"/>
 <style>
@@ -54,7 +54,7 @@
     <a class="btn" id="open" href="#">Open in TinyKelpReign</a>
     <a class="btn" href="https://github.com/ProfOrProf/TinyKelpReign-Releases/releases/latest/download/TinyKelpReign_Setup_Latest.exe">Get TinyKelpReign</a>
   </div>
-  <p class="note">Your browser will ask to open TinyKelpReign. If nothing happens, install it, then open this link again.</p>
+  <p class="note">Open a link in the TKR app. If nothing happens, you don't have it, doofus!</p>
 </main>
 <footer><a href="https://proforprof.com/">Profware, Inc.</a></footer>
 <script>
@@ -66,7 +66,7 @@ const esc = s => String(s).replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", 
 const row = (label, value, cls) => value ? `<div class="lbl">${label}</div><div class="val ${cls || ""}">${value}</div>` : "";
 const s = SEEDS[id];
 if (!s) {
-  card.innerHTML = `<p class="missing">That link doesn't name a seed TinyKelpReign knows.</p>`;
+  card.innerHTML = `<p class="missing">No such seed, dude.</p>`;
   open.style.display = "none";
 } else {
   const [lord, exp, set, n1, n2, c1, c2, spawn, event, castle, roof, base] = s.map(esc);
