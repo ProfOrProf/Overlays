@@ -2,15 +2,15 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
-<title>Prof</title>
+<title>My Socials</title>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<meta name="description" content="Prof — the stream, Prof Saves, TinyKelpReign, the Employee Archive, and the Lore Library."/>
+<meta name="description" content="My Socials"/>
 <meta property="og:type" content="website"/>
-<meta property="og:url" content="https://proforprof.com/"/>
-<meta property="og:title" content="Prof"/>
-<meta property="og:description" content="The stream, Prof Saves, TinyKelpReign, the Employee Archive, and the Lore Library."/>
+<meta property="og:url" content="https://proforprof.com/socials/"/>
+<meta property="og:title" content="My Socials"/>
+<meta property="og:description" content="My Socials"/>
 <meta name="theme-color" content="#070606"/>
-<link rel="canonical" href="https://proforprof.com/"/>
+<link rel="canonical" href="https://proforprof.com/socials/"/>
 <style>
   :root{
     --ink:#efe6d6; --ink-dim:#b3a68f; --ink-faint:#6f665a; --grace:#f0b13c;
@@ -56,6 +56,8 @@
   footer{position:relative;z-index:2;text-align:center;padding:0 24px 46px;
     font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-faint);opacity:.6}
   footer a{color:inherit}
+  a.back{position:fixed;top:18px;left:20px;z-index:3;color:var(--ink-faint);text-decoration:none;font-size:11px;letter-spacing:.22em;text-transform:uppercase}
+  a.back:hover{color:var(--grace)}
   @media (min-width:760px){a.door:last-child:nth-child(3n+1){grid-column:2}}
   @media (prefers-reduced-motion:reduce){#motes{display:none}a.door:hover{transform:none}}
 </style>
@@ -64,37 +66,36 @@
 <canvas id="motes"></canvas>
 <div class="vignette"></div>
 
+<a class="back" href="/">&larr; Prof</a>
+
 <main>
-  <h1 class="title">Prof</h1>
+  <h1 class="title">My Socials</h1>
   <div class="rule"></div>
-  <p class="lede">A stream, a save manager, and a library of everything FromSoftware ever
-    wrote down. Pick a door.</p>
 
   <div class="doors">
-    <a class="door" href="/socials/" style="--rc:#a970ff">
-      <div class="nm">The Stream</div>
-      <div class="sub">My Socials</div>
+    <a class="door" href="https://twitch.tv/prof" style="--rc:#a970ff" target="_blank" rel="noopener">
+      <div class="nm">Twitch</div>
+      <div class="sub">twitch.tv/prof</div>
     </a>
 
-    <a class="door" href="/profsaves/" style="--rc:#21ff63">
-      <div class="nm">Prof Saves</div>
-      <div class="sub">ProfSaves! The superest savest manager that ever tried to manage saves. Don't bother me, I'm bleating.</div>
+    <a class="door" href="https://www.youtube.com/@ProfOrProf" style="--rc:#ff4e45" target="_blank" rel="noopener">
+      <div class="nm">YouTube</div>
+      <div class="sub">@ProfOrProf</div>
     </a>
 
-    <a class="door" href="https://github.com/ProfOrProf/TinyKelpReign-Releases/releases/latest/download/TinyKelpReign_Setup_Latest.exe" style="--rc:#9fb6da">
-      <div class="nm">TinyKelpReign</div>
-      <div class="sub">You can pick your nose, and now you can pick your Nightreign seed! Download TinyKelpReign to live out your Nightreign No Hit fantasies. Windows only until we port Nightreign to our beloved Macs.</div>
+    <a class="door" href="https://www.instagram.com/proforprof/" style="--rc:#e1306c" target="_blank" rel="noopener">
+      <div class="nm">Instagram</div>
+      <div class="sub">@proforprof</div>
     </a>
 
-    <a class="door" href="/wikiprofia/" style="--rc:#9a86b8">
-      <div class="nm">Employee Archive</div>
-      <div class="sub">The ProfCo stream team &mdash; who they are and where to find them.</div>
-      <div class="cnt">Wikiprofia</div>
+    <a class="door" href="https://bsky.app/profile/proforprof.bsky.social" style="--rc:#1185fe" target="_blank" rel="noopener">
+      <div class="nm">Bluesky</div>
+      <div class="sub">proforprof.bsky.social</div>
     </a>
 
-    <a class="door" href="/lorelibrary/" style="--rc:#f0b13c">
-      <div class="nm">The Lore Library</div>
-      <div class="sub">Every in-game text for reference in Prof's Lore Videos! Contact me for access.</div>
+    <a class="door" href="https://x.com/ForpGang" style="--rc:#e7e9ea" target="_blank" rel="noopener">
+      <div class="nm">X</div>
+      <div class="sub">@ForpGang</div>
     </a>
   </div>
 </main>
