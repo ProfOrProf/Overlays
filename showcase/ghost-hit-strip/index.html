@@ -5,6 +5,7 @@
 <meta name="color-scheme" content="dark">
 <title>Auto Hit Counter Overlay</title>
 <style>
+@font-face{font-family:"Ghostphobia";src:url("Ghostphobia.ttf") format("truetype");font-display:block}
 :root{
   --w:520px;
   --ink:#f2f2f2; --dim:#bdbdbd;
@@ -28,9 +29,7 @@ body{background:transparent;overflow:hidden;font-family:var(--ghost);color:var(-
 #igt{font-size:16px;color:var(--dim);letter-spacing:.08em;font-variant-numeric:tabular-nums;margin-top:2px}
 #bar{height:8px;margin-top:2px;background:var(--bar-bg);position:relative;overflow:hidden}
 #fill{position:absolute;inset:0 auto 0 0;width:0;background:var(--state);transition:width .25s ease,background .25s ease}
-#done{display:none;font-size:20px;text-align:center;color:var(--state);line-height:1}
-#overlay.complete #done{display:block}
-#overlay.complete #bar{display:none}
+#overlay.complete #name{color:var(--state)}
 .flash{animation:flash .35s ease-out}
 @keyframes flash{from{filter:brightness(2.2)}to{filter:brightness(1)}}
 </style>
@@ -44,7 +43,6 @@ body{background:transparent;overflow:hidden;font-family:var(--ghost);color:var(-
     <div class="stat"><span class="v" id="total">0</span><span class="l">HITS</span></div>
   </div>
   <div id="bar"><div id="fill"></div></div>
-  <div id="done">RUN COMPLETE</div>
 </div>
 <script>
 (function(){
@@ -52,8 +50,7 @@ body{background:transparent;overflow:hidden;font-family:var(--ghost);color:var(-
   var cfg={showIgt:true,titleText:'',runCompleteText:'RUN COMPLETE'};
   var root=document.documentElement, overlay=document.getElementById('overlay');
   var el={igt:document.getElementById('igt'),title:document.getElementById('title'),total:document.getElementById('total'),
-          progress:document.getElementById('progress'),name:document.getElementById('name'),fill:document.getElementById('fill'),
-          done:document.getElementById('done')};
+          progress:document.getElementById('progress'),name:document.getElementById('name'),fill:document.getElementById('fill')};
   var lastTotal=-1;
 
   function fmt(t){ return t ? String(t).replace(/^0(\d:)/,'$1') : ''; }
@@ -75,11 +72,10 @@ body{background:transparent;overflow:hidden;font-family:var(--ghost);color:var(-
     el.total.textContent=total;
     el.title.textContent=(cfg.titleText && cfg.titleText.trim()) || s.profileName || s.gameName || '';
     el.progress.textContent=(shown+1)+'/'+children.length;
-    el.name.textContent=current.name||'';
-    el.name.classList.toggle('hit',(current.hits||0)>0);
+    el.name.textContent=s.isRunComplete ? (cfg.runCompleteText||'RUN COMPLETE') : (current.name||'');
+    el.name.classList.toggle('hit',!s.isRunComplete && (current.hits||0)>0);
     el.fill.style.width=(children.length?((s.isRunComplete?children.length:shown)/children.length)*100:0)+'%';
     overlay.classList.toggle('complete',!!s.isRunComplete);
-    el.done.textContent=cfg.runCompleteText||'RUN COMPLETE';
     if(cfg.showIgt && s.inGameTime) el.igt.textContent=fmt(s.inGameTime);
     el.igt.style.display=cfg.showIgt?'':'none';
     if(lastTotal>=0 && total>lastTotal){ el.total.classList.remove('flash'); void el.total.offsetWidth; el.total.classList.add('flash'); }
@@ -113,13 +109,14 @@ body{background:transparent;overflow:hidden;font-family:var(--ghost);color:var(-
 
   if(location.search.indexOf('demo')>=0){
     var names=['Gravestone','Leonard\'s Hat','Catacombs','Rotten Grove','Mirror Hall','The Poker','Final Door'];
-    var demo={profileName:"Death's Poker Only Any%",totalHits:0,isRunComplete:false,inGameTime:'00:12:41',
-      splits:names.map(function(n,i){return {name:n,hits:0,pb:i%3===0?1:0,isCurrent:i===1,isParent:false};})};
-    var step=0, t=761;
+    function fresh(){ return {profileName:"Death's Poker Only Any%",totalHits:0,isRunComplete:false,inGameTime:'00:12:41',
+      splits:names.map(function(n,i){return {name:n,hits:0,pb:i%3===0?1:0,isCurrent:i===0,isParent:false};})}; }
+    var demo=fresh(), step=0, t=761, held=0;
     render(demo);
     setInterval(function(){
       t++; demo.inGameTime='00:'+String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0');
       el.igt.textContent=fmt(demo.inGameTime);
+      if(demo.isRunComplete){ if(++held>=6){ demo=fresh(); step=0; t=761; held=0; lastTotal=-1; render(demo); } return; }
       if(t%4===0){
         step++;
         var cur=demo.splits.findIndex(function(x){return x.isCurrent;});
