@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="fake_es.js"></script>
+<meta charset="utf-8">
+<title>CatFlip</title>
+<style>
+  @font-face {
+    font-family: "SourGummy";
+    src: url("SourGummy-Light.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: transparent; }
+
+  #card {
+    position: absolute;
+    left: 420px;
+    top:  126px;
+    width: 620px;
+    opacity: 0;
+    transition: opacity 2s ease;
+    pointer-events: none;
+  }
+  #card.visible { opacity: 1; }
+
+  .photo-stack {
+    position: relative;
+    width: 620px;
+    height: 620px;
+  }
+
+  .clip-mask {
+    position: absolute;
+    top:    141px;
+    left:    54px;
+    width:  509px;
+    height: 397px;
+    overflow: hidden;
+    z-index: 1;
+  }
+
+  #clipImg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  #frameImg {
+    position: absolute;
+    top: 0; left: 0;
+    width: 620px;
+    height: 620px;
+    object-fit: contain;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .flip-text {
+    text-align: center;
+    margin-top: 10px;
+  }
+
+  .flip-name {
+    font-family: "SourGummy", sans-serif;
+    font-size: 64px;
+    font-weight: normal;
+    color: #FFACFF;
+    letter-spacing: 0.04em;
+  }
+
+  .flip-timestamp {
+    font-family: "SourGummy", sans-serif;
+    font-size: 36px;
+    font-weight: normal;
+    color: #FFACFF;
+    letter-spacing: 0.03em;
+    margin-top: 6px;
+  }
+
+  .shiny-glow #frameImg {
+    filter: drop-shadow(0 0 8px #FFACFF) drop-shadow(0 0 24px #ff69c0) drop-shadow(0 0 40px rgba(255,172,255,0.7));
+  }
+</style>
+</head>
+<body>
+
+<div id="card">
+  <div class="photo-stack" id="photoStack">
+    <div class="clip-mask">
+      <img id="clipImg" src="" alt="">
+    </div>
+    <img id="frameImg" src="" alt="">
+  </div>
+  <div class="flip-text">
+    <div class="flip-name"      id="flipName"></div>
+    <div class="flip-timestamp" id="flipTimestamp"></div>
+  </div>
+</div>
+
+<audio id="audPageTurn" src="/games/catbook/Audio/PageTurn.mp3" preload="auto"></audio>
+
+<script>
+const BASE_API  = 'http://127.0.0.1:8778';
+const ASSETS    = 'Images';
+
+const card          = document.getElementById('card');
+const photoStack    = document.getElementById('photoStack');
+const clipImg       = document.getElementById('clipImg');
+const frameImg      = document.getElementById('frameImg');
+const flipName      = document.getElementById('flipName');
+const flipTimestamp = document.getElementById('flipTimestamp');
+const audPageTurn   = document.getElementById('audPageTurn');
+
+let hideTimer = null;
+
+function safePlay(aud) {
+  try { aud.currentTime = 0; aud.play().catch(() => {}); } catch(e) {}
+}
+
+function showFlip(msg) {
+  clearTimeout(hideTimer);
+
+  card.classList.remove('visible');
+
+  flipName.textContent      = msg.userDisplay    || '';
+  flipTimestamp.textContent = msg.clipTimestamp  || '';
+
+  photoStack.classList.toggle('shiny-glow', !!msg.isShiny);
+
+  if (msg.photoPath) {
+    clipImg.style.display = 'block';
+    clipImg.src = msg.photoPath;
+  } else {
+    clipImg.style.display = 'none';
+    clipImg.src = '';
+  }
+
+  frameImg.src = `${ASSETS}/Frame${msg.catId}.png`;
+
+  const imgPromises = [clipImg, frameImg].map(img =>
+    img.src
+      ? new Promise(resolve => {
+          if (img.complete && img.naturalWidth) resolve();
+          else { img.onload = resolve; img.onerror = resolve; }
+        })
+      : Promise.resolve()
+  );
+
+  Promise.all(imgPromises).then(() => {
+    safePlay(audPageTurn);
+    card.classList.add('visible');
+    const duration = msg.hideAfterMs || 12000;
+    hideTimer = setTimeout(() => card.classList.remove('visible'), duration);
+  });
+}
+
+function connect() {
+  const es = new EventSource(`${BASE_API}/catflip-sse`);
+  es.onmessage = (e) => {
+    let msg;
+    try { msg = JSON.parse(e.data); } catch { return; }
+    if (msg.type === 'flip_show') showFlip(msg);
+  };
+  es.onerror = () => { es.close(); setTimeout(connect, 4000); };
+}
+
+connect();
+</script>
+</body>
+</html>

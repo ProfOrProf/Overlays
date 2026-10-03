@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Three Card Monty</title>
+<style>
+  @font-face{font-family:"AlienDouble";src:url("assets/alien_double.ttf") format("truetype")}
+  html,body{margin:0;width:1920px;height:1080px;overflow:hidden;background:transparent}
+  iframe{position:absolute;inset:0;width:1920px;height:1080px;border:0;background:transparent}
+  #picks{position:absolute;right:70px;bottom:60px;display:flex;gap:26px;z-index:5;opacity:0;pointer-events:none;transition:opacity .3s}
+  #picks.on{opacity:1;pointer-events:auto}
+  #picks button{font:48px "AlienDouble",Impact,sans-serif;width:120px;height:96px;color:#b6ff8a;background:rgba(6,20,10,.8);border:3px solid #7dff5a;border-radius:14px;cursor:pointer;box-shadow:0 0 24px rgba(125,255,90,.35)}
+  #picks button:hover{background:rgba(30,70,30,.9)}
+</style>
+</head>
+<body>
+<iframe id="m" src="monty.html" title="Three Card Monty"></iframe>
+<div id="picks" role="group" aria-label="Pick a card"><button type="button" data-p="1">1</button><button type="button" data-p="2">2</button><button type="button" data-p="3">3</button></div>
+<script>
+(function(){
+  var m=document.getElementById('m'), picks=document.getElementById('picks');
+  var winning=1, waiting=false, autoPick=null, GUESS=10;
+  function send(ev){ m.contentWindow.postMessage({__montyEvent:ev},'*'); }
+  var PLAY_MS=1800*2+2000+900+900+1100+0;
+  function swapTotal(){ var t=0,n=12; for(var i=0;i<n;i++){ t+=Math.round(650+(170-650)*(i/(n-1))); } return t; }
+  function play(){
+    winning=1+Math.floor(Math.random()*3);
+    send({type:'play',user:'You',winning:winning,introLineMs:1800,introHoldMs:2000,showMs:900,placeFrontMs:900,fadeBehindMs:1100,swaps:12,swapMsStart:650,swapMsEnd:170,flashMs:1200,guessSeconds:GUESS});
+    var ready=PLAY_MS+swapTotal()+1200+300;
+    setTimeout(function(){ waiting=true; picks.classList.add('on');
+      autoPick=setTimeout(function(){ pick(1+Math.floor(Math.random()*3)); }, GUESS*1000); }, ready);
+  }
+  function pick(p){
+    if(!waiting) return; waiting=false; clearTimeout(autoPick); picks.classList.remove('on');
+    send({type:'reveal',winning:winning,pick:p,won:p===winning,timeout:false,beamMs:2600});
+    setTimeout(function(){ send({type:'hide'}); setTimeout(play,1200); }, 9000);
+  }
+  [].forEach.call(picks.querySelectorAll('button'),function(b){ b.addEventListener('click',function(){ pick(+b.dataset.p); }); });
+  m.addEventListener('load',function(){ setTimeout(play,600); });
+})();
+</script>
+</body>
+</html>

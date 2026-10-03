@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="fake_es.js"></script>
+<meta charset="utf-8">
+<title>CatSpawn</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: transparent; }
+
+  /* 1920x1080 design canvas, scaled to fit any window/source (identical to partytuner) */
+  #root {
+    position: fixed;
+    left: 50%; top: 50%;
+    width: 1920px; height: 1080px;
+    transform: translate(-50%, -50%) scale(var(--fit, 1));
+    transform-origin: center;
+  }
+
+  #place {
+    position: absolute; inset: 0;
+    transform-origin: 50% 50%;
+  }
+
+  .cat-layer {
+    position: absolute;
+    top: 0; left: 0;
+    width: 1920px; height: 1080px;
+    display: none;
+    pointer-events: none;
+  }
+  .cat-layer img {
+    width: 1920px; height: 1080px;
+    object-fit: contain;
+    display: block;
+  }
+
+  #layer-walkout img {
+    transform: scaleX(-1);
+  }
+  #layer-walkout.no-flip img {
+    transform: none;
+  }
+  .cat-layer.active { display: block; }
+
+  .shiny-glow img {
+    filter: drop-shadow(0 0 8px #FFACFF) drop-shadow(0 0 24px #ff69c0) drop-shadow(0 0 40px rgba(255,172,255,0.7));
+  }
+
+  #shiny-overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 1920px; height: 1080px;
+    display: none;
+    pointer-events: none;
+    z-index: 10;
+  }
+  #shiny-overlay img {
+    width: 1920px; height: 1080px;
+    object-fit: contain;
+    display: block;
+  }
+  #shiny-overlay.active { display: block; }
+
+  /* party object — overlaid on the standing cat at a per-cat x/y/zoom (set via JS) */
+  #party-overlay {
+    position: absolute; inset: 0;
+    display: none; pointer-events: none; z-index: 11;
+  }
+  #party-overlay.active { display: block; }
+  #party-overlay img {
+    position: absolute; left: 50%; top: 50%;
+    transform-origin: center;
+    display: block;
+    opacity: 0;
+    transition: opacity 1.5s ease;
+  }
+  /* confetti pop — one-shot, sits above everything briefly when the party object lands */
+  #confetti-overlay {
+    position: absolute; inset: 0;
+    display: none; pointer-events: none; z-index: 12;
+  }
+  #confetti-overlay.active { display: block; }
+  #confetti-overlay img {
+    position: absolute; left: 50%; top: 50%;
+    transform-origin: center;
+    display: block;
+  }
+
+  #tuner {
+    position: fixed; left: 24px; top: 24px; z-index: 9999;
+    display: none;
+    width: 330px; padding: 14px 16px 12px;
+    background: rgba(16,10,20,0.93);
+    border: 2px solid #FFACFF;
+    border-radius: 10px;
+    box-shadow: 0 0 0 3px rgba(255,172,255,0.25), 0 8px 30px rgba(0,0,0,0.6);
+    font: 13px/1.4 "Segoe UI", system-ui, sans-serif;
+    color: #ffe9ff;
+    pointer-events: auto;
+    user-select: none;
+  }
+  #tuner.open { display: block; }
+  #tuner h2 {
+    font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+    color: #FFACFF; margin-bottom: 2px;
+  }
+  #tuner .scene {
+    font-size: 12px; color: #b9a6c4; margin-bottom: 10px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  #tuner .scene b { color: #fff; font-weight: 600; }
+  #tuner .row { margin-bottom: 9px; }
+  #tuner .row label {
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-size: 12px; color: #d9c8e2; margin-bottom: 3px;
+  }
+  #tuner input[type=range] {
+    width: 100%; height: 18px; margin: 0; accent-color: #FFACFF; cursor: pointer;
+  }
+  #tuner input[type=number] {
+    width: 72px; padding: 1px 4px;
+    background: #241a2b; color: #fff;
+    border: 1px solid #6b5578; border-radius: 4px;
+    font: 12px/1.3 "Consolas", monospace; text-align: right;
+  }
+  #tuner .btns { display: flex; gap: 6px; margin-top: 11px; }
+  #tuner button {
+    flex: 1; padding: 6px 4px;
+    background: #3a2745; color: #ffe9ff;
+    border: 1px solid #7d6389; border-radius: 5px;
+    font: 600 12px "Segoe UI", system-ui, sans-serif; cursor: pointer;
+  }
+  #tuner button:hover { background: #4d3459; }
+  #tuner button.go { background: #7a3f86; border-color: #FFACFF; }
+  #tuner button.go:hover { background: #94509f; }
+  #tuner .status {
+    margin-top: 8px; font-size: 11px; color: #9b8aa6; min-height: 14px;
+  }
+  #tuner .status.saved { color: #8ce89c; }
+  #tuner .status.err   { color: #ff9d9d; }
+  #tuner .hint { margin-top: 6px; font-size: 11px; color: #7d6f87; }
+</style>
+</head>
+<body>
+
+<div id="root">
+  <div id="place">
+    <div class="cat-layer" id="layer-walkin">
+      <img src="" alt="">
+    </div>
+
+    <div class="cat-layer" id="layer-stand">
+      <img src="" alt="">
+    </div>
+
+    <div class="cat-layer" id="layer-walkout">
+      <img src="" alt="">
+    </div>
+
+    <div id="shiny-overlay">
+      <img src="" alt="">
+    </div>
+
+    <div id="party-overlay">
+      <img src="" alt="">
+    </div>
+
+    <div id="confetti-overlay">
+      <img src="" alt="">
+    </div>
+  </div>
+</div>
+
+<div id="tuner">
+  <h2>Cat Placement</h2>
+  <div class="scene">slot: <b id="tSlot">—</b></div>
+
+  <div class="row">
+    <label>Left / Right<input type="number" id="nX" step="1"></label>
+    <input type="range" id="rX" min="-1920" max="1920" step="1">
+  </div>
+  <div class="row">
+    <label>Up / Down<input type="number" id="nY" step="1"></label>
+    <input type="range" id="rY" min="-1080" max="1080" step="1">
+  </div>
+  <div class="row">
+    <label>Zoom<input type="number" id="nZ" step="0.01"></label>
+    <input type="range" id="rZ" min="0.1" max="3" step="0.01">
+  </div>
+
+  <div class="btns">
+    <button class="go" id="bSpawn">Spawn cat</button>
+    <button id="bRevert">Revert</button>
+    <button id="bClose">Close</button>
+  </div>
+  <div class="btns">
+    <button id="bGrab">Grab crop from ClipGuide</button>
+  </div>
+  <div class="status" id="tStatus"></div>
+  <div class="hint">Saves per slot, automatically. Press P to hide.</div>
+</div>
+
+<audio id="audShutter" src="/games/catbook/Audio/SingleShutter.mp3" preload="auto"></audio>
+<audio id="audParty" preload="auto"></audio>
+
+<script>
+const ASSETS  = 'Images';
+const API     = 'http://127.0.0.1:8778';
+
+let customExits = new Set();
+function loadCustomExits() {
+  fetch(`${ASSETS}/custom_exits.json?v=` + Date.now())
+    .then(r => r.ok ? r.json() : [])
+    .then(a => { customExits = new Set(Array.isArray(a) ? a : []); })
+    .catch(() => {});
+}
+
+// Per-cat walk-in length, measured from each walk gif by `addcats` (walkin_ms.json).
+// Without it every cat got a flat WALK_IN_MS, which truncated the four long rares and
+// left the short ones standing frozen on the walk layer. Missing file → old behaviour.
+let walkInMs = {};
+function loadWalkInMs() {
+  fetch(`${ASSETS}/walkin_ms.json?v=` + Date.now())
+    .then(r => r.ok ? r.json() : {})
+    .then(m => { if (m && typeof m === 'object') walkInMs = m; })
+    .catch(() => {});
+}
+function walkInFor(catId) {
+  const ms = walkInMs[catId];
+  return (typeof ms === 'number' && ms > 0) ? ms : WALK_IN_MS;
+}
+let walkOutMs = {};
+function loadWalkOutMs() {
+  fetch(`${ASSETS}/walkout_ms.json?v=` + Date.now())
+    .then(r => r.ok ? r.json() : {})
+    .then(m => { if (m && typeof m === 'object') walkOutMs = m; })
+    .catch(() => {});
+}
+function walkOutFor(catId) {
+  const ms = walkOutMs[catId];
+  if (typeof ms === 'number' && ms > 0) return ms;
+  const fromWalkIn = walkInMs[catId];
+  return (typeof fromWalkIn === 'number' && fromWalkIn > 0) ? fromWalkIn : WALK_OUT_MS;
+}
+function applyWalkoutFlip(catId) {
+  document.getElementById('layer-walkout').classList.toggle('no-flip', customExits.has(catId));
+}
+loadCustomExits();
+loadWalkInMs();
+loadWalkOutMs();
+
+const audShutter = document.getElementById('audShutter');
+const audParty   = document.getElementById('audParty');
+audParty.src = '/games/catbook/Party/PartySound.mp3?v=' + Date.now();
+
+const WALK_IN_MS  = 2000;
+const WALK_OUT_MS = 2000;
+
+let currentCat  = null;
+let phase       = 'idle';
+let departTimer = null;
+let walkInTimer = null;
+let confettiTimer = null;
+let confettiFadeTimer = null;
+let confettiShowTimer = null;
+let partyTimer    = null;
+
+function fitOverlay() {
+  const f = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+  document.documentElement.style.setProperty('--fit', f);
+}
+window.addEventListener('resize', fitOverlay);
+fitOverlay();
+
+const placeEl = document.getElementById('place');
+let place = { x: 0, y: 0, zoom: 1 };
+let placeSlot = '';
+
+function applyPlace() {
+  placeEl.style.transform = `translate(${place.x}px, ${place.y}px) scale(${place.zoom})`;
+}
+applyPlace();
+
+function adoptPlace(p, slot) {
+  if (!p) return;
+  if (typeof p.x    === 'number') place.x    = p.x;
+  if (typeof p.y    === 'number') place.y    = p.y;
+  if (typeof p.zoom === 'number' && p.zoom > 0) place.zoom = p.zoom;
+  if (typeof slot === 'string' && slot) placeSlot = slot;
+  applyPlace();
+  syncTuner();
+}
+
+function loadPlacement() {
+  fetch('/games/catbook/placement?v=' + Date.now())
+    .then(r => r.ok ? r.json() : null)
+    .then(j => { if (j && j.ok) { adoptPlace(j, j.slot); baseline = { ...place }; } })
+    .catch(() => {});
+}
+
+/* ---------------- placement tuner ---------------- */
+const tuner  = document.getElementById('tuner');
+const tStat  = document.getElementById('tStatus');
+const ctl = {
+  x: [document.getElementById('rX'), document.getElementById('nX')],
+  y: [document.getElementById('rY'), document.getElementById('nY')],
+  zoom: [document.getElementById('rZ'), document.getElementById('nZ')]
+};
+let baseline = { ...place };
+let saveTimer = null;
+
+function syncTuner() {
+  for (const k in ctl) for (const el of ctl[k]) if (document.activeElement !== el) el.value = place[k];
+  document.getElementById('tSlot').textContent = placeSlot || '(none — press a Cam&Cat button)';
+}
+
+function status(msg, cls) {
+  tStat.textContent = msg;
+  tStat.className = 'status' + (cls ? ' ' + cls : '');
+}
+
+function postPlacement() {
+  return fetch('/games/catbook/placement', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ slot: placeSlot, x: place.x, y: place.y, zoom: place.zoom })
+  })
+    .then(r => r.json())
+    .then(j => j && j.ok ? status('saved for ' + j.slot, 'saved')
+                         : status((j && j.error) || 'save failed', 'err'))
+    .catch(e => status('save failed: ' + e.message, 'err'));
+}
+
+function savePlacement(now) {
+  clearTimeout(saveTimer);
+  if (now) return postPlacement();
+  saveTimer = setTimeout(postPlacement, 400);
+}
+
+function edit(key, raw) {
+  const v = parseFloat(raw);
+  if (!isFinite(v)) return;
+  place[key] = (key === 'zoom') ? Math.max(0.05, v) : v;
+  applyPlace();
+  syncTuner();
+  status('saving…');
+  savePlacement();
+}
+
+for (const k in ctl)
+  for (const el of ctl[k])
+    el.addEventListener('input', () => edit(k, el.value));
+
+document.getElementById('bSpawn').addEventListener('click', () => {
+  status('spawning…');
+  savePlacement(true);
+  fetch('/games/catbook/test/spawn', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ catId: 'random' })
+  })
+    .then(r => r.json())
+    .then(j => status(j && j.ok ? 'spawned ' + j.catId : ((j && j.error) || 'spawn failed'),
+                      j && j.ok ? 'saved' : 'err'))
+    .catch(e => status('spawn failed: ' + e.message, 'err'));
+});
+
+document.getElementById('bRevert').addEventListener('click', () => {
+  place = { ...baseline };
+  applyPlace();
+  syncTuner();
+  status('reverted');
+  savePlacement();
+});
+
+document.getElementById('bGrab').addEventListener('click', () => {
+  status('reading ClipGuide…');
+  fetch('/games/catbook/clipguide?v=' + Date.now())
+    .then(r => r.json())
+    .then(j => status(j && j.ok
+      ? `crop ${Math.round(j.w)}x${Math.round(j.h)} at ${Math.round(j.x)},${Math.round(j.y)} for ${j.slot}`
+      : ((j && j.error) || 'grab failed'), j && j.ok ? 'saved' : 'err'))
+    .catch(e => status('grab failed: ' + e.message, 'err'));
+});
+
+document.getElementById('bClose').addEventListener('click', () => toggleTuner(false));
+
+function toggleTuner(on) {
+  const open = (on === undefined) ? !tuner.classList.contains('open') : on;
+  tuner.classList.toggle('open', open);
+  if (open) { baseline = { ...place }; loadPlacement(); syncTuner(); status(''); }
+}
+
+window.addEventListener('keydown', (e) => {
+  if (e.target && /^(INPUT|TEXTAREA)$/.test(e.target.tagName)) return;
+  if (e.key === 'p' || e.key === 'P' || e.key === '`' || e.key === '~') {
+    e.preventDefault();
+    toggleTuner();
+  } else if (e.key === 'Escape') {
+    toggleTuner(false);
+  }
+});
+
+function safePlay(aud) {
+  try { aud.currentTime = 0; aud.play().catch(() => {}); } catch(e) {}
+}
+
+function hideAll() {
+  document.querySelectorAll('.cat-layer').forEach(l => {
+    l.classList.remove('active', 'shiny-glow');
+  });
+  hideShinyOverlay();
+  hideParty();
+}
+
+function popConfetti(party) {
+  if (!party) return;
+  if (party.sound) { try { audParty.currentTime = 0; audParty.play().catch(() => {}); } catch(e) {} }
+  const url = party.confetti;
+  if (!url) return;
+  const c   = document.getElementById('confetti-overlay');
+  const img = c.querySelector('img');
+  const x = party.cfx || 0, y = party.cfy || 0, z = (party.cfzoom != null ? party.cfzoom : 1);
+  clearTimeout(confettiTimer);
+  clearTimeout(confettiFadeTimer);
+  clearTimeout(confettiShowTimer);
+  // confetti appears 1s after the sound, holds 5s, then fades out over 2s
+  confettiShowTimer = setTimeout(() => {
+    img.style.transition = 'none';
+    img.style.opacity = '1';
+    img.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px)) scale(${z})`;
+    img.src = '';
+    void img.offsetWidth;        // restart the gif from frame 1
+    img.src = url;
+    c.classList.add('active');
+    confettiFadeTimer = setTimeout(() => { img.style.transition = 'opacity 2s ease'; img.style.opacity = '0'; }, 5000);
+    confettiTimer = setTimeout(() => { c.classList.remove('active'); img.style.transition = 'none'; img.style.opacity = '1'; }, 7000);
+  }, 1000);
+}
+
+function showParty(party) {
+  if (!party || !party.obj) return;
+  popConfetti(party);                    // confetti + sound fire together, at t=0
+  const o   = document.getElementById('party-overlay');
+  const img = o.querySelector('img');
+  if (img.getAttribute('src') !== party.obj) img.src = party.obj;
+  const x = party.x || 0, y = party.y || 0, z = (party.zoom != null ? party.zoom : 1);
+  img.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px)) scale(${z})`;
+  img.style.opacity = '0';
+  o.classList.add('active');
+  // start the 1.5s fade-in alongside the sound (double rAF so the transition actually runs)
+  requestAnimationFrame(() => requestAnimationFrame(() => { img.style.opacity = '1'; }));
+}
+
+function hideParty() {
+  clearTimeout(partyTimer);
+  clearTimeout(confettiShowTimer);
+  clearTimeout(confettiFadeTimer);
+  clearTimeout(confettiTimer);
+  const o = document.getElementById('party-overlay');
+  o.classList.remove('active');
+  const img = o.querySelector('img');
+  if (img) img.style.opacity = '0';
+  document.getElementById('confetti-overlay').classList.remove('active');
+}
+
+function showShinyOverlay() {
+  const o = document.getElementById('shiny-overlay');
+  const img = o.querySelector('img');
+  const want = `${ASSETS}/Shiny.gif`;
+  if (img.getAttribute('src') !== want) img.src = want;
+  o.classList.add('active');
+}
+
+function hideShinyOverlay() {
+  document.getElementById('shiny-overlay').classList.remove('active');
+}
+
+const CAT_REF_W = 3200, CAT_REF_H = 987;
+const CAT_BOX_W = 1920, CAT_BOX_H = 1080;
+const CAT_FOOT_MARGIN = 51;
+
+function catFeetY(w, h) {
+  const s = Math.min(CAT_BOX_W / w, CAT_BOX_H / h);
+  return (CAT_BOX_H - h * s) / 2 + (h - CAT_FOOT_MARGIN) * s;
+}
+
+const CAT_REF_BODY_W     = 947;
+const CAT_NORM_TOLERANCE = 0.08;
+const CAT_MEASURE_W      = 480;
+const CAT_ALPHA_FLOOR    = 8;
+const catNormCache = new Map();
+
+function catContainScale(w, h) {
+  return Math.min(CAT_BOX_W / w, CAT_BOX_H / h);
+}
+
+function catBaselineShift(nw, nh) {
+  if (!nw || !nh) return 0;
+  return Math.round(catFeetY(CAT_REF_W, CAT_REF_H) - catFeetY(nw, nh));
+}
+
+function measureCatBodyWidth(img) {
+  const nw = img.naturalWidth, nh = img.naturalHeight;
+  if (!nw || !nh) return 0;
+  const cw = Math.min(CAT_MEASURE_W, nw);
+  const ch = Math.max(1, Math.round(nh * (cw / nw)));
+  try {
+    const c   = document.createElement('canvas');
+    c.width   = cw;
+    c.height  = ch;
+    const ctx = c.getContext('2d', { willReadFrequently: true });
+    ctx.clearRect(0, 0, cw, ch);
+    ctx.drawImage(img, 0, 0, cw, ch);
+    const data = ctx.getImageData(0, 0, cw, ch).data;
+    let minX = cw, maxX = -1;
+    for (let y = 0; y < ch; y++) {
+      const row = y * cw * 4;
+      for (let x = 0; x < cw; x++) {
+        if (data[row + x * 4 + 3] > CAT_ALPHA_FLOOR) {
+          if (x < minX) minX = x;
+          if (x > maxX) maxX = x;
+        }
+      }
+    }
+    if (maxX < 0) return 0;
+    return (maxX - minX + 1) * (nw / cw);
+  } catch (e) {
+    return 0;
+  }
+}
+
+function catNormScale(img) {
+  const key = img.currentSrc || img.src || '';
+  if (catNormCache.has(key)) return catNormCache.get(key);
+
+  const nw = img.naturalWidth, nh = img.naturalHeight;
+  let k = 1;
+  const standardCanvas = nw === CAT_REF_W && nh === CAT_REF_H;
+  const bodyW = standardCanvas ? 0 : measureCatBodyWidth(img);
+  if (bodyW > 0) {
+    const target = CAT_REF_BODY_W * catContainScale(CAT_REF_W, CAT_REF_H);
+    const actual = bodyW * catContainScale(nw, nh);
+    if (actual > 0) k = target / actual;
+    if (!isFinite(k) || k <= 0) k = 1;
+    if (Math.abs(k - 1) < CAT_NORM_TOLERANCE) k = 1;
+    console.log('[catbook] ' + key.split('/').pop() +
+                ' canvas=' + nw + 'x' + nh +
+                ' body=' + Math.round(bodyW) +
+                ' onscreen=' + Math.round(actual) +
+                ' norm=' + k.toFixed(3));
+  }
+  catNormCache.set(key, k);
+  return k;
+}
+
+function applyCatBaseline(img) {
+  const nw = img.naturalWidth, nh = img.naturalHeight;
+  if (!nw || !nh) return;
+  const k = catNormScale(img);
+  const shift = Math.round(catFeetY(CAT_REF_W, CAT_REF_H) - k * catFeetY(nw, nh));
+  img.style.width      = (CAT_BOX_W * k) + 'px';
+  img.style.height     = (CAT_BOX_H * k) + 'px';
+  img.style.marginLeft = 'auto';
+  img.style.marginRight = 'auto';
+  img.style.marginTop  = shift + 'px';
+}
+
+document.querySelectorAll('.cat-layer img').forEach(img => {
+  img.addEventListener('load', () => applyCatBaseline(img));
+});
+
+function showLayer(layerId, src, shiny) {
+  hideAll();
+  const layer = document.getElementById(layerId);
+  const img   = layer.querySelector('img');
+  img.src     = '';
+  void img.offsetWidth;
+  img.src     = src;
+  layer.classList.toggle('shiny-glow', !!shiny);
+  layer.classList.add('active');
+}
+
+function gifUrl(catId, variant) {
+  return `${ASSETS}/exze_atsume_${catId}_${variant}.gif`;
+}
+
+function idle() {
+  phase = 'idle';
+  hideAll();
+  currentCat = null;
+}
+
+function walkIn(cat) {
+  clearTimeout(departTimer);
+  clearTimeout(walkInTimer);
+  currentCat = cat;
+  phase      = 'walk_in';
+  showLayer('layer-walkin', gifUrl(cat.catId, 'walk1'), cat.isShiny);
+  preloadStand(cat);
+  walkInTimer = setTimeout(() => {
+    if (phase === 'walk_in') stand(cat);
+  }, walkInFor(cat.catId));
+}
+
+function preloadStand(cat) {
+  const img  = document.getElementById('layer-stand').querySelector('img');
+  const want = gifUrl(cat.catId, 'stand');
+  if (img.getAttribute('src') !== want) img.src = want;
+}
+
+function preloadWalkout(cat) {
+  const img  = document.getElementById('layer-walkout').querySelector('img');
+  const want = gifUrl(cat.catId, 'walk2');
+  if (img.getAttribute('src') !== want) img.src = want;
+}
+
+function stand(cat) {
+  phase = 'standing';
+  const standLayer = document.getElementById('layer-stand');
+  const standImg   = standLayer.querySelector('img');
+  const want       = gifUrl(cat.catId, 'stand');
+  if (standImg.getAttribute('src') !== want) standImg.src = want;
+  standLayer.classList.toggle('shiny-glow', !!cat.isShiny);
+  standLayer.classList.add('active');
+  if (cat.isShiny) showShinyOverlay();
+  if (cat.party) showParty(cat.party);
+  requestAnimationFrame(() => {
+    document.getElementById('layer-walkin').classList.remove('active', 'shiny-glow');
+    document.getElementById('layer-walkout').classList.remove('active', 'shiny-glow');
+  });
+  preloadWalkout(cat);
+  const now       = Date.now();
+  const remaining = cat.departsAtMs - now - walkOutFor(cat.catId);
+  if (remaining > 0) {
+    departTimer = setTimeout(() => walkOut(cat.catId), remaining);
+  } else {
+    walkOut(cat.catId);
+  }
+}
+
+function walkOut(catId) {
+  if (!currentCat || currentCat.catId !== catId) return;
+  phase = 'walk_out';
+  const layer = document.getElementById('layer-walkout');
+  const img   = layer.querySelector('img');
+  const want  = gifUrl(currentCat.catId, 'walk2');
+  if (img.getAttribute('src') !== want) img.src = want;
+  applyWalkoutFlip(currentCat.catId);
+  layer.classList.toggle('shiny-glow', !!currentCat.isShiny);
+  layer.classList.add('active');
+  requestAnimationFrame(() => {
+    document.getElementById('layer-walkin').classList.remove('active', 'shiny-glow');
+    document.getElementById('layer-stand').classList.remove('active', 'shiny-glow');
+    hideShinyOverlay();
+  });
+  setTimeout(() => idle(), walkOutFor(catId));
+}
+
+function dismissWalkIn(catId) {
+  clearTimeout(departTimer);
+  clearTimeout(walkInTimer);
+  if (!currentCat || currentCat.catId !== catId) return;
+  phase = 'dismissing';
+  showLayer('layer-walkout', gifUrl(currentCat.catId, 'walk2'), currentCat.isShiny);
+  applyWalkoutFlip(currentCat.catId);
+}
+
+function connect() {
+  loadCustomExits();
+  loadWalkInMs();
+  loadWalkOutMs();
+  loadPlacement();
+  const es = new EventSource(`${API}/catspawn-sse`);
+
+  es.onmessage = (e) => {
+    let msg;
+    try { msg = JSON.parse(e.data); } catch { return; }
+
+    if (msg.place && !tuner.classList.contains('open')) adoptPlace(msg.place, msg.slot);
+
+    switch (msg.type) {
+      case 'placement': {
+        const changed = typeof msg.slot === 'string' && msg.slot && msg.slot !== placeSlot;
+        adoptPlace(msg, msg.slot);
+        if (changed) baseline = { ...place };
+        return;
+      }
+      case 'walk_in':      walkIn(msg);              break;
+      case 'dismiss_walkin': dismissWalkIn(msg.catId); break;
+      case 'walk_out':     walkOut(msg.catId);        break;
+      case 'stand':        currentCat = msg; stand(msg); break;
+      case 'clip_complete': safePlay(audShutter);     break;
+    }
+  };
+
+  es.onerror = () => {
+    es.close();
+    setTimeout(connect, 4000);
+  };
+}
+
+connect();
+</script>
+</body>
+</html>

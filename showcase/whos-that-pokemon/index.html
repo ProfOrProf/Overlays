@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="demo.js"></script>
+<style>#wtpName{position:fixed;left:50%;bottom:70px;transform:translateX(-50%) scale(.6);font-family:'PokemonSolid','Pokemon Solid',Impact,sans-serif;font-size:110px;color:#ffcb05;-webkit-text-stroke:6px #2a6ab4;paint-order:stroke fill;letter-spacing:.04em;opacity:0;transition:opacity .35s,transform .45s cubic-bezier(.2,1.6,.4,1);z-index:50;white-space:nowrap}#wtpName.on{opacity:1;transform:translateX(-50%) scale(1)}</style>
+
+<meta charset="utf-8">
+<title>Who's That Pokémon?</title>
+<style>
+  @font-face {
+    font-family: 'PokemonSolid';
+    src: url('./Pokemon_Solid.ttf') format('truetype');
+    font-display: block;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 1920px; height: 1080px;
+    overflow: hidden;
+    background: transparent;
+  }
+
+  #stage {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+  }
+  body.visible #stage { opacity: 1; }
+
+  #frame {
+    position: relative;
+    width: 960px; height: 540px;
+    background: url('./assets/background.gif') center/cover no-repeat;
+  }
+
+  #poke {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 475px; height: 475px;
+  }
+
+  .layer {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    transition: opacity 0.6s ease;
+    filter: drop-shadow(0 10px 14px rgba(0,0,0,0.45));
+  }
+  .layer svg {
+    width: 100%; height: 100%;
+    display: block;
+  }
+
+  #silhouette svg,
+  #silhouette svg * {
+    fill: #066394 !important;
+    stroke: #066394 !important;
+  }
+
+  #reveal { opacity: 0; }
+  body.revealed #silhouette { opacity: 0; }
+  body.revealed #reveal     { opacity: 1; }
+
+  #timer {
+    position: absolute;
+    right: -30px; bottom: -40px;
+    font-family: 'PokemonSolid', 'Impact', sans-serif;
+    font-size: 120px;
+    line-height: 1;
+    color: #ffcb05;                           
+    -webkit-text-stroke: 4px #2a5894;          
+    text-shadow:
+      0 6px 0 #0c3869,
+      0 8px 14px rgba(0,0,0,0.55);
+    letter-spacing: 2px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    user-select: none;
+  }
+  body.counting #timer { opacity: 1; }
+</style>
+</head>
+<body>
+  <div id="stage">
+    <div id="frame">
+      <div id="poke">
+        <div id="silhouette" class="layer"></div>
+        <div id="reveal"     class="layer"></div>
+      </div>
+      <div id="timer">45</div>
+    </div>
+  </div>
+
+<script>
+  const API_BASE  = window.location.origin;
+  const STATE_URL = `${API_BASE}/games/whosthatpokemon/state`;
+  const POLL_MS   = 100;
+
+  const introAudio = new Audio();
+  const cryAudio   = new Audio();
+  introAudio.preload = 'auto';
+  cryAudio.preload   = 'auto';
+
+  let lastRoundId   = 0;
+  let lastPhase     = 'idle';
+  let cryPlayedAt3s = false;
+  let cryPlayedReveal = false;
+
+  async function loadPokemonSvg(spriteUrl) {
+    try {
+      const res = await fetch(spriteUrl);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const text = await res.text();
+      document.getElementById('silhouette').innerHTML = text;
+      document.getElementById('reveal').innerHTML     = text;
+    } catch (err) {
+      console.error(`Failed to load ${spriteUrl}:`, err);
+    }
+  }
+
+  function playAudio(el, src) {
+    try {
+      if (el.src !== src) el.src = src;
+      el.currentTime = 0;
+      el.play().catch(() => {  });
+    } catch (e) { console.warn('audio play failed', e); }
+  }
+
+  const timerEl = document.getElementById('timer');
+
+  function updateTimer(s) {
+    const counting = s.phase === 'silhouette' && s.roundStartedMs > 0 && s.durationMs > 0;
+    document.body.classList.toggle('counting', counting);
+    if (!counting) { timerEl.textContent = ''; return; }
+    const remainingMs = (s.roundStartedMs + s.durationMs) - Date.now();
+    const secs = Math.max(0, Math.ceil(remainingMs / 1000));
+    timerEl.textContent = String(secs);
+  }
+
+  async function onState(s) {
+    const visible = s.phase === 'silhouette' || s.phase === 'revealed';
+    document.body.classList.toggle('visible', visible);
+    document.body.classList.toggle('revealed', s.phase === 'revealed');
+    updateTimer(s);
+
+    if (s.roundId > 0 && s.roundId !== lastRoundId && s.phase === 'silhouette' && s.pokemonId > 0) {
+      lastRoundId     = s.roundId;
+      cryPlayedAt3s   = false;
+      cryPlayedReveal = false;
+
+      await loadPokemonSvg(API_BASE + s.sprite);
+      playAudio(introAudio, API_BASE + s.introWav);
+
+      setTimeout(() => {
+        if (lastRoundId === s.roundId && !cryPlayedAt3s) {
+          playAudio(cryAudio, API_BASE + s.cry);
+          cryPlayedAt3s = true;
+        }
+      }, s.introDelayMs || 3000);
+    }
+
+    if (s.phase === 'revealed' && lastPhase !== 'revealed' && !cryPlayedReveal && s.pokemonId > 0) {
+      playAudio(cryAudio, API_BASE + s.cry);
+      cryPlayedReveal = true;
+    }
+
+    lastPhase = s.phase;
+  }
+
+  async function poll() {
+    try {
+      const resp = await fetch(STATE_URL, { cache: 'no-store' });
+      if (!resp.ok) return;
+      const body = await resp.json();
+      onState(body.state || body);
+    } catch {  }
+  }
+
+  poll();
+  setInterval(poll, POLL_MS);
+</script>
+<script>
+  (function () {
+    var sid = null;
+    setInterval(function () {
+      fetch('/health', { cache: 'no-store' })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (!sid) { sid = d.sessionId; return; }
+          if (d.sessionId && d.sessionId !== sid) location.reload();
+        })
+        .catch(function () {});
+    }, 5000);
+  })();
+</script>
+</body>
+</html>

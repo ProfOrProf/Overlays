@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Eldendle</title>
+<style>
+  html,body{margin:0;width:1920px;height:1080px;overflow:hidden;background:transparent}
+  iframe{position:absolute;inset:0;width:1920px;height:1080px;border:0;background:transparent}
+</style>
+<script src="bosses.js"></script>
+</head>
+<body>
+<iframe id="o" src="overlay.html?demo" title="Eldendle"></iframe>
+<script>
+(function(){
+  var o=document.getElementById('o');
+  var target=BOSSES[BOSSES.length-1], order=BOSSES.slice(0,BOSSES.length-1).concat([target]);
+  var serial=0;
+  function dir(guess,want){ return guess===want?'correct':(want>guess?'higher':'lower'); }
+  function row(b){
+    return {matched_name:b.name,raw:b.name,gender:b.gender,gender_correct:b.gender===target.gender,
+      hp:b.hp,hp_dir:dir(b.hp,target.hp),runes:b.runes,runes_dir:dir(b.runes,target.runes),
+      region:b.region,region_correct:b.region===target.region,correct:b.name===target.name};
+  }
+  function post(state){ o.contentWindow.postMessage({eldendle:state},'*'); }
+  function round(){
+    serial++; var guesses=[];
+    post({phase:'active',serial:serial,guesses:[],max_guesses:10});
+    var i=0;
+    var timer=setInterval(function(){
+      guesses.push(row(order[i]));
+      var won=guesses[guesses.length-1].correct;
+      if(won){
+        clearInterval(timer);
+        post({phase:'won',serial:serial,guesses:guesses.slice(),max_guesses:10,boss_name:target.name,boss_hp:target.hp,boss_runes:target.runes,boss_region:target.region});
+        setTimeout(function(){ post({phase:'idle',serial:serial}); setTimeout(round,1800); },9000);
+      } else {
+        post({phase:'active',serial:serial,guesses:guesses.slice(),max_guesses:10});
+      }
+      i++;
+    },4200);
+  }
+  o.addEventListener('load',function(){ setTimeout(round,700); });
+})();
+</script>
+</body>
+</html>

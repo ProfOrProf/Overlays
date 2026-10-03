@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Catbook</title>
+<style>
+  html,body{margin:0;width:1920px;height:1080px;overflow:hidden;background:transparent}
+  iframe{position:absolute;inset:0;width:1920px;height:1080px;border:0;background:transparent}
+  #flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;transition:opacity .5s ease}
+  #flash.on{opacity:.85;transition:none}
+</style>
+</head>
+<body>
+<iframe id="spawn" src="spawn.html" title="Cat spawn" allowtransparency="true"></iframe>
+<div id="flash"></div>
+<iframe id="flip" src="flip.html" title="Clip card" allowtransparency="true"></iframe>
+<script>
+(function(){
+  var spawn=document.getElementById('spawn'), flip=document.getElementById('flip'), flash=document.getElementById('flash');
+  function push(frame,msg){ try{ frame.contentWindow.__push(msg); }catch(e){} }
+  function shutter(){ flash.classList.add('on'); requestAnimationFrame(function(){ requestAnimationFrame(function(){ flash.classList.remove('on'); }); }); }
+  function run(){
+    var now=Date.now();
+    push(spawn,{type:'walk_in',catId:'C1',isShiny:false,departsAtMs:now+11000});
+    setTimeout(function(){ push(spawn,{type:'clip_complete'}); shutter(); }, 5000);
+    setTimeout(function(){ push(flip,{type:'flip_show',catId:'C1',userDisplay:'Prof',clipTimestamp:'Oct 3 2026',photoPath:'photo.jpg',isShiny:false,hideAfterMs:6500}); }, 5600);
+  }
+  var ready=0;
+  function go(){ if(++ready<2) return; setTimeout(run,800); setInterval(run,17000); }
+  spawn.addEventListener('load',go); flip.addEventListener('load',go);
+})();
+</script>
+</body>
+</html>

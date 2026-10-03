@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="demo.js"></script>
+<style>#pullBtn{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:999;font:700 44px Impact,"Arial Black",sans-serif;letter-spacing:.08em;color:#fff;background:linear-gradient(180deg,#ff4a3a,#b5120a);border:4px solid #ffd44a;border-radius:50px;padding:18px 54px;cursor:pointer;box-shadow:0 8px 0 #6e0a04,0 14px 30px rgba(0,0,0,.5)}#pullBtn:active{transform:translate(-50%,6px);box-shadow:0 2px 0 #6e0a04}#pullBtn:disabled{filter:grayscale(.7) brightness(.7);cursor:default}</style>
+
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<title>Slots</title>
+<style>
+  :root{
+    --bgX:960px; --bgY:761px; --bgW:914px; --bgH:397px;
+    --reelsX:960px; --reelsY:742px; --reelSpacing:220px;
+    --iconSize:157px; --reelGap:151px; --reelViewH:397px;
+    --machineW:1246px; --worldScale:.61;
+    --coinSize:477px; --coinX:960px; --coinY:733px;
+    --nameX:960px; --nameY:304px; --nameSize:96px; --betSize:58px;
+    --bannerX:960px; --bannerY:1139px; --bannerSize:159px;
+    --nameMaxW:560px;
+  }
+  #world{position:absolute;inset:0;
+    transform:scale(var(--worldScale));transform-origin:50% 50%;}
+  html,body{margin:0;height:100%;background:transparent;overflow:hidden;
+    font-family:'Arial Black',Arial,sans-serif;}
+  
+  #stage{position:absolute;top:50%;left:50%;width:1920px;height:1080px;
+    transform:translate(-50%,-50%);transform-origin:center;}
+  #stage.hidden{opacity:0;pointer-events:none;}
+  #stage{transition:opacity .4s ease;}
+  #stage.greyscale{filter:grayscale(1) brightness(.85);}
+
+  .scene{position:absolute;left:var(--nameX);top:var(--nameY);
+    transform:translateX(-50%);
+    perspective:1400px;width:900px;height:150px;z-index:60;}
+  .nameflip{position:relative;width:100%;height:100%;
+    transition:transform var(--flipMs,900ms) ease;transform-style:preserve-3d;}
+  .nameflip.flip{transform:rotateY(180deg);}
+  .face{position:absolute;inset:0;backface-visibility:hidden;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;}
+  .face.back{transform:rotateY(180deg);}
+  .uname{font-size:var(--nameSize);color:#fff;-webkit-text-stroke:3px #000;
+    text-shadow:0 4px 0 #000,0 0 22px rgba(255,255,255,.4);letter-spacing:2px;
+    display:inline-block;white-space:nowrap;max-width:var(--nameMaxW);}
+  .ubet{margin-top:6px;font-size:var(--betSize);color:#ffd23c;
+    -webkit-text-stroke:2px #000;text-shadow:0 3px 0 #000;
+    display:inline-block;white-space:nowrap;max-width:var(--nameMaxW);}
+  .scene.nobet .ubet{visibility:hidden;}
+
+  #machineWrap{position:absolute;left:50%;top:50%;
+    transform:translate(-50%,-50%);z-index:30;}
+  #machine{width:var(--machineW);display:block;}
+  #winnerGif{position:absolute;left:50%;top:50%;
+    transform:translate(-50%,-50%);width:var(--machineW);z-index:35;
+    display:none;pointer-events:none;}
+
+  #reelWindow{position:absolute;left:var(--bgX);top:var(--bgY);
+    width:var(--bgW);height:var(--bgH);transform:translate(-50%,-50%);
+    background:#fff;z-index:20;border-radius:6px;}
+  
+  #reels{position:absolute;left:var(--reelsX);top:var(--reelsY);
+    width:0;height:0;z-index:21;}
+  .reel{position:absolute;top:0;width:var(--iconSize);
+    height:var(--reelViewH);transform:translate(-50%,-50%);overflow:hidden;}
+  #r0,#q0{left:calc(-1 * var(--reelSpacing));}
+  #r1,#q1{left:0;}
+  #r2,#q2{left:var(--reelSpacing);}
+  .strip{position:absolute;left:0;top:0;width:100%;
+    display:flex;flex-direction:column;}
+  .strip img{width:var(--iconSize);height:var(--iconSize);
+    object-fit:contain;display:block;margin:calc(var(--reelGap)/2) 0;
+    filter:drop-shadow(0 7px 9px rgba(0,0,0,.5));}
+  
+  #reelsResult{position:absolute;left:var(--reelsX);top:var(--reelsY);
+    width:0;height:0;z-index:22;pointer-events:none;}
+  #reelsResult img{position:absolute;top:0;width:var(--iconSize);
+    height:var(--iconSize);object-fit:contain;display:none;
+    transform:translate(-50%,-50%);
+    filter:drop-shadow(0 7px 9px rgba(0,0,0,.5));}
+  #reelsResult img.show{display:block;}
+  #reelsResult.holo img{animation:holoimg 3s ease-in-out infinite;}
+  .reel.holo::after{content:'';position:absolute;inset:0;z-index:10;
+    background:linear-gradient(315deg,transparent 0%,transparent 42%,
+      rgba(255,80,160,.22) 45%,rgba(255,210,80,.22) 48%,rgba(80,255,190,.22) 51%,
+      rgba(110,120,255,.22) 54%,rgba(230,80,255,.22) 57%,rgba(80,220,255,.22) 60%,
+      transparent 63%,transparent 100%);
+    background-size:300% 300%;animation:holo 4s ease-in-out infinite;
+    pointer-events:none;}
+  @keyframes holo{0%{background-position:0 0}50%{background-position:100% 100%}100%{background-position:0 0}}
+
+  #banner{position:absolute;left:var(--bannerX);top:var(--bannerY);
+    transform:translate(-50%,-50%);
+    z-index:70;font-size:var(--bannerSize);letter-spacing:6px;display:none;
+    white-space:nowrap;-webkit-text-stroke:6px #000;}
+  #banner.winner{color:#e11;
+    text-shadow:0 0 18px rgba(255,255,255,.9),0 6px 0 #000,
+      0 0 40px rgba(225,30,30,.8);}
+  #banner.loser{color:#bbb;text-shadow:0 6px 0 #000;}
+  #banner.ldw{color:#ffb030;
+    text-shadow:0 0 16px rgba(255,176,48,.8),0 6px 0 #000;}
+  #banner.jackpot{color:#fff;background:linear-gradient(315deg,
+      #ff50a0,#ffd250,#50ffbe,#6e78ff,#e650ff,#50dcff);
+    background-size:300% 300%;-webkit-background-clip:text;background-clip:text;
+    -webkit-text-fill-color:transparent;animation:holo 3s ease-in-out infinite;
+    -webkit-text-stroke:5px #000;}
+  @keyframes pop{0%{transform:translate(-50%,-50%) scale(.2);opacity:0}
+    60%{transform:translate(-50%,-50%) scale(1.15);opacity:1}
+    100%{transform:translate(-50%,-50%) scale(1)}}
+  #banner.show{display:block;animation:pop .5s ease forwards;}
+
+  #mults{position:absolute;left:50%;top:300px;transform:translateX(-50%);
+    z-index:45;display:flex;gap:40px;}
+  #mults img{height:170px;display:none;filter:drop-shadow(0 6px 10px rgba(0,0,0,.6));}
+  #mults img.show{display:block;animation:pop .5s ease;}
+  #mults img.holo{animation:pop .5s ease, holoimg 3s ease-in-out infinite .5s;}
+  @keyframes holoimg{0%,100%{filter:drop-shadow(0 6px 10px rgba(0,0,0,.6)) hue-rotate(0)}
+    50%{filter:drop-shadow(0 6px 18px rgba(255,255,255,.7)) hue-rotate(60deg) saturate(1.6)}}
+
+  #coinScene{position:absolute;left:var(--coinX);top:var(--coinY);
+    transform:translate(-50%,-50%);
+    perspective:1000px;z-index:48;display:none;}
+  #coin{width:var(--coinSize);height:var(--coinSize);transform-style:preserve-3d;}
+  #coin.spin{animation:coinflip 4.8s ease-out forwards;}
+  #coin img{position:absolute;inset:0;width:100%;height:100%;
+    backface-visibility:hidden;object-fit:contain;}
+  #coin .b{transform:rotateY(180deg);}
+  
+  @keyframes coinflip{
+    0%   {transform:rotateY(0)       scale(0);}
+    33%  {transform:rotateY(360deg)  scale(2);}
+    100% {transform:rotateY(1080deg) scale(1);}
+  }
+  #coinScene{transition:opacity .6s ease;}
+</style>
+</head>
+<body>
+<div id="stage" class="hidden">
+ <div id="world">
+
+  <div class="scene">
+    <div class="nameflip" id="nameflip">
+      <div class="face front">
+        <div class="uname" id="unameF">—</div>
+        <div class="ubet"  id="ubetF"></div>
+      </div>
+      <div class="face back">
+        <div class="uname" id="unameB">—</div>
+        <div class="ubet"  id="ubetB"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="mults">
+    <img id="mA" src="">
+    <img id="mB" src="">
+  </div>
+
+  <div id="reelWindow"></div>
+  <div id="reels">
+    <div class="reel" id="r0"><div class="strip" id="s0"></div></div>
+    <div class="reel" id="r1"><div class="strip" id="s1"></div></div>
+    <div class="reel" id="r2"><div class="strip" id="s2"></div></div>
+  </div>
+  <div id="reelsResult"><img id="q0"><img id="q1"><img id="q2"></div>
+
+  <div id="machineWrap">
+    <img id="machine" src="assets/Machines/01.gif" alt="">
+  </div>
+  <img id="winnerGif" src="assets/Machines/Winner.gif" alt="">
+
+  <div id="coinScene">
+    <div id="coin">
+      <img class="f" src="assets/Icons/Coin.png">
+      <img class="b" src="assets/Icons/Coin.png">
+    </div>
+  </div>
+
+  <div id="banner"></div>
+ </div>
+</div>
+
+<audio id="aPull"   src="assets/Sounds/Pull.wav"      preload="auto"></audio>
+<audio id="aSmall"  src="assets/Sounds/WinSmall.wav"  preload="auto"></audio>
+<audio id="aMedium" src="assets/Sounds/WinMedium.wav" preload="auto"></audio>
+<audio id="aLarge"  src="assets/Sounds/WinLarge.wav"  preload="auto"></audio>
+<audio id="aLoss"   src="assets/Sounds/Loss.wav"      preload="auto"></audio>
+<audio id="aJack"   src="assets/Sounds/WinJackpot.wav"preload="auto"></audio>
+<audio id="aCoin"   src="assets/Sounds/Coin.wav"      preload="auto"></audio>
+
+<script>
+"use strict";
+const SSE_URL = "http://127.0.0.1:8782/sse";
+
+let ICONS = ["1a","1b","1c","2a","2b","2c","3a","3b","3c","4a","4b","4c",
+             "5a","5b","5c","6a","6b","6c","7a","7b","7c"];
+
+const $ = id => document.getElementById(id);
+const stage = $("stage");
+let curBet = 0, faceFront = true;
+
+function fitStage(){
+  const s = Math.min(innerWidth/1920, innerHeight/1080);
+  stage.style.transform = `translate(-50%,-50%) scale(${s})`;
+}
+addEventListener("resize", fitStage); fitStage();
+
+function setLayout(L){
+  const r = document.documentElement.style;
+  if(L.reelWindowX!=null) r.setProperty('--bgX', L.reelWindowX+'px');
+  if(L.reelWindowY!=null) r.setProperty('--bgY', L.reelWindowY+'px');
+  if(L.reelWindowW!=null) r.setProperty('--bgW', L.reelWindowW+'px');
+  if(L.reelWindowH!=null) r.setProperty('--bgH', L.reelWindowH+'px');
+  if(L.reelsX!=null)      r.setProperty('--reelsX', L.reelsX+'px');
+  if(L.reelsY!=null)      r.setProperty('--reelsY', L.reelsY+'px');
+  if(L.reelSpacing!=null) r.setProperty('--reelSpacing', L.reelSpacing+'px');
+  if(L.iconSize!=null)    r.setProperty('--iconSize', L.iconSize+'px');
+  if(L.reelGap!=null)     r.setProperty('--reelGap', L.reelGap+'px');
+  if(L.machineWidth!=null)r.setProperty('--machineW', L.machineWidth+'px');
+  if(L.worldScale!=null)  r.setProperty('--worldScale', (L.worldScale/100));
+  if(L.reelViewH!=null)   r.setProperty('--reelViewH', L.reelViewH+'px');
+  if(L.coinSize!=null)    r.setProperty('--coinSize', L.coinSize+'px');
+  if(L.coinX!=null)       r.setProperty('--coinX', L.coinX+'px');
+  if(L.coinY!=null)       r.setProperty('--coinY', L.coinY+'px');
+  if(L.nameX!=null)       r.setProperty('--nameX', L.nameX+'px');
+  if(L.nameY!=null)       r.setProperty('--nameY', L.nameY+'px');
+  if(L.nameSize!=null)    r.setProperty('--nameSize', L.nameSize+'px');
+  if(L.betSize!=null)     r.setProperty('--betSize', L.betSize+'px');
+  if(L.nameMaxW!=null)    r.setProperty('--nameMaxW', L.nameMaxW+'px');
+  if(L.bannerX!=null)     r.setProperty('--bannerX', L.bannerX+'px');
+  if(L.bannerY!=null)     r.setProperty('--bannerY', L.bannerY+'px');
+  if(L.bannerSize!=null)  r.setProperty('--bannerSize', L.bannerSize+'px');
+  if(L.volume!=null)      VOL.master=L.volume;
+  for(const k in AUDIO_KEYS) if(L[k]!=null) VOL[k]=L[k];
+  applyVolumes();
+  ["unameF","unameB"].forEach(id=>$(id)&&fitText($(id),'--nameSize'));
+  ["ubetF","ubetB"].forEach(id=>$(id)&&fitText($(id),'--betSize'));
+}
+const AUDIO_KEYS={volPull:"aPull",volSmall:"aSmall",volMedium:"aMedium",
+  volLarge:"aLarge",volLoss:"aLoss",volJackpot:"aJack",volCoin:"aCoin"};
+const VOL={master:100,volPull:100,volSmall:68,volMedium:61,
+  volLarge:41,volLoss:54,volJackpot:63,volCoin:83};
+function applyVolumes(){
+  const m=Math.max(0,Math.min(1,VOL.master/100));
+  for(const k in AUDIO_KEYS){
+    const a=$(AUDIO_KEYS[k]);
+    if(a) a.volume=Math.max(0,Math.min(1, m*(VOL[k]/100)));
+  }
+}
+
+function playSnd(id){ const a=$(id); try{a.currentTime=0;a.play();}catch(e){} }
+
+function buildStrip(stripEl, finalSym, len){
+  stripEl.innerHTML="";
+  const list=[];
+  for(let i=0;i<len;i++) list.push(ICONS[Math.floor(Math.random()*ICONS.length)]);
+  list.push(finalSym);
+  for(const sym of list){
+    const img=document.createElement("img");
+    img.src="assets/Icons/"+sym+".png";
+    stripEl.appendChild(img);
+  }
+  return list.length;
+}
+
+function spinReel(idx, finalSym, durationMs){
+  const reel=$("r"+idx), strip=$("s"+idx);
+  reel.classList.remove("holo");
+  const iconPx = parseFloat(getComputedStyle(document.documentElement)
+                  .getPropertyValue('--iconSize'));
+  const gapPx  = parseFloat(getComputedStyle(document.documentElement)
+                  .getPropertyValue('--reelGap'));
+  const cell   = iconPx + gapPx;
+  const count  = buildStrip(strip, finalSym, 28 + idx*6);
+  const reelH  = reel.clientHeight;
+  const finalY = -((count-1)*cell) + (reelH/2 - cell/2);
+  strip.style.transition="none";
+  strip.style.transform="translateY(0)";
+  void strip.offsetWidth;
+  strip.style.transition=`transform ${durationMs}ms cubic-bezier(.18,.7,.2,1)`;
+  strip.style.transform=`translateY(${finalY}px)`;
+}
+
+function handle(msg){
+  switch(msg.type){
+
+    case "show":
+      curBet=msg.bet||0;
+      setUser(msg.user, curBet, true);
+      resetVisuals();
+      restartMachineGif();
+      stage.classList.remove("hidden");
+      break;
+
+    case "nextuser":
+      curBet=msg.bet||0;
+      resetVisuals();
+      restartMachineGif();
+      flipToUser(msg.user, curBet);
+      break;
+
+    case "spin":{
+      playSnd("aPull");
+      const dur=msg.durationMs||5000, stag=msg.staggerMs||500;
+      const syms=msg.symbols||["1a","1b","1c"];
+      for(let i=0;i<3;i++){
+        $("q"+i).classList.remove("show");
+        $("s"+i).style.visibility="visible";
+        setTimeout(()=>spinReel(i,syms[i],dur), i*stag);
+        setTimeout(()=>{
+          const q=$("q"+i);
+          q.src="assets/Icons/"+syms[i]+".png";
+          q.classList.add("show");
+          $("s"+i).style.visibility="hidden";
+        }, i*stag + dur + 60);
+      }
+      window._lastSyms=syms; window._jack=!!msg.jackpot;
+      window._jmults=msg.multipliers||[];
+      window._mlabel=msg.multiplier||null;
+      break;
+    }
+
+    case "win":{
+      sceneNobet(true);
+      showMultiplier(window._mlabel,false);
+      $("winnerGif").style.display="block";
+      banner("WINNER!","winner");
+      const ratio=curBet>0?msg.winnings/curBet:1;
+      playSnd(ratio>=3?"aLarge":ratio>=1?"aMedium":"aSmall");
+      coinFlip();
+      break;
+    }
+
+    case "jackpot":{
+      sceneNobet(true);
+      $("reelsResult").classList.add("holo");
+      $("winnerGif").style.display="block";
+      banner("JACKPOT!","jackpot");
+      playSnd("aJack");
+      coinFlip();
+      break;
+    }
+
+    case "ldw":
+      banner("SO CLOSE!","ldw");
+      playSnd("aSmall");
+      break;
+
+    case "loss":
+      banner("LOSER!","loser");
+      stage.classList.add("greyscale");
+      playSnd("aLoss");
+      break;
+
+    case "hide":
+      stage.classList.add("hidden");
+      setTimeout(resetVisuals,500);
+      break;
+  }
+}
+
+function restartMachineGif(){
+  const m=$("machine");
+  m.src="assets/Machines/01.gif?t="+Date.now();
+}
+function sceneNobet(on){
+  const s=document.querySelector(".scene");
+  if(s) s.classList.toggle("nobet",!!on);
+}
+function fitText(el, baseVar){
+  const cs=getComputedStyle(document.documentElement);
+  const base=parseFloat(cs.getPropertyValue(baseVar))||40;
+  const maxW=parseFloat(cs.getPropertyValue('--nameMaxW'))||560;
+  el.style.fontSize=base+"px";
+  const w=el.scrollWidth;
+  if(w>maxW) el.style.fontSize=(base*maxW/w).toFixed(1)+"px";
+}
+function setUser(name,bet,front){
+  const un=$(front?"unameF":"unameB"), ub=$(front?"ubetF":"ubetB");
+  un.textContent=name||"—";
+  ub.textContent=(bet?bet.toLocaleString():"0")+" GCoinz Bet!";
+  fitText(un,'--nameSize');
+  fitText(ub,'--betSize');
+}
+function flipToUser(name,bet){
+  faceFront=!faceFront;
+  setUser(name,bet,faceFront);
+  $("nameflip").classList.toggle("flip",!faceFront);
+}
+function banner(text,cls){
+  const b=$("banner");
+  b.className=""; b.textContent=text;
+  b.style.display="block";
+  b.classList.add(cls,"show");
+}
+function showMultiplier(label,holo){
+  if(!label) return;
+  const img=$("mA");
+  img.src="assets/Icons/"+label+".png";
+  img.className=holo?"show holo":"show";
+}
+function showJackpotMults(vals){
+  const ids=["mA","mB"];
+  (vals||[]).slice(0,2).forEach((v,i)=>{
+    const img=$(ids[i]);
+    img.src="assets/Icons/x"+v+".png";
+    img.className="show holo";
+  });
+}
+function coinFlip(){
+  const cs=$("coinScene"), c=$("coin");
+  cs.style.display="block"; cs.style.opacity="1";
+  c.classList.remove("spin"); void c.offsetWidth;
+  c.classList.add("spin");
+  playSnd("aCoin");
+  setTimeout(()=>{ cs.style.opacity="0"; }, 5800);
+  setTimeout(()=>{ cs.style.display="none"; },  6500);
+}
+function resetVisuals(){
+  sceneNobet(false);
+  stage.classList.remove("greyscale");
+  $("banner").className=""; $("banner").style.display="";
+  $("winnerGif").style.display="none";
+  const cs=$("coinScene"); cs.style.display="none"; cs.style.opacity="1";
+  $("coin").classList.remove("spin");
+  $("mA").className=""; $("mB").className="";
+  $("reelsResult").classList.remove("holo");
+  for(let i=0;i<3;i++){
+    $("r"+i).classList.remove("holo");
+    $("q"+i).classList.remove("show");
+    const st=$("s"+i);
+    st.style.transition="none"; st.style.transform="translateY(0)";
+    st.style.visibility="visible";
+  }
+}
+
+addEventListener("message",e=>{
+  const d=e.data||{};
+  if(d.__slotsLayout){ setLayout(d.__slotsLayout); }
+  else if(d.__slotsEvent){ handle(d.__slotsEvent); }
+  else if(d.__slotsIcons){ ICONS=d.__slotsIcons; }
+});
+
+function connect(){
+  let es;
+  try{ es=new EventSource(SSE_URL); }catch(e){ setTimeout(connect,5000); return; }
+  es.onmessage=ev=>{ try{ handle(JSON.parse(ev.data)); }catch(e){} };
+  es.onerror=()=>{ es.close(); setTimeout(connect,5000); };
+}
+applyVolumes();
+connect();
+</script>
+</body>
+</html>

@@ -34,6 +34,8 @@
     display:flex;align-items:center;gap:10px}
   .piece .nm::before{content:"";width:7px;height:7px;background:var(--grace);transform:rotate(45deg);flex:0 0 auto}
   .piece .sub{font-size:12.5px;font-style:italic;color:var(--ink-faint);letter-spacing:.06em}
+  .piece .sub a{color:var(--grace);text-decoration:none;opacity:.85}
+  .piece .sub a:hover{opacity:1}
   .piece .view{padding:22px;display:grid;place-items:center;overflow:hidden}
   .piece .view.dark{background:#1b1b1b}
   .piece .view.frame{background:
@@ -41,7 +43,7 @@
     radial-gradient(ellipse at 20% 80%,rgba(40,60,90,.3),transparent 60%),
     linear-gradient(180deg,#1a1716,#0b0a0a)}
   .scaler{position:relative;max-width:100%}
-  .scaler iframe{position:absolute;left:0;top:0;border:0;transform-origin:0 0;background:transparent}
+  .scaler iframe{position:absolute;left:0;top:0;border:0;transform-origin:0 0;background:transparent;color-scheme:light}
   .piece img{display:block;max-width:100%;height:auto}
   .piece a.open{font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--grace);text-decoration:none;opacity:.8}
   .piece a.open:hover{opacity:1}
@@ -65,12 +67,21 @@
 
 <script>
 var PIECES = [
-  {
-    name: "AutoHitCounter",
-    sub: "GhostintheNoice",
-    frame: "/showcase/ghost-hit-strip/?demo",
-    width: 520, height: 110, zoom: 2, view: "frame"
-  }
+  {name: "Elden Cards", twitch: "prof", frame: "/showcase/elden-cards/", width: 760, height: 1000, zoom: .62, view: "frame"},
+  {name: "ProfCards", twitch: "prof", frame: "/showcase/profcards/", width: 1920, height: 1080, zoom: .55, view: "frame"},
+  {name: "Sortie", twitch: "anubis520", frame: "/showcase/anubis-sortie/", width: 1920, height: 1080, zoom: .55, view: "frame"},
+  {name: "Catbook", twitch: "exzerothree", frame: "/showcase/catbook/", width: 1920, height: 1080, zoom: .55, view: "frame"},
+  {name: "WordCats", twitch: "exzerothree", frame: "/showcase/wordcats/", width: 1920, height: 1080, zoom: .55, view: "frame"},
+  {name: "Slots", twitch: "gboyz", frame: "/showcase/slots/", width: 1920, height: 1080, zoom: .55, view: "frame"},
+  {name: "Three Card Monty", twitch: "nibiru_truths", frame: "/showcase/monty/", width: 1920, height: 1080, zoom: .55, view: "frame"},
+  {name: "KatyFight", twitch: "theprofessorswifex", frame: "/showcase/katyfight/", width: 1920, height: 1080, zoom: .55, view: "frame"},
+  {name: "Hangman", twitch: "prof", frame: "/showcase/hangman/", width: 1920, height: 1080, zoom: .55, view: "frame"},
+  {name: "Who's That Pokemon", twitch: "prof", frame: "/showcase/whos-that-pokemon/", width: 1920, height: 1080, zoom: .55, view: "frame"},
+  {name: "Eldendle", twitch: "prof", frame: "/showcase/eldendle/", width: 1920, height: 1080, zoom: .55, view: "frame"},
+  {name: "Profdle", twitch: "prof", frame: "/showcase/profdle/", width: 1920, height: 1080, zoom: .55, view: "frame"},
+  {name: "Profify", twitch: "prof", frame: "/showcase/profify/", width: 1600, height: 500, zoom: .6, view: "frame"},
+  {name: "Scoundrel", twitch: "prof", frame: "/showcase/scoundrel/", width: 1920, height: 1080, zoom: .55, view: "frame"},
+  {name: "AutoHitCounter", sub: "GhostintheNoice", frame: "/showcase/ghost-hit-strip/?demo", width: 520, height: 110, zoom: 2, view: "frame"}
 ];
 </script>
 <script>
@@ -84,7 +95,11 @@ var PIECES = [
     var head = '<div class="head"><span class="nm"></span><span class="sub"></span></div>';
     el.innerHTML = head + '<div class="view ' + (p.view || 'dark') + '"></div>';
     el.querySelector('.nm').textContent = p.name;
-    el.querySelector('.sub').textContent = p.sub || '';
+    var sub = el.querySelector('.sub');
+    if (p.twitch) {
+      var tl = document.createElement('a'); tl.href = 'https://twitch.tv/' + p.twitch; tl.target = '_blank'; tl.rel = 'noopener';
+      tl.textContent = 'twitch.tv/' + p.twitch; sub.appendChild(tl);
+    } else { sub.textContent = p.sub || ''; }
     var view = el.querySelector('.view');
     if (p.frame) {
       var s = document.createElement('div'); s.className = 'scaler';

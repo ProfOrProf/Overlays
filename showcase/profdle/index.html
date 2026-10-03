@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="demo.js"></script>
+<style>#guessBox{position:fixed;right:40px;bottom:40px;display:flex;gap:10px;align-items:center;z-index:999;background:rgba(18,18,20,.85);padding:12px 16px;border-radius:10px;border:2px solid #538d4e;font-family:"Clear Sans","Helvetica Neue",Arial,sans-serif}#guessBox label{color:#c9c9c9;font-size:20px;font-weight:700}#guessBox input{font:700 24px "Clear Sans",Arial,sans-serif;width:150px;padding:8px 12px;border-radius:6px;border:2px solid #3a3a3c;background:#121213;color:#fff;text-transform:uppercase;letter-spacing:.15em}#guessBox button{font:700 18px Arial,sans-serif;padding:10px 16px;border-radius:6px;border:0;background:#538d4e;color:#fff;cursor:pointer}#pdMsg{color:#fff;font-size:18px;min-width:120px}</style>
+
+    <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <title>Wordle</title>
+    <style>
+        :root {
+            --text:            #d7dadc;
+            --text-flipped:    #ffffff;
+            --background:      #121213;
+            --tile-background: rgb(79,79,79);
+            --letter-correct:  #6aaa64;
+            --letter-present:  #c9b458;
+            --letter-absent:   #3a3a3c;
+            --border-inactive: #3a3a3c;
+            --border-active:   #565758;
+            --key-background:  #818181;
+        }
+
+        html { height: 100%; }
+
+        body {
+            font-family: sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            height: 100%;
+            margin: 0;
+        }
+
+        .wrapper {
+            max-width: 500px;
+            width: 100%;
+            display: flex;
+            flex: 1;
+            align-items: center;
+            flex-direction: column;
+            justify-content: center;
+            height: 100%;
+            visibility: hidden;
+        }
+
+        h1 {
+            width: 400px;
+            user-select: none;
+            text-transform: uppercase;
+            text-align: center;
+            letter-spacing: 3px;
+            font-size: 2rem;
+            color: var(--text);
+            margin: 0 0 8px 0;
+        }
+
+        .board {
+            display: grid;
+            grid-gap: 5px;
+            grid-template-rows: repeat(6, 1fr);
+            padding: 10px;
+            box-sizing: border-box;
+            width: 100%;
+            height: 420px;
+            max-width: 350px;
+            border-radius: 8px;
+            transition: box-shadow 800ms ease;
+        }
+
+        .board.win-glow {
+            box-shadow:
+                0 0 20px 6px rgba(220,38,38,0.7),
+                0 0 60px 16px rgba(220,38,38,0.4),
+                0 0 100px 30px rgba(220,38,38,0.2);
+        }
+
+        .board .row {
+            display: grid;
+            grid-gap: 5px;
+            grid-template-columns: repeat(5, 1fr);
+        }
+
+        .tile {
+            font-size: 2rem;
+            line-height: 2rem;
+            font-weight: bold;
+            display: inline-flex;
+            justify-content: center;
+            text-transform: uppercase;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        #keyboard {
+            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 5px;
+            margin-top: 8px;
+        }
+
+        .key {
+            aspect-ratio: 1;
+            justify-content: center;
+            align-items: center;
+            display: flex;
+            font-weight: bold;
+            border-radius: 5px;
+            background-color: var(--key-background);
+            color: var(--text);
+        }
+
+        .board .row[data-state="invalid"] { animation: shake 600ms; }
+
+        .tile[data-state="initial"] { border: solid 2px var(--border-inactive); }
+        .tile[data-state="enter"]   { animation: enter 100ms 1; border: solid 2px var(--border-active); }
+        .tile[data-state="absent"]  { border: solid 2px var(--border-active); }
+        .tile[data-state="present"] { border: solid 2px var(--border-active); }
+        .tile[data-state="correct"] { border: solid 2px var(--border-active); }
+
+        .key[data-state="absent"]  { background-color: var(--letter-absent); }
+        .key[data-state="present"] { background-color: var(--letter-present); }
+        .key[data-state="correct"] { background-color: var(--letter-correct); }
+
+        .row[data-state="valid"] .tile[data-state="absent"]  { animation: flip-absent  500ms ease-in forwards; }
+        .row[data-state="valid"] .tile[data-state="present"] { animation: flip-present 500ms ease-in forwards; }
+        .row[data-state="valid"] .tile[data-state="correct"] { animation: flip-correct 500ms ease-in forwards; }
+
+        .row[data-state="valid"] .tile:nth-child(2) { animation-delay: 0.1s; }
+        .row[data-state="valid"] .tile:nth-child(3) { animation-delay: 0.2s; }
+        .row[data-state="valid"] .tile:nth-child(4) { animation-delay: 0.3s; }
+        .row[data-state="valid"] .tile:nth-child(5) { animation-delay: 0.4s; }
+
+        .row[data-state="correct"] .tile {
+            animation: bounce 500ms forwards;
+            background-color: var(--letter-correct);
+            color: var(--text-flipped);
+        }
+        .row[data-state="correct"] .tile[data-state="correct"] { border: solid 2px var(--letter-correct); }
+        .row[data-state="correct"] .tile:nth-child(2) { animation-delay: 0.2s; }
+        .row[data-state="correct"] .tile:nth-child(3) { animation-delay: 0.1s; }
+        .row[data-state="correct"] .tile:nth-child(4) { animation-delay: 0.4s; }
+        .row[data-state="correct"] .tile:nth-child(5) { animation-delay: 0.3s; }
+
+        @keyframes flip-absent {
+            0%   { transform:rotateX(0deg);   background-color:var(--tile-background); border:solid 2px var(--border-active); }
+            49%  { background-color:var(--tile-background); border:solid 2px var(--border-active); }
+            50%  { transform:rotateX(-90deg); background-color:var(--letter-absent);  border:solid 2px var(--letter-absent);  color:var(--text-flipped); }
+            100% { transform:rotateX(0deg);   background-color:var(--letter-absent);  border:solid 2px var(--letter-absent);  color:var(--text-flipped); }
+        }
+        @keyframes flip-present {
+            0%   { transform:rotateX(0deg);   background-color:var(--tile-background); border:solid 2px var(--border-active); }
+            49%  { background-color:var(--tile-background); border:solid 2px var(--border-active); }
+            50%  { transform:rotateX(-90deg); background-color:var(--letter-present);  border:solid 2px var(--letter-present); color:var(--text-flipped); }
+            100% { transform:rotateX(0deg);   background-color:var(--letter-present);  border:solid 2px var(--letter-present); color:var(--text-flipped); }
+        }
+        @keyframes flip-correct {
+            0%   { transform:rotateX(0deg);   background-color:var(--tile-background); border:solid 2px var(--border-active); }
+            49%  { background-color:var(--tile-background); border:solid 2px var(--border-active); }
+            50%  { transform:rotateX(-90deg); background-color:var(--letter-correct);  border:solid 2px var(--letter-correct); color:var(--text-flipped); }
+            100% { transform:rotateX(0deg);   background-color:var(--letter-correct);  border:solid 2px var(--letter-correct); color:var(--text-flipped); }
+        }
+        @keyframes enter {
+            from { transform:scale(0.8); opacity:0; }
+            40%  { transform:scale(1.1); opacity:1; }
+        }
+        @keyframes shake {
+            10%,90% { transform:translateX(-1px); }
+            20%,80% { transform:translateX(2px);  }
+            30%,50%,70% { transform:translateX(-4px); }
+            40%,60% { transform:translateX(4px);  }
+        }
+        @keyframes bounce {
+            0%,20% { background-color:var(--letter-correct); transform:translateY(0); }
+            40%    { transform:translateY(-30px); }
+            50%    { transform:translateY(5px);   }
+            60%    { transform:translateY(-15px); }
+            80%    { transform:translateY(2px);   }
+            100%   { transform:translateY(0); background-color:var(--letter-correct); }
+        }
+        @keyframes glow-pulse {
+            0%,100% { box-shadow: 0 0 20px 6px rgba(220,38,38,0.7), 0 0 60px 16px rgba(220,38,38,0.4); }
+            50%     { box-shadow: 0 0 30px 10px rgba(220,38,38,0.9), 0 0 80px 24px rgba(220,38,38,0.6); }
+        }
+        .board.win-glow { animation: glow-pulse 1.2s ease-in-out infinite; }
+
+        @keyframes loss-fadeout {
+            0%   { opacity: 1; filter: grayscale(0%); }
+            25%  { opacity: 1; filter: grayscale(100%); }
+            100% { opacity: 0; filter: grayscale(100%); }
+        }
+        .wrapper.loss-fade { animation: loss-fadeout 3s ease-in forwards; }
+    </style>
+</head>
+<body>
+<div class="wrapper">
+    <h1>Wordle</h1>
+    <div class="board" id="board"></div>
+    <div id="keyboard">
+        <div class="key">q</div><div class="key">w</div><div class="key">e</div>
+        <div class="key">r</div><div class="key">t</div><div class="key">y</div>
+        <div class="key">u</div><div class="key">i</div><div class="key">o</div>
+        <div class="key">p</div><div class="key">a</div><div class="key">s</div>
+        <div class="key">d</div><div class="key">f</div><div class="key">g</div>
+        <div class="key">h</div><div class="key">j</div><div class="key">k</div>
+        <div class="key">l</div><div class="key">z</div><div class="key">x</div>
+        <div class="key">c</div><div class="key">v</div><div class="key">b</div>
+        <div class="key">n</div><div class="key">m</div>
+    </div>
+</div>
+
+<audio id="audStart" src="./Audio/Start.wav" preload="auto"></audio>
+<audio id="audWin"   src="./Audio/Win.wav"   preload="auto"></audio>
+<audio id="audLoss"  src="./Audio/Loss.wav"  preload="auto"></audio>
+
+<script>
+"use strict";
+
+const SSE_URL = "http://127.0.0.1:8779/sse";
+
+const wrapper  = document.querySelector(".wrapper");
+const board    = document.getElementById("board");
+const audStart = document.getElementById("audStart");
+const audWin   = document.getElementById("audWin");
+const audLoss  = document.getElementById("audLoss");
+
+const maxWordLength = 5;
+let   maxGuesses    = 6;
+let   currentGuess  = [];
+let   guesses       = [];
+let   gameOver      = false;
+let   targetWord    = "";
+
+const revealTime = 500;
+const HIDE_DELAY = 10000;
+
+const letterStates = {
+    INITIAL: "initial",
+    ENTER:   "enter",
+    ABSENT:  "absent",
+    PRESENT: "present",
+    CORRECT: "correct",
+};
+
+function showOverlay() { wrapper.style.visibility = "visible"; }
+function hideOverlay() { wrapper.style.visibility = "hidden";  }
+
+function generateBoard(rows) {
+    board.innerHTML = "";
+    for (let r = 0; r < rows; r++) {
+        const rowEl = document.createElement("div");
+        rowEl.classList.add("row");
+        for (let c = 0; c < maxWordLength; c++) {
+            const tile = document.createElement("div");
+            tile.classList.add("tile");
+            tile.dataset.state = letterStates.INITIAL;
+            rowEl.appendChild(tile);
+        }
+        board.appendChild(rowEl);
+    }
+}
+
+function getRow(row)       { return document.querySelector(`#board .row:nth-child(${row})`); }
+function getTile(row, col) { return getRow(row).querySelector(`.tile:nth-child(${col})`); }
+
+function renderGuess(word, target, guessNumber, won, lost) {
+    if (guesses.includes(guessNumber)) return;
+    guesses.push(guessNumber);
+
+    const letters = word.split("");
+    letters.forEach((letter, i) =>
+        setTimeout(() => {
+            const tile = getTile(guessNumber, i + 1);
+            tile.innerText      = letter;
+            tile.dataset.state  = letterStates.ENTER;
+            tile.dataset.letter = letter;
+            currentGuess.push(letter);
+        }, i * revealTime)
+    );
+
+    setTimeout(() => {
+        submitRenderedGuess(word, target, guessNumber, won, lost);
+    }, letters.length * revealTime + 50);
+}
+
+function submitRenderedGuess(word, target, guessNumber, won, lost) {
+    const rowEl   = getRow(guessNumber);
+    const letters = word.split("");
+
+    let correct = 0;
+
+    for (let i = 0; i < maxWordLength; i++) {
+        const tile   = getTile(guessNumber, i + 1);
+        const letter = tile.dataset.letter;
+
+        if (target.includes(letter)) {
+            if (indicesOf(letter, target).includes(i)) {
+                tile.dataset.state = letterStates.CORRECT;
+                setKeyState(letter, letterStates.CORRECT);
+                correct++;
+            } else {
+                tile.dataset.state = letterStates.PRESENT;
+                if (getKeyState(letter) !== letterStates.CORRECT)
+                    setKeyState(letter, letterStates.PRESENT);
+            }
+        } else {
+            tile.dataset.state = letterStates.ABSENT;
+            setKeyState(letter, letterStates.ABSENT);
+        }
+    }
+
+    const scanned = [];
+    for (let i = 0; i < maxWordLength; i++) {
+        const tile   = getTile(guessNumber, i + 1);
+        const letter = tile.dataset.letter;
+        scanned.push(letter);
+        if (target.includes(letter) && !indicesOf(letter, target).includes(i)) {
+            if (indicesOf(letter, scanned).length > indicesOf(letter, target).length)
+                tile.dataset.state = letterStates.ABSENT;
+        }
+    }
+
+    // Finalize every tile's state BEFORE flipping the row, so the zero-delay first tile flips
+    // exactly once with its final state (it was re-triggering mid-flip on the duplicate-letter
+    // rescan → intermittently dropped the first-column letter).
+    rowEl.dataset.state = "valid";
+    currentGuess = [];
+
+    if (won) {
+        gameOver = true;
+        setTimeout(() => { rowEl.dataset.state = "correct"; }, 1000);
+        setTimeout(() => {
+            board.classList.add("win-glow");
+            playSound(audWin);
+        }, 1500);
+        setTimeout(hideOverlay, HIDE_DELAY);
+    } else if (lost) {
+        gameOver = true;
+        setTimeout(() => {
+            playSound(audLoss);
+            wrapper.classList.add("loss-fade");
+        }, 800);
+        setTimeout(hideOverlay, 4200);
+    }
+}
+
+function invalidGuess() {
+    const activeRow = guesses.length + 1;
+    const rowEl = getRow(activeRow);
+    if (!rowEl) return;
+    rowEl.dataset.state = "invalid";
+    setTimeout(() => { delete rowEl.dataset.state; }, 600);
+    for (let i = 0; i < 5; i++) {
+        setTimeout(() => { removeLastLetter(activeRow); }, 2000 + i * 500);
+    }
+}
+
+function removeLastLetter(row) {
+    if (currentGuess.length > 0) {
+        const tile = getTile(row, currentGuess.length);
+        tile.innerText       = "";
+        tile.dataset.state   = letterStates.INITIAL;
+        delete tile.dataset.letter;
+        currentGuess.pop();
+    }
+}
+
+function setKeyState(letter, state) {
+    const key = document.querySelector(`#keyboard .key[data-letter="${letter}"]`);
+    if (key) key.dataset.state = state;
+}
+function getKeyState(letter) {
+    const key = document.querySelector(`#keyboard .key[data-letter="${letter}"]`);
+    return key ? key.dataset.state : null;
+}
+function initKeyLetters() {
+    document.querySelectorAll("#keyboard .key").forEach(k => {
+        k.dataset.letter = k.textContent.trim();
+    });
+}
+function resetKeyboard() {
+    document.querySelectorAll("#keyboard .key").forEach(k => delete k.dataset.state);
+}
+
+function resetBoard() {
+    board.classList.remove("win-glow");
+    wrapper.classList.remove("loss-fade");
+    document.querySelectorAll("#board .tile").forEach(tile => {
+        tile.dataset.state = letterStates.INITIAL;
+        delete tile.dataset.letter;
+        tile.innerText = "";
+    });
+    document.querySelectorAll("#board .row").forEach(r => delete r.dataset.state);
+    resetKeyboard();
+    currentGuess = [];
+    guesses      = [];
+    gameOver     = false;
+    targetWord   = "";
+}
+
+function indicesOf(letter, word) {
+    const idx = [];
+    for (let i = 0; i < word.length; i++)
+        if (word[i] === letter) idx.push(i);
+    return idx;
+}
+function playSound(el) { try { el.currentTime = 0; el.play(); } catch { } }
+
+let _es = null;
+
+function connectSse() {
+    if (_es) { try { _es.close(); } catch { } _es = null; }
+
+    _es = new EventSource(SSE_URL);
+
+    _es.onmessage = (event) => {
+        let msg;
+        try { msg = JSON.parse(event.data); } catch { return; }
+        if (msg.gameName) {
+            const heading = document.querySelector("h1");
+            if (heading) heading.textContent = msg.gameName;
+            document.title = msg.gameName;
+        }
+
+        switch (msg.type) {
+
+            case "new_game":
+                resetBoard();
+                maxGuesses = msg.maxGuesses || 6;
+                generateBoard(maxGuesses);
+                initKeyLetters();
+                showOverlay();
+                if (!msg.autoReset) playSound(audStart);
+                break;
+
+            case "resuming":
+                maxGuesses = msg.maxGuesses || 6;
+                generateBoard(maxGuesses);
+                initKeyLetters();
+                showOverlay();
+                break;
+
+            case "guess":
+                targetWord = msg.targetWord;
+                renderGuess(msg.word, msg.targetWord, msg.guessNumber, msg.won, msg.lost);
+                break;
+
+            case "invalid_guess":
+                invalidGuess();
+                break;
+        }
+    };
+
+    _es.onerror = () => {
+        _es.close();
+        _es = null;
+        setTimeout(connectSse, 5000);
+    };
+}
+
+hideOverlay();
+generateBoard(6);
+initKeyLetters();
+connectSse();
+</script>
+</body>
+</html>

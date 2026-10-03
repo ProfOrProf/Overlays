@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Elden Cards</title>
+<style>
+  :root {
+    --card-w:600px; --card-h:825px;
+    --img-x:51px; --img-y:98px; --img-w:499px; --img-h:360px;
+    --name-top:30px; --name-h:75px; --name-size:38px;
+    --hdr-top:455px; --hdr-h:60px; --hdr-size:27px;
+    --desc-top:530px; --desc-left:60px; --desc-right:60px; --desc-size:28px;
+    --num-cx:500px; --num-cy:755px; --num-size:37px;
+  }
+  @font-face { font-family:'Mantinia'; src:url('Mantinia Regular.otf') format('opentype'); }
+  @font-face { font-family:'Garamond';  src:url('Garamond-Regular.ttf') format('truetype'); }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html, body { width:760px; height:1000px; overflow:hidden; background:transparent; }
+  body { display:flex; flex-direction:column; align-items:center; padding:24px 0; gap:14px; font-family:'Mantinia',Georgia,serif; }
+  .card-username { font-size:55px; font-variant:small-caps; color:#c8a84a; letter-spacing:1px; text-shadow:0 0 12px rgba(255,255,255,.14),0 1px 4px rgba(0,0,0,.85); }
+  .stage { perspective:2200px; }
+  .card-wrap { position:relative; width:var(--card-w); height:var(--card-h); }
+  .card-wrap.rarity-l::after { content:''; position:absolute; inset:-42px; z-index:-1; background:radial-gradient(ellipse at 50% 50%,rgba(210,160,20,.95) 0%,rgba(180,120,0,.68) 35%,rgba(140,90,0,.28) 55%,transparent 72%); filter:blur(22px); animation:shimmer 2.2s ease-in-out infinite alternate; border-radius:22px; opacity:0; transition:opacity .8s ease; }
+  .card-wrap.revealed::after { opacity:1; }
+  @keyframes shimmer { from{opacity:.5} to{opacity:1} }
+  .flipper { position:relative; width:100%; height:100%; transform-style:preserve-3d; transition:transform 1.1s cubic-bezier(.45,.05,.2,1); }
+  .card-wrap.revealed .flipper { transform:rotateY(180deg); }
+  .face { position:absolute; inset:0; border-radius:10px; overflow:hidden; backface-visibility:hidden; -webkit-backface-visibility:hidden; }
+  .face.front { transform:rotateY(180deg); }
+  .face.back img { width:100%; height:100%; display:block; object-fit:fill; }
+  .card.rarity-l .card-frame { filter:sepia(1) hue-rotate(10deg) saturate(2.2) brightness(1.06); }
+  .bg-img { position:absolute; left:var(--img-x); top:var(--img-y); width:var(--img-w); height:var(--img-h); object-fit:cover; object-position:top center; }
+  .card-frame { position:absolute; top:0; left:0; width:var(--card-w); height:var(--card-h); pointer-events:none; z-index:3; }
+  .card-name { position:absolute; top:var(--name-top); left:60px; right:60px; height:var(--name-h); line-height:var(--name-h); font-size:var(--name-size); font-weight:bold; font-variant:small-caps; color:#3a2810; text-shadow:0 1px 2px rgba(255,255,255,.3); letter-spacing:.5px; white-space:nowrap; overflow:hidden; z-index:4; }
+  .card-header { position:absolute; top:var(--hdr-top); left:60px; right:60px; height:var(--hdr-h); display:flex; align-items:center; font-size:var(--hdr-size); font-weight:bold; font-variant:small-caps; color:#3a2810; letter-spacing:.5px; text-shadow:0 1px 1px rgba(255,255,255,.35); white-space:nowrap; overflow:hidden; z-index:4; }
+  .card-desc { position:absolute; top:var(--desc-top); left:var(--desc-left); right:var(--desc-right); max-height:210px; font-family:'Garamond',Georgia,serif; font-size:var(--desc-size); color:#2e1c08; line-height:1.35; text-align:justify; text-shadow:0 1px 1px rgba(255,255,255,.2); overflow:hidden; z-index:4; }
+  .card-num { position:absolute; left:calc(var(--num-cx) - 36px); top:calc(var(--num-cy) - 14px); width:72px; height:28px; display:flex; align-items:center; justify-content:center; font-family:'Garamond',Georgia,serif; font-size:var(--num-size); font-weight:bold; color:#3a2810; letter-spacing:2px; z-index:4; }
+  .pull-badge { position:absolute; left:var(--img-x); width:var(--img-w); top:calc(var(--img-y) + var(--img-h) - 60px); height:60px; display:flex; align-items:center; justify-content:center; font-size:48px; font-weight:bold; text-transform:uppercase; color:#fff; text-shadow:-1px -1px 0 rgba(0,0,0,.9),1px -1px 0 rgba(0,0,0,.9),-1px 1px 0 rgba(0,0,0,.9),1px 1px 0 rgba(0,0,0,.9),0 0 20px #fff,0 0 10px rgba(255,255,255,.8); pointer-events:none; z-index:5; visibility:hidden; }
+  .pull-badge.on { visibility:visible; animation:blink .9s step-end infinite; }
+  @keyframes blink { 0%,49%{opacity:1} 50%,100%{opacity:0} }
+  @media (prefers-reduced-motion:reduce){ .flipper{transition-duration:.01s} .pull-badge.on{animation:none} }
+</style>
+</head>
+<body>
+<div class="card-username">Prof</div>
+<div class="stage">
+  <div class="card-wrap rarity-l" id="wrap">
+    <div class="flipper">
+      <div class="face back"><img src="images/000A.png" alt=""></div>
+      <div class="face front card rarity-l">
+        <img class="bg-img" src="images/158.jpg" alt="">
+        <img class="card-frame" src="images/000B.png" alt="">
+        <div class="card-name">Malenia, Goddess of Rot</div>
+        <div class="card-header">Main Game Boss — The Haligtree</div>
+        <div class="card-desc">Miquella's twin cursed from birth with scarlet rot, who fought Radahn to a standstill before blooming into a Goddess of Rot.</div>
+        <div class="card-num">158</div>
+        <div class="pull-badge" id="badge">New!</div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  var wrap=document.getElementById('wrap'), badge=document.getElementById('badge');
+  function cycle(){
+    wrap.classList.add('revealed');
+    setTimeout(function(){ badge.classList.add('on'); }, 1300);
+    setTimeout(function(){ badge.classList.remove('on'); wrap.classList.remove('revealed'); }, 7500);
+  }
+  setTimeout(cycle, 1200);
+  setInterval(cycle, 10000);
+})();
+</script>
+</body>
+</html>

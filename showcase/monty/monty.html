@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<title>3 Card Monty</title>
+<style>
+  @font-face{
+    font-family:'AlienDouble';
+    src:url('assets/alien_double.ttf') format('truetype');
+    font-display:swap;
+  }
+  :root{
+    --worldScale:1;
+    --cardW:300px; --cardH:420px; --cardGap:120px; --rowY:620px; --cropY:300px;
+    --nibiranScale:1.15; --objScale:1; --objX:0px; --objY:0px;
+    --ufoScale:1.88; --ufoX:0px; --ufoY:-65px;
+    --cowScale:1.3; --cowX:0px; --cowY:0px;
+    --beamW:260px; --beamH:650px; --beamY:240px;
+    --explosionW:1100px; --explosionX:0px; --explosionY:0px;
+    --timerX:960px; --timerY:900px;
+  }
+  html,body{margin:0;height:100%;background:transparent;overflow:hidden;
+    font-family:'AlienDouble','Trebuchet MS',Verdana,sans-serif;}
+  #stage{position:absolute;top:50%;left:50%;width:1920px;height:1080px;
+    transform:translate(-50%,-50%);transition:opacity .4s ease;}
+  #stage.hidden{opacity:0;}
+  #world{position:absolute;inset:0;transform:scale(var(--worldScale));transform-origin:50% 50%;}
+
+  .card{position:absolute;left:0;top:0;width:var(--cardW);height:var(--cardH);
+    background:center/contain no-repeat;
+    background-image:var(--cardSrc);
+    transform:translate(810px,410px);
+    transition:transform var(--swap,400ms) cubic-bezier(.4,.05,.25,1),
+               opacity .4s ease, filter .3s ease;
+    z-index:30;filter:drop-shadow(0 12px 18px rgba(0,0,0,.45));}
+  .card.flash{animation:alienflash var(--flash,1400ms) ease-in-out;}
+  .card.lift{transition:transform var(--beam,2600ms) cubic-bezier(.5,0,.5,1), opacity var(--beam,2600ms) ease;}
+  
+  #abductClip{position:absolute;left:0;top:var(--cropY);width:1920px;height:1080px;
+    overflow:hidden;z-index:35;pointer-events:none;}
+  
+  .num{position:absolute;left:0;top:0;z-index:100;font-size:72px;line-height:1;
+    color:#7df5ec;-webkit-text-stroke:4px #001;text-shadow:0 0 16px #3ff,0 4px 0 #001;
+    opacity:0;transition:opacity .4s ease;pointer-events:none;}
+
+  #intro{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);z-index:85;
+    text-align:center;letter-spacing:2px;line-height:1.5;display:none;}
+  #intro.show{display:block;}
+  #intro div{font-size:58px;color:#eaffff;opacity:0;white-space:nowrap;min-height:1.2em;
+    -webkit-text-stroke:2px #012;text-shadow:0 0 16px #3ff,0 3px 0 #012;}
+  #intro div.on{opacity:1;}
+  #intro div.on.typing::after{content:'_';animation:caret .5s steps(1) infinite;}
+  @keyframes caret{0%,100%{opacity:1}50%{opacity:0}}
+  @keyframes shredin{
+    0%{opacity:0;clip-path:inset(0 0 100% 0);transform:translateX(-14px) skewX(10deg);
+       text-shadow:-6px 0 #f0f,6px 0 #0ff,0 0 16px #3ff;}
+    15%{opacity:1;clip-path:inset(0 0 0 0);transform:translateX(10px) skewX(-8deg);}
+    30%{clip-path:inset(45% 0 25% 0);transform:translateX(-8px);text-shadow:-5px 0 #f0f,5px 0 #0ff;}
+    45%{clip-path:inset(0 0 55% 0);transform:translateX(6px);}
+    60%{clip-path:inset(20% 0 0 0);transform:translateX(-4px);text-shadow:-3px 0 #f0f,3px 0 #0ff;}
+    75%{clip-path:none;transform:translateX(2px) skewX(2deg);}
+    100%{opacity:1;clip-path:none;transform:none;          
+         text-shadow:0 0 16px #3ff,0 3px 0 #012;}
+  }
+
+  #timer{position:absolute;left:var(--timerX);top:var(--timerY);transform:translateX(-50%);
+    z-index:85;font-size:96px;line-height:1;text-align:center;color:#aa78ff;
+    -webkit-text-stroke:4px #001;text-shadow:0 0 18px #aa78ff,0 5px 0 #001;
+    opacity:0;}
+  
+  @keyframes timerglitch{
+    0%{opacity:1;clip-path:inset(0 0 0 0);transform:translateX(-50%);text-shadow:-6px 0 #f0f,6px 0 #0ff,0 0 18px #fff;}
+    18%{clip-path:inset(18% 0 50% 0);transform:translateX(-50%) translateX(-6px);text-shadow:6px 0 #f0f,-6px 0 #0ff;}
+    34%{clip-path:inset(62% 0 8% 0);transform:translateX(-50%) translateX(5px);opacity:.45;}
+    50%{clip-path:inset(8% 0 72% 0);transform:translateX(-50%) translateX(-4px);text-shadow:-5px 0 #f0f,5px 0 #0ff,0 0 24px #fff;}
+    66%{clip-path:inset(40% 0 30% 0);transform:translateX(-50%) translateX(4px);opacity:.7;}
+    82%{clip-path:inset(72% 0 6% 0);transform:translateX(-50%) translateX(-2px);}
+    100%{opacity:1;clip-path:inset(0 0 0 0);transform:translateX(-50%);}
+  }
+  @keyframes thwomp{   
+    0%,100%{opacity:1;text-shadow:0 0 16px rgba(160,0,0,.55),0 5px 0 #001;}
+    50%{opacity:.5;text-shadow:0 0 55px rgba(255,0,0,.98),0 0 100px rgba(255,30,30,.6),0 5px 0 #001;}
+  }
+
+  @keyframes alienflash{
+    0%,100%{filter:drop-shadow(0 12px 18px rgba(0,0,0,.45)) brightness(1) hue-rotate(0);}
+    25%{filter:drop-shadow(0 0 30px #62f7d6) brightness(1.6) hue-rotate(60deg);}
+    50%{filter:drop-shadow(0 0 40px #c06bff) brightness(1.7) hue-rotate(-50deg);}
+    75%{filter:drop-shadow(0 0 30px #62f7d6) brightness(1.6) hue-rotate(120deg);}
+  }
+
+  .behind{position:absolute;left:0;top:0;width:var(--cardW);height:var(--cardH);
+    background:center/contain no-repeat;transform:translate(810px,410px);
+    z-index:20;opacity:0;transition:opacity .5s ease;}
+  #object{z-index:40;}                 
+  #object.behind-z{z-index:20;}        
+
+  #ufo{position:absolute;left:0;top:0;width:380px;aspect-ratio:768/432;display:block;z-index:90;opacity:0;
+    transform:translate(770px,-260px);transition:transform var(--beam,2600ms) cubic-bezier(.3,.6,.3,1),opacity .4s ease;}
+  #explosion{position:absolute;left:0;top:0;width:var(--explosionW,1100px);aspect-ratio:1920/1080;display:block;z-index:95;opacity:0;pointer-events:none;}
+  #beam{position:absolute;left:0;top:0;width:var(--beamW);height:var(--beamH);z-index:50;opacity:0;
+    background:linear-gradient(to bottom,rgba(120,255,220,.0),rgba(120,255,220,.55) 30%,rgba(170,120,255,.35) 100%);
+    clip-path:polygon(38% 0,62% 0,100% 100%,0 100%);
+    transform:translate(860px,40px);transition:opacity .4s ease;filter:blur(2px);}
+
+  #plate{position:absolute;left:960px;top:170px;transform:translateX(-50%);
+    z-index:5;text-align:center;color:#dff;}
+  #pname{font-size:92px;font-weight:bold;white-space:nowrap;overflow:visible;
+    -webkit-text-stroke:3px #102; text-shadow:0 0 22px #3ff,0 5px 0 #102;opacity:0;}
+  #pname.glitchin{animation:shredin .75s steps(1,end) forwards;}
+  #result{position:absolute;left:960px;bottom:70px;transform:translateX(-50%);
+    z-index:70;font-size:96px;font-weight:bold;display:none;-webkit-text-stroke:5px #001;}
+  #result.win{color:#5cff9a;text-shadow:0 0 24px #5cff9a,0 6px 0 #001;}
+  #result.lose{color:#ff6b6b;text-shadow:0 0 18px #ff6b6b,0 6px 0 #001;}
+  #result.show{display:block;animation:pop .5s ease;}
+  @keyframes pop{0%{transform:translateX(-50%) scale(.3);opacity:0}60%{transform:translateX(-50%) scale(1.15);opacity:1}100%{transform:translateX(-50%) scale(1)}}
+</style>
+</head>
+<body>
+<div id="stage" class="hidden">
+ <div id="world">
+   <div id="plate"><div id="pname">—</div></div>
+
+   <div id="intro">
+     <div>One Nibiran Possesses 'Relic'</div>
+     <div>Watch them closely.</div>
+     <div>Where do they land?</div>
+   </div>
+   <div id="timer"></div>
+
+   <div class="behind" id="b0"></div>
+   <div class="behind" id="b1"></div>
+   <div class="behind" id="b2"></div>
+
+   <div class="behind" id="object"></div>
+
+   <div class="card" id="c0"></div>
+   <div class="card" id="c1"></div>
+   <div class="card" id="c2"></div>
+
+   <div class="num" id="n0">1</div>
+   <div class="num" id="n1">2</div>
+   <div class="num" id="n2">3</div>
+
+   <div id="abductClip"></div>
+
+   <div id="beam"></div>
+   <canvas id="ufo"></canvas>
+   <video id="explosion" src="assets/Explosion.webm" preload="auto" playsinline></video>
+   <script src="ufofx.js"></script>
+
+   <div id="result"></div>
+ </div>
+</div>
+
+<script>
+"use strict";
+const STATE_URL = "/games/monty/state";
+const POLL_MS   = 200;
+const $ = id => document.getElementById(id);
+const stage = $("stage");
+
+const CARD = "assets/Card.png", OBJ = "assets/HiddenObject.gif", COW = "assets/Cow.png";
+document.documentElement.style.setProperty('--cardSrc', `url('${CARD}')`);
+$("object").style.backgroundImage = `url('${OBJ}')`;
+
+function num(v){ return parseFloat(getComputedStyle(document.documentElement).getPropertyValue(v)); }
+function slotX(slot){
+  const cw = num('--cardW'), gap = num('--cardGap');
+  return 960 + (slot-1)*(cw+gap);
+}
+function placeAt(el, slot, scale, offX, offY){
+  const cw = num('--cardW'), ch = num('--cardH'), y = num('--rowY');
+  const s = scale!=null?scale:1, ox=offX||0, oy=offY||0;
+  el.style.transform = `translate(${slotX(slot)-cw/2+ox}px, ${y-ch/2+oy}px) scale(${s})`;
+}
+const NS = ()=>num('--nibiranScale'), OS=()=>num('--objScale'), CS=()=>num('--cowScale');
+const OX = ()=>num('--objX'), OY=()=>num('--objY'), CX=()=>num('--cowX'), CY=()=>num('--cowY');
+function fitStage(){
+  const s = Math.min(innerWidth/1920, innerHeight/1080);
+  stage.style.transform = `translate(-50%,-50%) scale(${s})`;
+}
+addEventListener("resize", fitStage); fitStage();
+
+function setLayout(L){
+  const r = document.documentElement.style;
+  if(L.worldScale!=null) r.setProperty('--worldScale', L.worldScale/100);
+  if(L.cardW!=null) r.setProperty('--cardW', L.cardW+'px');
+  if(L.cardH!=null) r.setProperty('--cardH', L.cardH+'px');
+  if(L.cardGap!=null) r.setProperty('--cardGap', L.cardGap+'px');
+  if(L.rowY!=null) r.setProperty('--rowY', L.rowY+'px');
+  if(L.cropY!=null) r.setProperty('--cropY', L.cropY+'px');
+  if(L.timerX!=null) r.setProperty('--timerX', L.timerX+'px');
+  if(L.timerY!=null) r.setProperty('--timerY', L.timerY+'px');
+  if(L.nibiranScale!=null) r.setProperty('--nibiranScale', L.nibiranScale/100);
+  if(L.objScale!=null) r.setProperty('--objScale', L.objScale/100);
+  if(L.objX!=null) r.setProperty('--objX', L.objX+'px');
+  if(L.objY!=null) r.setProperty('--objY', L.objY+'px');
+  if(L.ufoScale!=null) r.setProperty('--ufoScale', L.ufoScale/100);
+  if(L.ufoX!=null) r.setProperty('--ufoX', L.ufoX+'px');
+  if(L.ufoY!=null) r.setProperty('--ufoY', L.ufoY+'px');
+  if(L.cowScale!=null) r.setProperty('--cowScale', L.cowScale/100);
+  if(L.cowX!=null) r.setProperty('--cowX', L.cowX+'px');
+  if(L.cowY!=null) r.setProperty('--cowY', L.cowY+'px');
+  if(L.beamW!=null) r.setProperty('--beamW', L.beamW+'px');
+  if(L.beamH!=null) r.setProperty('--beamH', L.beamH+'px');
+  if(L.beamY!=null) r.setProperty('--beamY', L.beamY+'px');
+  if(L.explosionW!=null) r.setProperty('--explosionW', L.explosionW+'px');
+  if(L.explosionX!=null) r.setProperty('--explosionX', L.explosionX+'px');
+  if(L.explosionY!=null) r.setProperty('--explosionY', L.explosionY+'px');
+  for(const k in VOLMAP) if(L[k]!=null) VOL[VOLMAP[k]]=L[k];
+  layoutAll();
+}
+
+const cardSlot = [0,1,2];
+function placeNum(el, slot){
+  const cw=num('--cardW'), ch=num('--cardH'), y=num('--rowY');
+  el.style.transform = `translate(${slotX(slot)-cw/2+cw*0.05}px, ${y-ch/2+ch*0.03}px)`;
+}
+function layoutAll(){
+  for(let i=0;i<3;i++) placeAt($("c"+i), cardSlot[i], NS());
+  for(let i=0;i<3;i++) placeAt($("b"+i), i, OS(), OX(), OY());
+  for(let i=0;i<3;i++) placeNum($("n"+i), i);
+}
+
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+const VOL={ master:80,
+  howVoice:100, howSfx:45, textGlitch:60, shuffle:15, tick:45,
+  sec30:70, sec10:80, sec5:90, beamStart:50, beamFinish:68,
+  holo:73, moo:55, object:28, boom:44, winner:44, loser:42, gameEnd:51, explosion:85 };
+function playSnd(file, key){
+  try{
+    const a=new Audio("assets/Sounds/"+file);
+    const v=(VOL.master/100) * (((key && VOL[key]!=null) ? VOL[key] : 100)/100);
+    a.volume=Math.max(0,Math.min(1,v)); a.play();
+    return a;
+  }catch(e){ return null; }
+}
+// Ramp an Audio's volume to 0 over ms (simulate the sound receding into the distance).
+function fadeAudio(a, ms){
+  if(!a) return;
+  const steps=24, iv=Math.max(16, ms/steps), v0=a.volume; let i=0;
+  const t=setInterval(()=>{ i++; a.volume=Math.max(0, v0*(1-i/steps)); if(i>=steps){ clearInterval(t); try{a.pause();}catch(e){} } }, iv);
+}
+const VOLMAP={volMaster:"master",volHowVoice:"howVoice",volHowSfx:"howSfx",volTextGlitch:"textGlitch",
+  volShuffle:"shuffle",volTick:"tick",volSec30:"sec30",volSec10:"sec10",volSec5:"sec5",
+  volBeamStart:"beamStart",volBeamFinish:"beamFinish",volHolo:"holo",volMoo:"moo",volObject:"object",
+  volBoom:"boom",volWinner:"winner",volLoser:"loser",volGameEnd:"gameEnd",volExplosion:"explosion"};
+
+let _timerInt=null;
+function timerColor(n){
+  if(n<=10){ const t=Math.min(1,Math.max(0,(10-n)/10));
+    const red=[255,107,107], deep=[110,0,0];
+    return red.map((c,i)=>Math.round(c+(deep[i]-c)*t)); }
+  if(n<=30) return [125,245,236];
+  const t=Math.min(1,Math.max(0,(60-n)/30));
+  const lil=[170,120,255], teal=[125,245,236];
+  return lil.map((c,i)=>Math.round(c+(teal[i]-c)*t));
+}
+function paintTimer(n){
+  const t=$("timer"), [r,g,b]=timerColor(n);
+  t.textContent=n; t.style.color=`rgb(${r},${g},${b})`;
+  if(n<=10){
+    t.style.textShadow="";
+    const dur=Math.round(180+(n/10)*420);
+    t.style.animation=`thwomp ${dur}ms ease-in-out infinite`;
+  } else {
+    t.style.animation="";
+    t.style.textShadow=`0 0 18px rgb(${r},${g},${b}),0 5px 0 #001`;
+  }
+}
+function glitchTimer(n){
+  const t=$("timer");
+  t.style.animation="timerglitch .45s steps(2,end)";
+  playSnd("TextGlitch.wav", "textGlitch");
+  setTimeout(()=>paintTimer(n),470);
+}
+function startTimer(secs){
+  let n=secs, ticks=0;
+  clearInterval(_timerInt);
+  $("timer").style.opacity="1";
+  paintTimer(n); glitchTimer(n);
+  playSnd("TimeTick.wav", "tick"); ticks++;
+  _timerInt=setInterval(()=>{
+    n--; if(n<0)n=0;
+    paintTimer(n);
+    if(ticks<5){ playSnd("TimeTick.wav", "tick"); ticks++; }
+    if(n===30){ glitchTimer(n); playSnd("30sec.wav", "sec30"); }
+    if(n===10) glitchTimer(n);
+    if(n===9)  playSnd("10sec.wav", "sec10");
+    if(n===4)  playSnd("5sec.wav", "sec5");
+    if(n<=0) clearInterval(_timerInt);
+  },1000);
+}
+function stopTimer(){ clearInterval(_timerInt);
+  const t=$("timer"); t.style.opacity="0"; t.style.animation=""; t.style.textShadow=""; }
+
+function resetVisuals(){
+  stopTimer();
+  const intro=$("intro"); intro.classList.remove("show");
+  intro.querySelectorAll("div").forEach(l=>l.classList.remove("on"));
+  const world=$("world"), beam=$("beam");
+  for(let i=0;i<3;i++){
+    const c=$("c"+i);
+    if(c.parentElement!==world) world.insertBefore(c, beam);
+    c.classList.remove("flash","lift");
+    c.style.opacity="0"; c.style.transition=""; c.style.setProperty('--swap','0ms');
+  }
+  cardSlot[0]=0; cardSlot[1]=1; cardSlot[2]=2;
+  for(let i=0;i<3;i++){
+    const b=$("b"+i);
+    if(b.parentElement!==world) world.insertBefore(b, $("c0"));
+    b.style.transition=""; b.style.filter="";
+  }
+  layoutAll();
+  ["b0","b1","b2"].forEach(id=>{ const e=$(id); e.style.opacity="0"; e.style.backgroundImage=""; e.style.zIndex=""; e.style.transformOrigin=""; });
+  ["n0","n1","n2"].forEach(id=>$(id).style.opacity="0");
+  const o=$("object"); o.style.opacity="0"; o.classList.remove("behind-z");
+  $("ufo").style.transition="none"; $("ufo").style.opacity="0"; $("ufo").style.transform="translate(770px,-260px)";
+  $("beam").style.opacity="0"; $("beam").style.transition=""; $("beam").style.transformOrigin=""; $("beam").style.transform="";
+  const ex=$("explosion"); ex.style.transition=""; ex.style.opacity="0"; try{ ex.pause(); ex.currentTime=0; }catch(e){}
+  const res=$("result"); res.className=""; res.textContent="";
+  const pn=$("pname"); pn.classList.remove("glitchin"); pn.style.opacity="0";
+}
+
+function fitLine(el){
+  el.style.fontSize="";
+  let fs=58; el.style.fontSize=fs+"px";
+  while(el.scrollWidth>1780 && fs>22){ fs-=2; el.style.fontSize=fs+"px"; }
+}
+function fitName(){
+  const el=$("pname"); el.style.fontSize="";
+  let fs=92; el.style.fontSize=fs+"px";
+  while(el.scrollWidth>1400 && fs>36){ fs-=3; el.style.fontSize=fs+"px"; }
+}
+async function typeLine(el, text, ms){
+  const per=Math.max(18, ms/Math.max(1,text.length));
+  el.classList.add("typing");
+  for(let i=0;i<text.length;i++){ el.textContent=text.slice(0,i+1); await sleep(per); }
+  el.classList.remove("typing");
+}
+
+async function runPlay(msg){
+  resetVisuals();
+  $("pname").textContent = msg.user || "—";
+  fitName();
+  stage.classList.remove("hidden");
+  window._winning = msg.winning;
+
+  const intro=$("intro"), lines=intro.querySelectorAll("div");
+  const texts=[...lines].map(l=>l.textContent);
+  lines.forEach(l=>{ l.textContent=""; l.classList.remove("on","typing"); });
+  intro.classList.add("show");
+  for(let i=0;i<lines.length;i++){
+    const budget = i<lines.length-1 ? (msg.introLineMs||3000) : (msg.introHoldMs||5000);
+    lines[i].textContent=texts[i]; fitLine(lines[i]); lines[i].textContent="";
+    lines[i].classList.add("on");
+    playSnd(`NibiHowTo${i+1}.wav`, "howVoice");
+    playSnd("HowToSFX1.wav", "howSfx");
+    const typeMs=Math.min(texts[i].length*55, budget*0.7);
+    await typeLine(lines[i], texts[i], typeMs);
+    await sleep(Math.max(0, budget-typeMs));
+  }
+  intro.classList.remove("show"); lines.forEach(l=>l.classList.remove("on"));
+
+  { const pn=$("pname"); pn.style.opacity="1"; pn.classList.remove("glitchin"); void pn.offsetWidth; pn.classList.add("glitchin"); }
+  playSnd("TextGlitch.wav", "textGlitch");
+
+  for(let i=0;i<3;i++){ $("c"+i).style.opacity="1"; $("n"+i).style.opacity="1"; }
+  await sleep(msg.showMs||900);
+
+  const o=$("object"); o.classList.remove("behind-z");
+  placeAt(o, msg.winning-1, OS(), OX(), OY());
+  o.style.transition="opacity "+(msg.placeFrontMs||1100)+"ms ease, transform .4s ease";
+  o.style.zIndex="40"; o.style.opacity="1";
+  await sleep(msg.placeFrontMs||900);
+
+  o.style.transition="opacity "+(msg.fadeBehindMs||1100)+"ms ease";
+  o.classList.add("behind-z");
+  o.style.opacity="0";
+  await sleep(msg.fadeBehindMs||1100);
+
+  const swaps = msg.swaps||14, a=msg.swapMsStart||700, b=msg.swapMsEnd||180;
+  for(let i=0;i<swaps;i++){
+    const t = swaps<=1?0:i/(swaps-1);
+    const dur = Math.round(a + (b-a)*t);
+    let s1 = Math.floor(Math.random()*3), s2;
+    do { s2 = Math.floor(Math.random()*3); } while(s2===s1);
+    swapSlots(s1, s2, dur);
+    playSnd("Shuffle.wav", "shuffle");
+    await sleep(dur);
+  }
+
+  playSnd("HoloNibi.wav", "holo");
+  for(let i=0;i<3;i++){ const c=$("c"+i); c.style.setProperty('--flash',(msg.flashMs||1400)+'ms'); c.classList.add("flash"); }
+  await sleep(msg.flashMs||1400);
+
+  startTimer(msg.guessSeconds||60);
+}
+
+function swapSlots(slotA, slotB, dur){
+  const cardA = cardSlot.indexOf(slotA), cardB = cardSlot.indexOf(slotB);
+  cardSlot[cardA]=slotB; cardSlot[cardB]=slotA;
+  [cardA,cardB].forEach(ci=>{ const c=$("c"+ci); c.style.setProperty('--swap',dur+'ms'); placeAt(c, cardSlot[ci], NS()); });
+}
+
+async function runReveal(msg){
+  stopTimer();
+  const winning = msg.winning, pick = msg.pick, won = msg.won, timeout = !!msg.timeout;
+  for(let i=0;i<3;i++) $("c"+i).classList.remove("flash");
+
+  const pickedCard = cardSlot.indexOf(pick-1);
+  const beamMs = msg.beamMs||2600;
+  const cw=num('--cardW'), ch=num('--cardH'), y=num('--rowY'), cropY=num('--cropY');
+  const px = slotX(pick-1);
+
+  const b=$("b"+(pick-1));
+  b.style.backgroundImage = `url('${(won||timeout)?OBJ:COW}')`;
+
+  const ufoS=num('--ufoScale'), ufoX=num('--ufoX'), ufoY=num('--ufoY');
+  const beamW=num('--beamW'), beamY=num('--beamY'), beamH=num('--beamH');
+  const beamBottom = beamY + beamH;
+  const isCow = !(won||timeout);
+  const bScale = isCow ? CS() : OS();
+  const bOX = isCow ? CX() : OX(), bOY = isCow ? CY() : OY();
+
+  playSnd("BeamStart.wav", "beamStart");
+  const uHoverX = px-190+ufoX, uHoverY = y-ch/2-300+ufoY;
+  $("ufo").style.transition="none";
+  $("ufo").style.transform = `translate(${uHoverX}px, ${uHoverY-140}px) scale(${ufoS*0.25})`;
+  $("ufo").style.opacity="1"; void $("ufo").offsetWidth;
+  $("ufo").style.transition = "transform 1000ms cubic-bezier(.25,.6,.3,1), opacity .4s ease";
+  $("ufo").style.transform = `translate(${uHoverX}px, ${uHoverY}px) scale(${ufoS})`;
+  await sleep(1200);
+
+  playSnd("BeamFinish.wav", "beamFinish");
+  $("beam").style.transform = `translate(${px-beamW/2}px, ${beamY}px)`;
+  $("beam").style.opacity="1";
+  await sleep(400);
+
+  const glow = won ? "drop-shadow(0 0 55px #5cff9a) drop-shadow(0 0 110px #5cff9a)"
+                   : "drop-shadow(0 0 55px #ff5a5a) drop-shadow(0 0 110px #ff5a5a)";
+  b.style.transition="none"; b.style.filter=glow; b.style.zIndex="55";
+  if(isCow){
+    b.style.transformOrigin="bottom center";
+    b.style.transform = `translate(${slotX(pick-1)-cw/2+bOX}px, ${beamBottom-ch+bOY}px) scale(${bScale})`;
+  } else {
+    b.style.transformOrigin="center";
+    placeAt(b, pick-1, bScale, bOX, bOY);
+  }
+  // loss: the Nibiran (card) lifts away while the cow fades IN behind it; win: object just appears
+  if(isCow){
+    b.style.opacity="0"; void b.offsetWidth;
+    b.style.transition=`opacity ${beamMs}ms ease`;
+    b.style.opacity="1";
+  } else {
+    b.style.opacity="1";
+  }
+
+  const c=$("c"+pickedCard);
+  $("abductClip").appendChild(c);
+  c.style.transition="none";
+  c.style.transform = `translate(${px-cw/2}px, ${y-ch/2-cropY}px) scale(${NS()})`;
+  void c.offsetWidth;
+  c.style.transition = `transform ${beamMs}ms cubic-bezier(.5,0,.5,1), opacity ${beamMs}ms ease`;
+  c.style.transform = `translate(${px-cw/2}px, ${-ch-80}px) scale(${NS()})`;
+  c.style.opacity="0";
+
+  const res=$("result");
+  res.className=""; res.textContent = timeout ? "TIME'S UP!" : won ? "WINNER!" : "ABDUCTED!";
+  res.classList.add(won?"win":"lose","show");
+  playSnd("TextGlitch.wav", "textGlitch");
+  playSnd(timeout ? "TimeOutBoom.wav" : won ? "Winner.wav" : "Loser.wav", timeout ? "boom" : won ? "winner" : "loser");
+
+  await sleep(beamMs + 350);
+
+  // ── TIMEOUT: the UFO self-destructs via Explosion.webm (alpha + its own boom audio).
+  // Place/size via the explosion* layout vars (tunable in test.html). ──
+  if(timeout){
+    await sleep(450);
+    const ex=$("explosion");
+    const exW=num('--explosionW'), exH=exW*1080/1920, exX=num('--explosionX'), exY=num('--explosionY');
+    ex.style.width=exW+'px';
+    ex.style.transition="none";
+    ex.style.transform=`translate(${px+exX-exW/2}px, ${uHoverY+exY-exH/2}px)`;
+    ex.currentTime=0;
+    ex.volume=Math.max(0,Math.min(1,(VOL.master/100)*((VOL.explosion!=null?VOL.explosion:85)/100)));
+    ex.style.opacity="1"; try{ ex.play(); }catch(e){}
+    $("ufo").style.transition="opacity .1s ease"; $("ufo").style.opacity="0";
+    $("beam").style.transition="opacity .2s ease"; $("beam").style.opacity="0";
+    b.style.transition="opacity .2s ease"; b.style.opacity="0";
+    await sleep(3700);                          // let the ~3.7s blast + boom finish first
+    ex.style.transition="opacity .5s ease"; ex.style.opacity="0";
+    playSnd("GameEnd.wav","gameEnd");          // GameEnd is the last sound
+    stage.style.transition="opacity 3000ms ease"; stage.classList.add("hidden");
+    await sleep(3200);
+    stage.style.transition=""; ex.style.transition=""; resetVisuals();
+    return;
+  }
+
+  // ── WIN / LOSS: the relic/cow is lifted into the UFO ──
+  const liftSnd = playSnd(isCow ? "Moo.wav" : "Object.wav", isCow ? "moo" : "object");
+  const objMs   = Math.round(beamMs*0.95);
+  const fadeMs  = Math.round(objMs*0.30), fadeDelay = objMs - fadeMs;
+  b.style.transition="none";
+  if(isCow){
+    // cow: rise straight up the beam (same X, no start-jump) as a center pinwheel that gently
+    // speeds up, shrinking + fading. cowY compensates the bottom-center→center origin swap.
+    b.style.transformOrigin="center";
+    const cowX = px-cw/2+bOX, cowY = beamBottom-ch+bOY + (ch/2)*(1-bScale);
+    b.style.transform = `translate(${cowX}px, ${cowY}px) scale(${bScale})`;
+    void b.offsetWidth;
+    b.style.transition = `transform ${objMs}ms cubic-bezier(.4,0,.7,1), opacity ${fadeMs}ms ease ${fadeDelay}ms`;
+    b.style.transform = `translate(${cowX}px, ${uHoverY+100}px) scale(${bScale*0.12}) rotate(540deg)`;
+    b.style.opacity="0";
+    fadeAudio(liftSnd, objMs);                            // moo recedes into the distance
+  } else {
+    // relic: lifted straight up into the UFO
+    b.style.transform = `translate(${px-cw/2+bOX}px, ${y-ch/2+bOY}px) scale(${bScale})`;
+    void b.offsetWidth;
+    b.style.transition = `transform ${objMs}ms cubic-bezier(.4,0,.7,1), opacity ${fadeMs}ms ease ${fadeDelay}ms`;
+    b.style.transform = `translate(${px-cw/2}px, ${uHoverY-120}px) scale(${bScale*0.10})`;
+    b.style.opacity="0";
+  }
+  await sleep(objMs + 200);
+
+  const beamUp = 900;
+  $("beam").style.transformOrigin="top center";
+  $("beam").style.transition=`transform ${beamUp}ms cubic-bezier(.5,0,.5,1), opacity ${beamUp}ms ease`;
+  $("beam").style.transform = `translate(${px-beamW/2}px, ${beamY}px) scaleY(0)`;
+  $("beam").style.opacity="0";
+  await sleep(beamUp);
+
+  // UFO departs silently — GameEnd is the final sound the viewer hears
+  $("ufo").style.transition = "transform 5000ms cubic-bezier(.4,.2,.2,1), opacity 5000ms ease";
+  $("ufo").style.transform = `translate(${uHoverX+60}px, ${uHoverY-1100}px) scale(${ufoS*0.03})`;
+
+  playSnd("GameEnd.wav", "gameEnd");
+  stage.style.transition = "opacity 5000ms ease";
+  stage.classList.add("hidden");
+  await sleep(5200);
+  stage.style.transition = "";
+  resetVisuals();
+}
+
+function showAll(){
+  resetVisuals();
+  stage.classList.remove("hidden");
+  $("pname").textContent = "SHOW ALL"; $("pname").classList.remove("glitchin"); $("pname").style.opacity="1";
+  const cw=num('--cardW'), ch=num('--cardH'), y=num('--rowY');
+  const ufoS=num('--ufoScale'), ufoX=num('--ufoX'), ufoY=num('--ufoY');
+
+  const c0=$("c0"); c0.style.transition=""; placeAt(c0,0,NS()); c0.style.opacity="1";
+  for(let i=0;i<3;i++) $("n"+i).style.opacity="1";
+
+  const bc=$("b1"); bc.style.backgroundImage=`url('${COW}')`; bc.style.transition=""; bc.style.filter="";
+  placeAt(bc,1,CS(),CX(),CY()); bc.style.zIndex="50"; bc.style.opacity="1";
+
+  const br=$("b2"); br.style.backgroundImage=`url('${OBJ}')`; br.style.transition=""; br.style.filter="";
+  placeAt(br,2,OS(),OX(),OY()); br.style.zIndex="50"; br.style.opacity="1";
+
+  const beamW=num('--beamW'), beamY=num('--beamY');
+  $("ufo").style.transition=""; $("ufo").style.transform=`translate(${960-190+ufoX}px, ${y-ch/2-300+ufoY}px) scale(${ufoS})`; $("ufo").style.opacity="1";
+  $("beam").style.transform=`translate(${960-beamW/2}px, ${beamY}px)`; $("beam").style.opacity="1";
+
+  const t=$("timer"); t.textContent="60"; t.style.color="#aa78ff"; t.style.textShadow="0 0 18px #aa78ff,0 5px 0 #001"; t.style.opacity="1";
+}
+
+function handle(msg){
+  switch(msg.type){
+    case "play":    runPlay(msg); break;
+    case "reveal":  runReveal(msg); break;
+    case "showall": showAll(); break;
+    case "hide":    stage.classList.add("hidden"); setTimeout(resetVisuals,500); break;
+  }
+}
+
+addEventListener("message",e=>{
+  const d=e.data||{};
+  if(d.__montyLayout) setLayout(d.__montyLayout);
+  else if(d.__montyEvent) handle(d.__montyEvent);
+});
+
+let lastEventId = null;
+async function poll(){
+  try{
+    const r = await fetch(STATE_URL, {cache:'no-store'});
+    if(r.ok){
+      const raw = await r.json();
+      const s = raw.state || raw;
+      if(s && s.eventId !== lastEventId && s.ev != null){
+        lastEventId = s.eventId;
+        handle(s.ev);
+      }
+    }
+  }catch(e){}
+}
+resetVisuals();
+poll();
+setInterval(poll, POLL_MS);
+</script>
+<script>
+  (function () {
+    var sid = null;
+    setInterval(function () {
+      fetch('/health', { cache: 'no-store' })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (!sid) { sid = d.sessionId; return; }
+          if (d.sessionId && d.sessionId !== sid) location.reload();
+        })
+        .catch(function () {});
+    }, 5000);
+  })();
+</script>
+</body>
+</html>

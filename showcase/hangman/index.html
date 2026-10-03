@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="demo.js"></script>
+<style>#guessBox{position:fixed;right:40px;top:40px;flex-direction:column;align-items:stretch;display:flex;gap:12px;align-items:center;z-index:999;background:rgba(10,8,6,.78);padding:12px 18px;border-radius:6px;border:2px solid #8a6a3a;font-family:"Finalnew",Georgia,serif}#guessBox label{color:#e8d3a2;font-size:24px}#guessBox input{font:24px Georgia,serif;width:300px;padding:8px 12px;border-radius:4px;border:2px solid #8a6a3a;background:#1a140e;color:#f5ead0;text-transform:uppercase}#guessBox button{font:22px Georgia,serif;padding:8px 18px;border-radius:4px;border:0;background:#c9a25a;color:#1a140e;cursor:pointer}#hmMsg{color:#f5ead0;font-size:20px;min-width:160px}</style>
+
+<meta charset="UTF-8">
+<title>Hangman</title>
+<style>
+  @font-face {
+    font-family: 'FleshAndBlood';
+    src: url('fleshandblood.ttf') format('truetype');
+  }
+
+  :root {
+    --blood: #c4161c;
+    --blood-rgb: 196, 22, 28;
+    --bone: #ece7da;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-user-select: none; user-select: none; }
+  img { -webkit-user-drag: none; user-drag: none; }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    overflow: hidden;
+  }
+  /* 1920x1080 design canvas, scaled to fit any window/source (matches the tuner) */
+  #root {
+    position: fixed;
+    left: 50%; top: 50%;
+    width: 1920px; height: 1080px;
+    transform: translate(-50%, -50%) scale(var(--fit, 1));
+    transform-origin: center;
+  }
+
+  #stage {
+    position: absolute;
+    top: 0; left: 0;
+    width: 1920px;
+    height: 1080px;
+    transform-origin: center;
+    transform: translate(-32px, -129px) scale(1.13);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+  #stage.visible { opacity: 1; }
+
+  .layer {
+    position: absolute;
+    top: 0; left: 0;
+    width: 1920px; height: 1080px;
+    object-fit: fill;
+    pointer-events: none;
+  }
+
+  /* parts reveal one per wrong guess; gallows + noose stay on */
+  .part { opacity: 0; transition: opacity 0.45s ease; }
+  .part.shown { opacity: 1; }
+
+  /* z-order (front -> back): BoardTop, Head, Noose, Body, LArm, RArm, LLeg, RLeg, BoardBottom */
+  #board-top    { z-index: 100; }
+  #board-bottom { z-index: 10; }
+  #figure       { z-index: 50; }
+  #head  { z-index: 90; }
+  #noose { z-index: 80; }
+  #body  { z-index: 70; }
+  #larm  { z-index: 60; }
+  #rarm  { z-index: 50; }
+  #lleg  { z-index: 40; }
+  #rleg  { z-index: 30; }
+
+  /* ── ORIGINAL pin sway (ENSHRINED — restore these to revert) ─────────────
+     #figure 1068,338  figureSwing 4.6s  -1.9/1.9
+     #head 1075,450 5.3s -0.8/0.8 | #body 1078,552 6.1s -0.5/0.5
+     #larm 1022,507 3.7s -2.6/2.2 | #rarm 1147,507 4.1s 2.6/-2.2
+     #lleg 1112,608 4.9s -1.6/1.4 | #rleg 1112,608 5.5s 1.6/-1.4
+     ──────────────────────────────────────────────────────────────────────── */
+  #figure {
+    position: absolute;
+    top: 0; left: 0;
+    width: 1920px; height: 1080px;
+    transform-origin: 1068px 338px;
+    animation: figureSwing 2.5s ease-in-out infinite alternate;
+  }
+  @keyframes figureSwing { 0%{transform:rotate(-5.7deg)} 100%{transform:rotate(5.7deg)} }
+  #head { transform-origin: 1075px 450px; animation: swayHead 4.5s ease-in-out infinite alternate; }
+  @keyframes swayHead { 0%{transform:rotate(-1.7deg)} 100%{transform:rotate(1.7deg)} }
+  #body { transform-origin: 1078px 552px; animation: swayBody 7.7s ease-in-out infinite alternate; }
+  @keyframes swayBody { 0%{transform:rotate(-0.5deg)} 100%{transform:rotate(0.5deg)} }
+  #larm { transform-origin: 1022px 507px; animation: swayLarm 2s ease-in-out infinite alternate; }
+  @keyframes swayLarm { 0%{transform:rotate(-3.9deg)} 100%{transform:rotate(3.9deg)} }
+  #rarm { transform-origin: 1147px 507px; animation: swayRarm 2s ease-in-out infinite alternate; }
+  @keyframes swayRarm { 0%{transform:rotate(4deg)} 100%{transform:rotate(-4deg)} }
+  #lleg { transform-origin: 1058px 608px; animation: swayLleg 3.3s ease-in-out infinite alternate; }
+  @keyframes swayLleg { 0%{transform:rotate(-3.6deg)} 100%{transform:rotate(3.6deg)} }
+  #rleg { transform-origin: 1128px 608px; animation: swayRleg 2.8s ease-in-out infinite alternate; }
+  @keyframes swayRleg { 0%{transform:rotate(3.6deg)} 100%{transform:rotate(-3.6deg)} }
+
+  .hidden { display: none !important; }
+
+  #game-panel {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 22px 40px 34px;
+    background: none;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    z-index: 200;
+  }
+  #game-panel.visible { opacity: 1; }
+
+  #phrase-lines {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    width: 100%;
+  }
+  .phrase-line {
+    font-family: 'FleshAndBlood', monospace;
+    font-size: 48px;
+    letter-spacing: 0.14em;
+    color: var(--bone);
+    text-shadow: 0 0 18px rgba(var(--blood-rgb), 0.55), 2px 2px 0 #000, -1px -1px 0 #000;
+    text-align: center;
+    white-space: nowrap;
+    transition: color 0.4s ease;
+  }
+  .phrase-line.won-reveal  { color: #9bf0a8; text-shadow: 0 0 24px rgba(155,240,168,0.85), 2px 2px 0 #000; }
+  .phrase-line.lost-reveal { color: var(--blood); text-shadow: 0 0 26px rgba(var(--blood-rgb),0.95), 2px 2px 0 #000; }
+
+  @keyframes shake {
+    0%{transform:translateX(0)} 15%{transform:translateX(-7px)} 30%{transform:translateX(7px)}
+    45%{transform:translateX(-5px)} 60%{transform:translateX(5px)} 75%{transform:translateX(-3px)}
+    90%{transform:translateX(3px)} 100%{transform:translateX(0)}
+  }
+  .shake { animation: shake 0.45s ease; }
+
+  #guess-counts {
+    position: absolute;
+    top: 42px; left: 50%; transform: translateX(calc(-50% + 0px));
+    z-index: 210;
+    font-family: 'FleshAndBlood', monospace;
+    font-size: 54px;
+    color: var(--blood);
+    text-shadow: 0 0 12px rgba(var(--blood-rgb), 0.8), 2px 2px 0 #000;
+    letter-spacing: 0.12em;
+  }
+
+  #alphabet-strip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .alpha-row { display: flex; gap: 6px; justify-content: center; }
+  .letter-tile {
+    width: 54px; height: 54px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'FleshAndBlood', monospace;
+    font-size: 28px;
+    border-radius: 4px;
+    background: rgba(10,6,6,0.85);
+    border: 1.5px solid rgba(236,231,218,0.28);
+    color: var(--bone);
+    text-shadow: 1px 1px 0 #000;
+    transition: all 0.3s ease;
+  }
+  .letter-tile.correct {
+    background: rgba(236,231,218,0.16);
+    border-color: var(--bone);
+    color: var(--bone);
+    text-shadow: 0 0 10px rgba(236,231,218,0.8);
+  }
+  .letter-tile.wrong {
+    background: rgba(var(--blood-rgb),0.22);
+    border-color: rgba(var(--blood-rgb),0.6);
+    color: var(--blood);
+    text-shadow: 0 0 8px rgba(var(--blood-rgb),0.6);
+  }
+
+  #result-banner {
+    display: none;
+    font-family: 'FleshAndBlood', sans-serif;
+    text-align: center;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    padding: 17px 3%;
+    border-radius: 8px;
+  }
+  #result-banner.visible { display: flex; }
+  #result-banner.won {
+    color: #9bf0a8;
+    background: rgba(4,20,10,0.92);
+    border: 2px solid #9bf0a8;
+    box-shadow: 0 0 40px rgba(155,240,168,0.4);
+  }
+  #result-banner.lost {
+    color: var(--blood);
+    background: rgba(22,4,4,0.92);
+    border: 2px solid var(--blood);
+    box-shadow: 0 0 40px rgba(var(--blood-rgb),0.45);
+  }
+  #result-line1 { font-size: 41px; letter-spacing: 0.06em; }
+  #result-line2 { font-size: 28px; letter-spacing: 0.04em; opacity: 0.92; }
+</style>
+</head>
+<body>
+<div id="root">
+<div id="stage">
+  <img id="board-bottom" class="layer" src="BoardBottom.png" alt="" />
+
+  <div id="figure">
+    <img id="rleg"  class="layer part" src="RLeg.png"  alt="" />
+    <img id="lleg"  class="layer part" src="LLeg.png"  alt="" />
+    <img id="rarm"  class="layer part" src="RArm.png"  alt="" />
+    <img id="larm"  class="layer part" src="LArm.png"  alt="" />
+    <img id="body"  class="layer part" src="Body.png"  alt="" />
+    <img id="noose" class="layer"      src="Noose.png" alt="" />
+    <img id="head"  class="layer part" src="Head.png"  alt="" />
+  </div>
+
+  <img id="board-top" class="layer" src="BoardTop.png" alt="" />
+</div>
+
+<div id="guess-counts" class="hidden">Wrong: 0 / 6</div>
+
+<div id="game-panel">
+  <div id="phrase-lines"></div>
+  <div id="alphabet-strip"></div>
+  <div id="result-banner">
+    <div id="result-line1"></div>
+    <div id="result-line2"></div>
+  </div>
+</div>
+</div>
+
+<script>
+  function fitOverlay() {
+    const s = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+    document.documentElement.style.setProperty('--fit', s);
+  }
+  fitOverlay();
+  window.addEventListener('resize', fitOverlay);
+  const POLL_MS        = 1500;
+  const BASE           = '';
+  const MAX_LINE_CHARS = 16;
+
+  // reveal order matches the asset numbering: 1 Head, 2 Body, 3 L Arm, 4 R Arm, 5 L Leg, 6 R Leg
+  const PARTS = ['head','body','larm','rarm','lleg','rleg'].map(id => document.getElementById(id));
+
+  const stage       = document.getElementById('stage');
+  const gamePanel   = document.getElementById('game-panel');
+  const phraseLines = document.getElementById('phrase-lines');
+  const countsEl    = document.getElementById('guess-counts');
+  const strip       = document.getElementById('alphabet-strip');
+  const banner      = document.getElementById('result-banner');
+  const rLine1      = document.getElementById('result-line1');
+  const rLine2      = document.getElementById('result-line2');
+
+  function makeAudio(file) { const a = new Audio(BASE + '' + file); a.preload = 'auto'; return a; }
+  const sfx = {
+    start:   makeAudio('start.mp3'),
+    correct: makeAudio('correctguess.mp3'),
+    wrong:   makeAudio('wrongguess.mp3'),
+    win:     makeAudio('win.mp3'),
+    loss:    makeAudio('loss.mp3'),
+  };
+  function play(name) { try { const s = sfx[name]; s.currentTime = 0; s.play().catch(() => {}); } catch(e) {} }
+
+  const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+  const ROWS = [ ALPHABET.slice(0,10), ALPHABET.slice(10,20), ALPHABET.slice(20,26) ];
+  const tiles = {};
+  ROWS.forEach(row => {
+    const rowEl = document.createElement('div');
+    rowEl.className = 'alpha-row';
+    row.forEach(letter => {
+      const tile = document.createElement('div');
+      tile.className = 'letter-tile';
+      tile.textContent = letter;
+      rowEl.appendChild(tile);
+      tiles[letter] = tile;
+    });
+    strip.appendChild(rowEl);
+  });
+
+  let lastPhase = null, lastWrong = -1, lastMasked = null;
+
+  function applyLayers(wrongCount) {
+    PARTS.forEach((l, i) => l.classList.toggle('shown', (i + 1) <= wrongCount));
+  }
+  function showAllLayers() { PARTS.forEach(l => l.classList.add('shown')); }
+  function resetLayers()   { PARTS.forEach(l => l.classList.remove('shown')); }
+
+  function formatMasked(masked) { return masked.split('').map(c => c === ' ' ? '   ' : c).join(' '); }
+
+  function buildPhraseLines(masked, phaseClass) {
+    const words = masked.replace(/\s+/g, ' ').trim().split(' ').filter(w => w.length > 0);
+    const lines = [];
+    let current = [], currentLen = 0;
+    for (const word of words) {
+      const needed = currentLen === 0 ? word.length : word.length + 1;
+      if (currentLen > 0 && currentLen + needed > MAX_LINE_CHARS) {
+        lines.push(current.join(' ')); current = [word]; currentLen = word.length;
+      } else { current.push(word); currentLen += needed; }
+    }
+    if (current.length > 0) lines.push(current.join(' '));
+    phraseLines.innerHTML = '';
+    lines.forEach(line => {
+      const div = document.createElement('div');
+      div.className = 'phrase-line' + (phaseClass ? ' ' + phaseClass : '');
+      div.textContent = formatMasked(line);
+      phraseLines.appendChild(div);
+    });
+  }
+
+  function triggerShake() {
+    phraseLines.classList.remove('shake');
+    void phraseLines.offsetWidth;
+    phraseLines.classList.add('shake');
+    phraseLines.addEventListener('animationend', () => phraseLines.classList.remove('shake'), { once: true });
+  }
+
+  function updateAlphabet(guessedLetters, knownPhrase) {
+    const inPhrase = new Set((knownPhrase || '').toUpperCase().replace(/[^A-Z]/g, '').split(''));
+    ALPHABET.forEach(letter => {
+      tiles[letter].className = 'letter-tile';
+      if (guessedLetters.includes(letter)) tiles[letter].classList.add(inPhrase.has(letter) ? 'correct' : 'wrong');
+    });
+  }
+
+  function showBanner(type, line1, line2) {
+    banner.className = 'result-banner ' + type;
+    rLine1.textContent = line1;
+    rLine2.textContent = line2 ? '"' + line2 + '"' : '';
+    void banner.offsetWidth;
+    banner.classList.add('visible');
+  }
+  function hideBanner() { banner.classList.remove('visible'); banner.className = 'result-banner'; }
+
+  async function poll() {
+    try {
+      const resp = await fetch(BASE + 'state', { cache: 'no-store' });
+      if (!resp.ok) return;
+      const raw = await resp.json();
+      const s = raw.state || raw;
+
+      const phase       = s.phase;
+      const wrong       = s.wrongCount;
+      const masked      = s.masked   || '';
+      const guessed     = s.guessedLetters || [];
+      const phrase      = s.phrase   || '';
+      const maxWrong    = s.maxWrong || 6;
+      const solver      = s.solver   || '';
+      const phraseGuess = s.phraseGuess || false;
+
+      if (phase === 'idle') {
+        stage.classList.remove('visible');
+        gamePanel.classList.remove('visible');
+        hideBanner();
+        resetLayers();
+        phraseLines.innerHTML = '';
+        countsEl.classList.add('hidden');
+        strip.classList.remove('hidden');
+        lastPhase = 'idle'; lastWrong = -1; lastMasked = null;
+        return;
+      }
+
+      stage.classList.add('visible');
+      gamePanel.classList.add('visible');
+
+      if (wrong !== lastWrong) {
+        if (lastWrong !== -1 && wrong > lastWrong) { play('wrong'); triggerShake(); }
+        applyLayers(wrong);
+        lastWrong = wrong;
+      }
+
+      if (masked !== lastMasked && lastMasked !== null && wrong === lastWrong) {
+        const prevBlanks = (lastMasked.match(/_/g) || []).length;
+        const newBlanks  = (masked.match(/_/g) || []).length;
+        if (newBlanks < prevBlanks) play('correct');
+      }
+      if (masked !== lastMasked) { buildPhraseLines(masked, ''); lastMasked = masked; }
+
+      countsEl.textContent = `Wrong: ${wrong} / ${maxWrong}`;
+      updateAlphabet(guessed, phrase || masked.replace(/[^A-Za-z]/g, ''));
+
+      if (phase === 'won' && lastPhase !== 'won') {
+        buildPhraseLines(phrase ? phrase.replace(/_/g, ' ') : masked, 'won-reveal');
+        countsEl.classList.add('hidden'); strip.classList.add('hidden');
+        const displayPhrase = phrase.replace(/_/g, ' ');
+        const line1 = phraseGuess ? `${solver} guessed the full phrase!` : `${solver} guessed the final letter!`;
+        showBanner('won', line1, displayPhrase);
+        play('win'); lastPhase = 'won';
+      } else if (phase === 'lost' && lastPhase !== 'lost') {
+        buildPhraseLines(phrase ? phrase.replace(/_/g, ' ') : masked, 'lost-reveal');
+        showAllLayers();
+        countsEl.classList.add('hidden'); strip.classList.add('hidden');
+        const displayPhrase = phrase.replace(/_/g, ' ');
+        showBanner('lost', 'The phrase was...', displayPhrase);
+        play('loss'); lastPhase = 'lost';
+      } else if (phase === 'active') {
+        if (lastPhase === 'idle' || lastPhase === null) play('start');
+        if (lastPhase !== 'active') { hideBanner(); countsEl.classList.remove('hidden'); strip.classList.remove('hidden'); }
+        lastPhase = 'active';
+      }
+    } catch(e) {}
+  }
+
+  poll();
+  setInterval(poll, POLL_MS);
+</script>
+</body>
+</html>

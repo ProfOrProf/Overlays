@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="demo.js"></script>
+<meta charset="utf-8">
+<title>Sortie — Boss Deploy</title>
+<style>
+  :root{
+    --panel:#0f1a24; --panel2:#16242f;
+    --blue:#6fc0ec; --blue-dim:#3f6f8c;
+    --amber:#e0a93f; --amber-dim:#8c6c2c;
+    --red:#e0463c; --green:#7fe0a0; --teal:#5fd0c8;
+    --bone:#d7e6f2; --line:#284055;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{width:100%;height:100%;background:transparent;overflow:hidden;
+    font-family:"Bahnschrift","Arial Narrow",system-ui,sans-serif;color:var(--bone);}
+
+  /* ── command rail — un-latches from the bay up to centre stage ────── */
+  #rail{position:absolute;top:188px;left:92px;width:560px;transform-origin:top left;
+    background:linear-gradient(160deg,rgba(18,30,42,.96),rgba(9,16,23,.96));
+    border:1px solid var(--line);
+    clip-path:polygon(0 0,calc(100% - 22px) 0,100% 22px,100% 100%,22px 100%,0 calc(100% - 22px));
+    box-shadow:0 0 0 1px rgba(111,192,236,.10),0 18px 60px rgba(0,0,0,.6);
+    transform:translate(800px,672px) scale(.42);opacity:0;}      /* rest = docked in the bay (hidden) */
+  /* mechanical unlatch: zoom out (reveal the hole) → straight up → left + grow */
+  #rail.staged{opacity:1;animation:unlatch .95s cubic-bezier(.2,.8,.2,1) forwards;}
+  #rail.docked{opacity:1;animation:relatch .95s cubic-bezier(.35,.05,.3,1) forwards;}
+  #rail.tucked{opacity:0;}   /* fully hidden once latched — the dock-bar is the docked face */
+  @keyframes unlatch{
+    0%  {transform:translate(800px,672px) scale(.42);}
+    18% {transform:translate(800px,672px) scale(.30);}   /* zoom out — reveal the bay hole */
+    52% {transform:translate(800px,86px)  scale(.30);}   /* straight up */
+    100%{transform:none;}                                 /* left + grow into place */
+  }
+  @keyframes relatch{
+    0%  {transform:none;}
+    48% {transform:translate(800px,86px)  scale(.30);}   /* left + up, shrunk */
+    82% {transform:translate(800px,672px) scale(.30);}   /* down into the bay */
+    100%{transform:translate(800px,672px) scale(.42);}   /* latch (grow to fill) */
+  }                        /* unlatched at centre */
+  #rail::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;
+    background:linear-gradient(180deg,var(--blue),var(--blue-dim));}
+
+  .head{padding:18px 26px 14px 30px;border-bottom:1px solid var(--line);position:relative;}
+  .head .kic{font-size:13px;letter-spacing:.5em;color:var(--blue-dim);text-transform:uppercase;}
+  .head .tgt{margin-top:10px;font-size:14px;letter-spacing:.5em;text-transform:uppercase;color:var(--red);}
+  .head .boss{margin-top:2px;font-size:50px;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--bone);line-height:1.02;text-shadow:0 0 24px rgba(111,192,236,.32);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  /* top-right moon — amber (deploying) / grey (sortie) / green|red (outcome) */
+  .celest{position:absolute;top:18px;right:22px;width:34px;height:34px;}
+  .celest .moon{position:absolute;inset:0;border-radius:50%;background:transparent;
+    box-shadow:inset -9px 3px 0 0 var(--moonc,var(--amber));transform:rotate(18deg);
+    transition:box-shadow .5s ease, filter .5s ease;}
+  .celest.deploying{--moonc:var(--amber);}
+  .celest.sortie   {--moonc:#9fb1bd;}
+  .celest.win      {--moonc:var(--green);}
+  .celest.fail     {--moonc:var(--red);}
+  .celest.win  .moon{filter:drop-shadow(0 0 8px rgba(127,224,160,.65));}
+  .celest.fail .moon{filter:drop-shadow(0 0 8px rgba(224,70,60,.65));}
+
+  /* ── phase strip ───────────────────────────────────────────────── */
+  .phase{display:flex;align-items:center;gap:12px;padding:12px 30px;
+    border-bottom:1px solid var(--line);font-size:19px;letter-spacing:.34em;text-transform:uppercase;}
+  .phase .t{font-size:34px;letter-spacing:.04em;color:var(--amber);font-weight:600;
+    text-shadow:0 0 16px rgba(224,169,63,.4);margin-left:4px;}
+  .dot{width:11px;height:11px;transform:rotate(45deg);background:var(--blue);box-shadow:0 0 10px var(--blue);}
+  .phase.deploying .dot{background:var(--blue);animation:pulse 1s infinite;}
+  .phase.sortie    .dot{background:var(--amber);box-shadow:0 0 10px var(--amber);animation:pulse .7s infinite;}
+  .phase.win  .dot{background:var(--green);box-shadow:0 0 12px var(--green);}
+  .phase.fail .dot{background:var(--red);box-shadow:0 0 12px var(--red);}
+  .phase .ptxt{color:var(--bone);}
+  .phase.win  .ptxt{color:var(--green);}
+  .phase.fail .ptxt{color:var(--red);}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.25;}}
+
+  /* ── roster ────────────────────────────────────────────────────── */
+  .roster{height:300px;overflow:hidden;position:relative;padding:8px 16px 0;transition:height .6s ease;}
+  .rinner{will-change:transform;}
+  .row{display:flex;align-items:center;gap:14px;padding:0 14px;height:46px;margin:0 0 12px;
+    background:linear-gradient(90deg,rgba(111,192,236,.10),rgba(22,36,47,.65));
+    border:1px solid var(--line);border-left:3px solid var(--blue);
+    clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,0 100%);}
+  /* vote tint — DEPLOY (yes) = green, DISENGAGE (no) = red */
+  .row.vote-yes{border-left-color:var(--green);box-shadow:inset 0 0 22px rgba(127,224,160,.18);}
+  .row.vote-no {border-left-color:var(--red);  box-shadow:inset 0 0 22px rgba(224,70,60,.18);}
+  .row.enter{opacity:0;transform:translateX(-72px);}
+  .row.enter.in{animation:slidein 1.5s cubic-bezier(.16,.84,.3,1) forwards;}
+  @keyframes slidein{from{opacity:0;transform:translateX(-72px);}to{opacity:1;transform:none;}}
+  /* mission result — names slide left, box compacts to one double-height blinker */
+  .row.exit{transition:transform .6s ease,opacity .55s ease;transform:translateX(-130%);opacity:0;}
+  .result{height:96px;display:flex;align-items:center;justify-content:center;
+    font-size:48px;letter-spacing:.5em;text-transform:uppercase;
+    border:1px solid var(--line);border-left:3px solid var(--blue);
+    background:linear-gradient(90deg,rgba(22,36,47,.7),rgba(22,36,47,.35));
+    clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,0 100%);}
+  .result.win{color:var(--green);border-left-color:var(--green);text-shadow:0 0 26px rgba(127,224,160,.45);}
+  .result.fail{color:var(--red);border-left-color:var(--red);text-shadow:0 0 26px rgba(224,70,60,.45);}
+  .result.blink{animation:resblink 1.8s ease-in-out infinite;}
+  @keyframes resblink{0%,100%{opacity:1;}50%{opacity:.18;}}
+  /* re-dock: yellow DEPLOYING blink ×3 before latching home */
+  .result.deploying{color:var(--amber);border-left-color:var(--amber);text-shadow:0 0 26px rgba(224,169,63,.5);}
+  .result.blink3{animation:resblink .6s ease-in-out 3;}
+  .row .idx{font-size:14px;color:var(--blue-dim);min-width:34px;letter-spacing:.1em;}
+  .row .call{flex:1;font-size:24px;letter-spacing:.12em;text-transform:uppercase;color:var(--bone);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .row .bet{font-size:20px;color:var(--amber);letter-spacing:.06em;}
+  .row .bet small{color:var(--amber-dim);font-size:12px;letter-spacing:.2em;margin-left:5px;}
+  .empty{padding:26px 18px;text-align:center;color:var(--blue-dim);font-size:16px;letter-spacing:.3em;text-transform:uppercase;}
+
+  /* ── footer totals ─────────────────────────────────────────────── */
+  .foot{display:flex;justify-content:space-between;align-items:center;
+    padding:14px 30px;border-top:1px solid var(--line);
+    background:linear-gradient(180deg,transparent,rgba(111,192,236,.06));}
+  .stat{display:flex;flex-direction:column;}
+  .stat .l{font-size:11px;letter-spacing:.34em;color:var(--blue-dim);text-transform:uppercase;}
+  .stat .v{font-size:30px;letter-spacing:.06em;color:var(--bone);line-height:1.05;}
+  .stat .v.amber{color:var(--amber);text-shadow:0 0 16px rgba(224,169,63,.35);}
+
+  /* ── docked bay bar (bottom-centre slot) ───────────────────────── */
+  #dockbar{position:absolute;left:620px;top:869px;width:776px;height:211px;
+    display:flex;align-items:center;padding:0 30px;overflow:hidden;
+    background:rgba(16,27,40,.985);
+    border:1px solid var(--line);border-left:4px solid var(--blue);
+    clip-path:polygon(0 0,calc(100% - 18px) 0,100% 18px,100% 100%,18px 100%,0 calc(100% - 18px));
+    opacity:0;transition:opacity .55s ease;}
+  #dockbar.show{opacity:1;}
+  #dockbar .dtag{position:absolute;top:-1px;left:22px;z-index:5;
+    background:linear-gradient(180deg,#16242f,#0b1117);border:1px solid var(--line);border-top:0;
+    padding:4px 16px 5px;font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:var(--amber);
+    clip-path:polygon(0 0,100% 0,calc(100% - 9px) 100%,9px 100%);}
+  .dock-ticker{display:flex;flex-direction:column;gap:8px;}
+  .dock-ticker .k{font-size:14px;letter-spacing:.46em;color:var(--blue-dim);text-transform:uppercase;}
+  .dock-ticker .v{font-size:42px;letter-spacing:.10em;text-transform:uppercase;color:var(--bone);
+    text-shadow:0 0 20px rgba(111,192,236,.3);}
+  .dock-ticker .v.win{color:var(--green);text-shadow:0 0 22px rgba(127,224,160,.4);}
+  .dock-ticker .v.fail{color:var(--red);text-shadow:0 0 22px rgba(224,70,60,.4);}
+  .dock-ticker.oper{gap:3px;}
+  .dock-ticker.oper .v{font-size:46px;}
+  .dock-ticker .eng{font-size:22px;letter-spacing:.32em;text-transform:uppercase;color:var(--teal);}
+  .dock-ticker .v.cur{color:#9fb6c4;}                       /* current target, hitless = grey-blue */
+  .dock-ticker{animation:tickin .45s ease;}                 /* each new monitor frame animates in */
+  @keyframes tickin{from{opacity:0;transform:translateY(9px);}to{opacity:1;transform:none;}}
+
+  /* target monitor swap — letters drop off / rise from bottom, header slides in, label slides left */
+  .tgt-mon{display:flex;flex-direction:column;gap:6px;}
+  .tgt-mon .k{font-size:13px;letter-spacing:.46em;color:var(--blue-dim);text-transform:uppercase;white-space:nowrap;}
+  .tgt-mon .k.in{animation:hdrin .5s cubic-bezier(.2,.8,.2,1);}
+  @keyframes hdrin{from{transform:translateX(220px);opacity:0;}to{transform:none;opacity:1;}}
+  .tgt-mon .k.out{animation:hdrout .45s ease-in both;}
+  @keyframes hdrout{from{transform:none;opacity:1;}to{transform:translateX(-220px);opacity:0;}}
+  .tgt-mon .tv{font-size:42px;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;display:inline-block;}
+  .tgt-mon .tv.cur{color:#9fb6c4;}
+  .tgt-mon .tv.win{color:var(--green);text-shadow:0 0 20px rgba(127,224,160,.35);}
+  .tgt-mon .tv.fail{color:var(--red);text-shadow:0 0 20px rgba(224,70,60,.35);}
+  .tgt-mon .ltr{display:inline-block;}
+  .tgt-mon .ltr.in{animation:ltrup .5s cubic-bezier(.2,.8,.2,1) both;}
+  @keyframes ltrup{from{transform:translateY(30px);opacity:0;}to{transform:none;opacity:1;}}
+  .tgt-mon .ltr.out{animation:ltrdrop .4s ease-in both;}
+  @keyframes ltrdrop{from{transform:none;opacity:1;}to{transform:translateY(38px);opacity:0;}}
+  /* sortie predictions — two columns + a TARGET panel on the right */
+  .sortielayout{display:flex;gap:20px;width:100%;height:100%;align-items:stretch;}
+  .sortielayout.solo{justify-content:center;align-items:center;}
+  .cols{flex:1;min-width:0;display:flex;gap:16px;height:100%;}
+  .dtarget{flex:0 0 210px;display:flex;flex-direction:column;justify-content:center;gap:6px;
+    border-left:1px solid var(--line);padding-left:24px;}
+  .sortielayout.solo .dtarget{flex:0 0 auto;border-left:0;text-align:center;align-items:center;}
+  .dtarget .k{font-size:13px;letter-spacing:.4em;color:var(--blue-dim);text-transform:uppercase;}
+  .dtarget .v{font-size:32px;letter-spacing:.07em;text-transform:uppercase;color:var(--bone);
+    line-height:1.04;text-shadow:0 0 18px rgba(111,192,236,.3);}
+  .col{flex:1;display:flex;flex-direction:column;min-width:0;}
+  .col .ch{font-size:12px;letter-spacing:.3em;text-transform:uppercase;padding:6px 6px 5px;
+    border-bottom:1px solid var(--line);flex:0 0 auto;}
+  .col.deploy    .ch{color:var(--green);} .col.deploy    .ch::before{content:"▸ ";}
+  .col.disengage .ch{color:var(--red);}   .col.disengage .ch{text-align:right;} .col.disengage .ch::after{content:" ◂";}
+  .cwin{flex:1;overflow:hidden;position:relative;padding-top:7px;}
+  /* JS-driven roll (see dockScrollStep) — copies duplicated to fill, shared px offset */
+  .colscroll{display:flex;flex-direction:column;will-change:transform;}
+  .pchip{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 14px;margin-bottom:7px;
+    border:1px solid var(--line);border-left:3px solid var(--blue);
+    background:linear-gradient(90deg,rgba(111,192,236,.08),rgba(22,36,47,.55));
+    clip-path:polygon(0 0,calc(100% - 9px) 0,100% 9px,100% 100%,0 100%);}
+  .pchip.yes{border-left-color:var(--green);box-shadow:inset 0 0 18px rgba(127,224,160,.14);}
+  .pchip.no {border-left-color:var(--red);  box-shadow:inset 0 0 18px rgba(224,70,60,.14);}
+  .pchip .c{font-size:19px;letter-spacing:.08em;text-transform:uppercase;color:var(--bone);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .pchip small{color:var(--amber);font-size:13px;letter-spacing:.04em;flex:0 0 auto;}
+</style>
+</head>
+<body>
+<div id="rail">
+  <div class="head">
+    <div class="celest" id="celest"><div class="moon"></div></div>
+    <div class="kic">ANUBIS520 // Operation</div>
+    <div class="tgt">Target</div>
+    <div class="boss" id="boss">—</div>
+  </div>
+  <div class="phase" id="phase"><span class="dot"></span><span class="ptxt" id="ptxt">Standby</span></div>
+  <div class="roster" id="roster"><div class="rinner" id="rinner"><div class="empty">Awaiting deployment…</div></div></div>
+  <div class="foot">
+    <div class="stat"><span class="l">Deployed</span><span class="v" id="count">0</span></div>
+    <div class="stat" style="text-align:right;align-items:flex-end;"><span class="l">COAM Staked</span><span class="v amber" id="pool">0</span></div>
+  </div>
+</div>
+<div id="dockbar"><div class="dtag" id="dtag">Status // Monitor</div><div id="dockinner"></div></div>
+
+<script>
+(() => {
+  const BASE = '';
+  const rail   = document.getElementById('rail');
+  const bossEl = document.getElementById('boss');
+  const phaseEl= document.getElementById('phase');
+  const ptxtEl = document.getElementById('ptxt');
+  const inner  = document.getElementById('rinner');
+  const countEl= document.getElementById('count');
+  const poolEl = document.getElementById('pool');
+  const roster = document.getElementById('roster');
+  const celest = document.getElementById('celest');
+  const dockbar= document.getElementById('dockbar');
+  const dockinner = document.getElementById('dockinner');
+  const dtagEl = document.getElementById('dtag');
+
+  const WINDOW = 5;        // visible roster rows
+  const ROLL_PX = 0.4;     // mission roll speed, px/frame (~24px/s)
+  // TEST build: sounds on time. FINAL build: set 2000 so every sound plays 2s after its cue.
+  const SOUND_DELAY_MS = 0;
+  const RELATCH_MS = 2800; // after lock: roll-through time before the rail shrinks + re-latches
+
+  let curEvent=-1, lastPhase=null, shown=0, rowH=58, singleH=0, rollRAF=null, rollY=0;
+  let lastSec=-1, resultShown=false, resultHidden=false, sortieRelatched=false;
+  let idleSince=0, lastBoss='', lastWin=false, lastDockHTML='';
+  let dockSig='', dockRAF=null, dockOff=0, dockCols=[];
+  const DOCK_PX=0.35;   // prediction roll speed (px/frame, ~20px/s)
+
+  // ── HCM splits — hidden iframe reads /hcm/HitCounter.html live (current/last target) ──
+  let hcm=null, monMode='current', monSince=0, monSig='';
+  const hcmFrame=document.createElement('iframe'); hcmFrame.style.display='none';
+  function hcmRead(){
+    try{
+      const d=hcmFrame.contentWindow.data;
+      if(d && Array.isArray(d.list)){
+        const a=d.split_active, cur=(a!=null&&d.list[a])?d.list[a]:null, last=(a>0&&d.list[a-1])?d.list[a-1]:null;
+        hcm={ ok:true,
+          curName:  cur ? String(cur[0]||'').replace(/&nbsp;/g,' ').trim() : '',
+          curHits:  cur ? (cur[1]||0) : 0,
+          lastName: last? String(last[0]||'').replace(/&nbsp;/g,' ').trim() : '',
+          lastHits: last? (last[1]||0) : 0 };
+      }
+    }catch(e){}
+    setTimeout(hcmRefresh,1500);
+  }
+  function hcmRefresh(){ try{ if(hcmFrame.contentWindow && hcmFrame.contentWindow.location.href.indexOf('HitCounter.html')>=0) hcmFrame.contentWindow.location.reload(true); else hcmFrame.src='about:blank'; }catch(e){ hcmFrame.src='about:blank'; } }
+  hcmFrame.onload=hcmRead; document.body.appendChild(hcmFrame); hcmFrame.src='about:blank';
+
+  const fmt  = n => (n||0).toLocaleString('en-US');
+  const pad2 = n => String(n).padStart(2,'0');
+  const esc  = s => String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  // ── sound ── (served from /games/sortie/Sounds/)
+  const SND = { start:'GameStart.wav', name:'NameSlide.wav', beep:'3Secs.wav',
+                closed:'DeploymentWindowClosed.wav', win:'Success.wav', loss:'Failure.wav' };
+  const sndUrl = f => BASE+'/games/sortie/Sounds/'+f;
+  Object.values(SND).forEach(f => { const a=new Audio(sndUrl(f)); a.preload='auto'; });
+  function rawPlay(n){ const f=SND[n]; if(!f) return; try{ new Audio(sndUrl(f)).play().catch(()=>{}); }catch(e){} }
+  function playSound(n){ if(SOUND_DELAY_MS>0) setTimeout(()=>rawPlay(n), SOUND_DELAY_MS); else rawPlay(n); }
+
+  const PHASE = { deploying:{cls:'deploying'}, sortie:{cls:'sortie',txt:'Sortie In Progress'}, idle:{cls:'',txt:'Standby'} };
+
+  // latch helpers
+  let railMode='docked';
+  rail.addEventListener('animationend', ()=>{ if(railMode==='docked') rail.classList.add('tucked'); });
+  function setRail(mode){
+    if(mode===railMode) return; railMode=mode;
+    rail.classList.remove('staged','docked','tucked'); void rail.offsetWidth;   // restart the animation
+    rail.classList.add(mode==='staged'?'staged':'docked');
+  }
+  function dockShow(on){ dockbar.classList.toggle('show', on); }
+  function setDock(html){ if(html!==lastDockHTML){ lastDockHTML=html; monSig=''; stopDockScroll(); dockSig=''; dockinner.innerHTML=html; } }
+
+  // animated target swap: old letters drop off + slide left, header slides in from the right,
+  // new boss letters rise from the bottom (random stagger). Recolors in place if same target.
+  function showTarget(kind, name, cls){
+    const sig = kind+'|'+name+'|'+cls;
+    if(sig===monSig) return;
+    const prev = monSig.split('|');
+    const sameTarget = prev[0]===kind && prev[1]===name;   // same split, maybe new colour (hit landed)
+    monSig=sig; lastDockHTML='@tgt'; dockSig=''; stopDockScroll();
+    if(sameTarget){
+      const tv=dockinner.querySelector('.tv'); if(tv) tv.className='tv '+cls;
+      return;
+    }
+    const hdr   = kind==='current' ? 'Current Target' : 'Last Target';
+    const label = kind==='last' ? (name+' // '+(cls==='fail'?'Failure':'Success')) : name;
+    const build = () => {
+      const letters = Array.from(label).map(ch=>{
+        const dly=(Math.random()*0.5).toFixed(2);
+        return '<span class="ltr in" style="animation-delay:'+dly+'s">'+(ch===' '?'&nbsp;':esc(ch))+'</span>';
+      }).join('');
+      dockinner.innerHTML = '<div class="tgt-mon"><span class="k in">'+hdr+'</span><span class="tv '+cls+'">'+letters+'</span></div>';
+    };
+    const old = dockinner.querySelector('.tgt-mon');
+    if(old){
+      const k=old.querySelector('.k'); if(k){ k.classList.remove('in'); k.classList.add('out'); }   // header slides left
+      old.querySelectorAll('.ltr').forEach(l=>{ l.classList.remove('in'); l.style.animationDelay=(Math.random()*0.28).toFixed(2)+'s'; l.classList.add('out'); });
+      setTimeout(build, 520);
+    } else build();
+  }
+
+  function setDockIdle(){
+    // HCM-driven status monitor: cycle CURRENT TARGET (~25s) <-> LAST TARGET (~15s);
+    // no HCM data => ANUBIS520 / ENGAGED fallback.
+    if(!hcm || !hcm.ok || (!hcm.curName && !hcm.lastName)){
+      setDock('<div class="dock-ticker oper"><span class="v">ANUBIS520</span><span class="eng">Engaged</span></div>');
+      return;
+    }
+    const now=Date.now(); if(monSince===0) monSince=now;
+    const dwell = monMode==='current' ? 25000 : 15000;
+    if(now-monSince >= dwell){
+      if(monMode==='current' && hcm.lastName){ monMode='last'; monSince=now; }
+      else if(monMode==='last' && hcm.curName){ monMode='current'; monSince=now; }
+      else monSince=now;
+    }
+    let mode=monMode;
+    if(mode==='current' && !hcm.curName) mode='last';
+    if(mode==='last'    && !hcm.lastName) mode='current';
+    if(mode==='current') showTarget('current', hcm.curName||'—', hcm.curHits>0?'fail':'cur');
+    else                 showTarget('last',    hcm.lastName||'—', hcm.lastHits>0?'fail':'win');
+  }
+  function predCol(kind, list){
+    const items = list.map(d=>'<div class="pchip '+(kind==='deploy'?'yes':'no')+'"><span class="c">'
+      +esc(d.display||'—')+'</span><small>'+fmt(d.bet)+'</small></div>').join('');
+    return '<div class="col '+kind+'"><div class="ch">'+(kind==='deploy'?'Deploy':'Disengage')
+      +'</div><div class="cwin"><div class="colscroll">'+items+'</div></div></div>';
+  }
+  function setDockSortie(deployers, boss){
+    const yes=(deployers||[]).filter(d=>d.vote!=='no');
+    const no =(deployers||[]).filter(d=>d.vote==='no');
+    const sig=JSON.stringify((deployers||[]).map(d=>[d.display,d.vote,d.bet]))+'|'+(boss||'');
+    if(sig===dockSig) return;             // roster unchanged — let the roll keep rolling
+    dockSig=sig; lastDockHTML='@cols';    // sentinel so a later setDock() re-renders
+    stopDockScroll();
+    const target='<div class="dtarget"><span class="k">Target //</span><span class="v">'+esc(boss||'—')+'</span></div>';
+    if(!yes.length && !no.length){        // nobody bet — target alone, centred
+      dockinner.innerHTML='<div class="sortielayout solo">'+target+'</div>'; return;
+    }
+    let cols='<div class="cols">';        // one side empty => the other fills the columns area
+    if(yes.length) cols+=predCol('deploy', yes);
+    if(no.length)  cols+=predCol('disengage', no);
+    cols+='</div>';
+    dockinner.innerHTML='<div class="sortielayout">'+cols+target+'</div>';
+    mountDockScroll();
+  }
+  function stopDockScroll(){ if(dockRAF){ cancelAnimationFrame(dockRAF); dockRAF=null; } dockCols=[]; }
+  function mountDockScroll(){
+    const cw=dockinner.querySelector('.cwin'); const winH=cw?cw.clientHeight:150;
+    dockCols=Array.from(dockinner.querySelectorAll('.colscroll')).map(el=>{
+      const single=el.offsetHeight||1;                              // height of one full list
+      const copies=Math.max(2, Math.ceil(winH/single)+1);          // enough to never show empty
+      const base=el.innerHTML; let all=base; for(let i=1;i<copies;i++) all+=base; el.innerHTML=all;
+      return { el, single };
+    });
+    if(dockCols.length){ dockOff=0; dockScrollStep(); }
+  }
+  function dockScrollStep(){
+    dockOff+=DOCK_PX;                                               // shared offset → same speed
+    for(const c of dockCols){ const y=-c.single + (dockOff % c.single); c.el.style.transform='translateY('+y+'px)'; }
+    dockRAF=requestAnimationFrame(dockScrollStep);
+  }
+
+  function rowHTML(i,d,enter){
+    return '<div class="row vote-'+(d.vote==='no'?'no':'yes')+(enter?' enter':'')+'">'+
+      '<span class="idx">'+pad2(i+1)+'</span>'+
+      '<span class="call">'+esc(d.display||'—')+'</span>'+
+      '<span class="bet">'+fmt(d.bet)+'<small>COAM</small></span></div>';
+  }
+  function measureRowH(){ const r=inner.querySelector('.row'); if(r){ rowH = r.offsetHeight + (parseFloat(getComputedStyle(r).marginBottom)||0); } }
+  function stopRoll(){ if(rollRAF){ cancelAnimationFrame(rollRAF); rollRAF=null; } }
+  function setY(y,trans){ inner.style.transition=trans||'none'; inner.style.transform='translateY('+y+'px)'; }
+  function emptyState(){ inner.innerHTML='<div class="empty">Awaiting deployment…</div>'; shown=0; setY(0,'none'); }
+
+  function renderDeploy(deployers){
+    stopRoll();
+    if(deployers.length < shown){ inner.innerHTML=''; shown=0; }
+    if(deployers.length===0){ if(!inner.querySelector('.empty')) emptyState(); return; }
+    const e=inner.querySelector('.empty'); if(e) e.remove();
+    for(let i=shown;i<deployers.length;i++){
+      inner.insertAdjacentHTML('beforeend', rowHTML(i,deployers[i],true));
+      const el=inner.lastElementChild; void el.offsetWidth; el.classList.add('in');
+      playSound('name');
+    }
+    shown=deployers.length;
+    measureRowH();
+    const y=Math.min(0, WINDOW*rowH - deployers.length*rowH);
+    setY(y,'transform .8s cubic-bezier(.2,.8,.25,1)');
+  }
+
+  function startRoll(deployers){
+    stopRoll();
+    let html=''; for(let i=0;i<deployers.length;i++) html+=rowHTML(i,deployers[i],false);
+    inner.innerHTML=html; shown=deployers.length; measureRowH();
+    singleH = deployers.length*rowH;
+    setY(Math.min(0, WINDOW*rowH - singleH),'none'); void inner.offsetWidth;
+    setY(0,'transform .8s ease');
+    if(deployers.length<=WINDOW) return;
+    setTimeout(()=>{ inner.insertAdjacentHTML('beforeend', html); rollY=0; rollStep(); }, 850);
+  }
+  function rollStep(){
+    rollY-=ROLL_PX; if(rollY<=-singleH) rollY+=singleH;
+    setY(rollY,'none');
+    rollRAF=requestAnimationFrame(rollStep);
+  }
+
+  function showResult(win){
+    if(resultShown) return; resultShown=true;
+    stopRoll();
+    inner.querySelectorAll('.row').forEach(r => r.classList.add('exit'));
+    playSound(win ? 'win' : 'loss');
+    setTimeout(() => {
+      setY(0,'none');
+      inner.innerHTML = '<div class="result '+(win?'win':'fail')+' blink">'+(win?'SUCCESS':'FAILURE')+'</div>';
+      roster.style.height = '96px';
+    }, 650);
+    // hold the result, then blink yellow DEPLOYING ×3 (stays compact) before latching home
+    setTimeout(() => {
+      inner.innerHTML = '<div class="result deploying blink3">DEPLOYING</div>';
+      setTimeout(() => { resultHidden=true; }, 1850);
+    }, 10000);
+  }
+
+  function resetEvent(){ stopRoll(); emptyState(); roster.style.height=''; resultShown=false; resultHidden=false; lastSec=-1; sortieRelatched=false; }
+
+  async function poll(){
+    try{
+      const r=await fetch(BASE+'/games/sortie/state',{cache:'no-store'});
+      if(!r.ok) return;
+      const raw=await r.json(); const s=raw.state||raw;
+      const phase = s.phase||'idle';
+
+      // dock-bar flag: SORTIE // PREDICTION while a prediction runs, else STATUS // MONITOR
+      dtagEl.textContent = (phase==='deploying'||phase==='sortie') ? 'Sortie // Prediction' : 'Status // Monitor';
+
+      if(phase==='complete'){ lastBoss=s.boss||lastBoss; lastWin=!!s.resultWin; }
+
+      // ── IDLE — rail tucked, dock ticker (Operator → Last Target) ──
+      if(phase==='idle'){
+        setRail('docked'); dockShow(true); stopRoll();
+        if(idleSince===0) idleSince=Date.now();
+        setDockIdle();
+        curEvent=-1; lastPhase='idle'; celest.className='celest';
+        if(resultShown||resultHidden) resetEvent();
+        return;
+      }
+      idleSince=0;
+
+      if(s.eventId!==curEvent){ curEvent=s.eventId; resetEvent(); }
+
+      bossEl.textContent=s.boss||'—';
+      countEl.textContent=s.deployCount||0;
+      poolEl.textContent=fmt(s.pool);
+
+      const meta=PHASE[phase]||PHASE.idle;
+      phaseEl.className='phase '+(phase==='complete'?(s.resultWin?'win':'fail'):meta.cls);
+      if(phase==='deploying'){ const t=Math.max(0,s.deployLeft||0); ptxtEl.innerHTML='Deploying // <span class="t">'+Math.floor(t/60)+':'+pad2(t%60)+'</span>'; }
+      else ptxtEl.textContent = phase==='complete'?(s.resultWin?'Mission Complete':'Mission Failed'):meta.txt;
+
+      if(phase==='deploying') celest.className='celest deploying';
+      else if(phase==='sortie') celest.className='celest sortie';
+      else if(phase==='complete') celest.className='celest '+(s.resultWin?'win':'fail');
+
+      // sound cues
+      if(phase==='deploying' && lastPhase!=='deploying') playSound('start');
+      if(phase==='sortie'    && lastPhase==='deploying') playSound('closed');
+      if(phase==='deploying'){ const sec=Math.max(0,s.deployLeft||0); if(sec!==lastSec){ if(sec>=1 && sec<=5) playSound('beep'); lastSec=sec; } }
+      else lastSec=-1;
+
+      // ── choreography ──
+      if(phase!=='sortie') stopDockScroll();
+      if(phase==='deploying'){
+        setRail('staged'); dockShow(false); renderDeploy(s.deployers||[]);
+      }
+      else if(phase==='sortie'){
+        if(!sortieRelatched){
+          setRail('staged'); dockShow(false);
+          if(lastPhase==='deploying'){ startRoll(s.deployers||[]); setTimeout(()=>{ sortieRelatched=true; }, RELATCH_MS); }
+          else sortieRelatched=true;                  // cold entry (reload mid-sortie)
+        }
+        if(sortieRelatched){ setRail('docked'); dockShow(true); setDockSortie(s.deployers||[], s.boss); }
+      }
+      else if(phase==='complete'){
+        if(!resultHidden){ setRail('staged'); dockShow(false); if(lastPhase!=='complete') showResult(!!s.resultWin); }
+        else { setRail('docked'); dockShow(true);
+          setDock('<div class="dock-ticker"><span class="k">Last Target</span><span class="v '+(lastWin?'win':'fail')+'">'
+            +esc(lastBoss)+' // '+(lastWin?'Success':'Failure')+'</span></div>'); }
+      }
+
+      lastPhase=phase;
+    }catch(e){}
+  }
+  setInterval(poll,600); poll();
+})();
+</script>
+</body>
+</html>

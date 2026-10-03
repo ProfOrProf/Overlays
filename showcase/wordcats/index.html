@@ -1,0 +1,498 @@
+<!doctype html>
+<html>
+<head>
+<script src="demo.js"></script>
+<style>#guessBox{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);display:flex;gap:12px;align-items:center;z-index:999;font-family:"SourGummy",sans-serif;background:rgba(20,14,30,.72);padding:12px 18px;border-radius:14px}#guessBox label{color:#FFACFF;font-size:26px}#guessBox input{font:26px "SourGummy",sans-serif;width:260px;padding:8px 14px;border-radius:10px;border:2px solid #FFACFF;background:#1d1428;color:#fff;text-transform:uppercase}#guessBox button{font:24px "SourGummy",sans-serif;padding:8px 20px;border-radius:10px;border:0;background:#FFACFF;color:#2a1438;cursor:pointer}#guessMsg{color:#fff;font-size:22px;min-width:200px}</style>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>CAT RACER</title>
+  <style>
+    @font-face{
+      font-family: "SourGummy";
+      src: url("./Assets/SourGummy-Light.ttf") format("truetype");
+      font-weight: normal;
+      font-style: normal;
+    }
+
+    :root{
+      --pink:   #FFACFF;
+      --pink2:  #FFACFF;
+      --panel:  rgba(80,0,120,0.25);
+      --line:   rgba(255,255,255,0.95);
+      --canvas-w: 1920px;
+      --canvas-h: 1080px;
+      --lane-h:   260px;
+      --track-h:  8px;
+      --name-tilt: -15deg;
+      --finish-nudge: 88px;
+      --cat-body-offset: 64px;
+      --logo-top: -25px;
+    }
+
+    html, body{
+      margin: 0;
+      width:  var(--canvas-w);
+      height: var(--canvas-h);
+      overflow: hidden;
+      background: transparent;
+      font-family: "SourGummy", Arial, sans-serif;
+    }
+
+    .root{ position:relative; width:var(--canvas-w); height:var(--canvas-h); }
+
+    #orbitLayer{
+      position:absolute;
+      left:0; top:0;
+      width:1920px; height:1080px;
+      display:none;
+      z-index:500;
+    }
+
+    #orbitTimer{
+      position:absolute;
+      left:50%; top:490px;
+      transform:translate(-50%,-50%);
+      font-family:"SourGummy", Arial, sans-serif;
+      font-size:220px;
+      font-weight:normal;
+      color: #FFACFF;
+      text-shadow:
+        0 0 40px rgba(255,62,165,0.8),
+        0 0 80px rgba(255,62,165,0.4),
+        0 8px 24px rgba(0,0,0,0.9);
+      pointer-events:none;
+      z-index:510;
+      transition: font-size 200ms ease;
+    }
+
+    #cmdOverlay{
+      position:absolute;
+      left:50%;
+      bottom: 80px;
+      transform:translateX(-50%);
+      width:1800px;
+      object-fit:contain;
+      pointer-events:none;
+      z-index:510;
+      display:none;
+      filter:drop-shadow(0 6px 16px rgba(0,0,0,0.7));
+    }
+
+    .orbitCat{
+      position:absolute;
+      width:220px;
+      height:220px;
+      pointer-events:none;
+      z-index:520;
+      transform-origin: center center;
+    }
+    .orbitCat img{
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      filter:drop-shadow(0 6px 14px rgba(0,0,0,0.7));
+    }
+
+    .orbitNum{
+      position:absolute;
+      top:42%;
+      left:98%;
+      transform:translateY(-50%);
+      font-family:"SourGummy", Arial, sans-serif;
+      font-size:80px;
+      font-weight:normal;
+      color:#ffd23a;
+      line-height:1;
+      pointer-events:none;
+    }
+
+    .panel{
+      position:absolute;
+      left:0; top:0;
+      width:var(--canvas-w);
+      height:var(--canvas-h);
+      background:var(--panel);
+      box-sizing:border-box;
+      z-index:10;
+    }
+
+    .lanes{
+      position:absolute;
+      left:50%; top:50%;
+      transform:translate(-50%,-50%);
+      width:1850px;
+      display:flex;
+      flex-direction:column;
+      z-index:400;
+    }
+
+    .lane{
+      height:var(--lane-h);
+      border-radius:16px;
+      background:rgba(0,0,0,0.16);
+      padding:16px 16px;
+      box-sizing:border-box;
+      position:relative;
+      overflow:visible;
+    }
+
+    .row{
+      display:grid;
+      grid-template-columns: 160px 1fr 180px;
+      align-items:center;
+      gap:14px;
+      height:100%;
+      position:relative;
+    }
+
+    .fxText{
+      font-family:"SourGummy", Arial, sans-serif;
+      color: var(--pink);
+
+    }
+
+    .nameCell{ display:flex; flex-direction:column; justify-content:center; }
+    .stars{
+      font-size:34px;
+      line-height:1;
+      letter-spacing:4px;
+      padding-left:12px;
+      margin-top:2px;
+      color:#ffd23a;
+      transform:rotate(var(--name-tilt));
+      transform-origin:left center;
+      text-shadow:0 0 10px rgba(255,210,58,.55);
+      min-height:34px;
+    }
+    .stars .dim{ color:rgba(255,210,58,.22); text-shadow:none; }
+    .name{
+      font-size:56px;
+      font-weight:400;
+      white-space:nowrap;
+      overflow:visible;
+      transform:rotate(var(--name-tilt));
+      transform-origin:left center;
+      padding-left:8px;
+      letter-spacing:0.5px;
+      z-index:100;
+      position:relative;
+    }
+
+    .foodWrap{
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      padding:8px;
+      height:100%;
+    }
+    .foodImg{
+      width:150px;
+      height:150px;
+      object-fit:contain;
+      filter:drop-shadow(0 4px 10px rgba(0,0,0,0.5));
+    }
+
+    .trackWrap{
+      position:relative;
+      height:100%;
+      overflow:visible;
+      z-index:50;
+    }
+
+    .finishLine{
+      position:absolute;
+      display:none;
+      left:0;
+      top:calc((var(--canvas-h) - (var(--lane-h) * 3)) / 2);
+      height:calc(var(--lane-h) * 3);
+      width:12px;
+      background-image:url("./Images/finishline.png");
+      background-size:100% 100%;
+      background-repeat:no-repeat;
+      opacity:.95;
+      z-index:11;
+      pointer-events:none;
+    }
+    .finishLine.on{ display:block; }
+
+    .catWrap{
+      position:absolute;
+      top:50%;
+      transform:translate(calc(-50% - var(--cat-body-offset)), -50%);
+      width:260px;
+      height:260px;
+      opacity:0;
+      transition:left 300ms cubic-bezier(.25,.1,.25,1), opacity 200ms linear;
+      z-index:5000;
+      pointer-events:none;
+    }
+    .catWrap.on{ opacity:1; }
+
+    .catImg{
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      object-position:center center;
+      filter:drop-shadow(0 8px 16px rgba(0,0,0,0.55));
+    }
+
+    #logo{
+      position:absolute;
+      left:50%;
+      top:var(--logo-top);
+      transform:translateX(-50%);
+      width:980px;
+      height:210px;
+      opacity:0;
+      object-fit:contain;
+      pointer-events:none;
+      z-index:2000;
+      filter:drop-shadow(0 10px 18px rgba(0,0,0,0.65));
+    }
+    .logoIn { animation:logoIn  900ms ease-out forwards; }
+    .logoOut{ animation:logoOut 450ms ease-out forwards; }
+    @keyframes logoIn  { 0%{opacity:0;transform:translateX(-50%) translateY(-35px);}30%{opacity:1;}100%{opacity:1;transform:translateX(-50%) translateY(0);} }
+    @keyframes logoOut { 0%{opacity:1;}100%{opacity:0;} }
+
+    #cmd{
+      position:absolute;
+      left:50%;
+      top:0px;
+      transform:translateX(-50%);
+      width:1600px;
+      height:1150px;
+      object-fit:contain;
+      pointer-events:none;
+      z-index:7000;
+      filter:drop-shadow(0 10px 18px rgba(0,0,0,0.65));
+    }
+
+    .hidden{ display:none !important; }
+
+    #catListRow{
+      position:absolute;
+      bottom:30px;
+      left:0; right:0;
+      display:none;
+      justify-content:center;
+      gap:40px;
+      z-index:515;
+      pointer-events:none;
+    }
+    .catListItem{
+      background:none;
+      border-radius:12px;
+      padding:10px 32px;
+      font-family:"SourGummy", Arial, sans-serif;
+      font-size:62px;
+      color: var(--pink);
+
+      white-space:nowrap;
+    }
+
+    #winLayer{
+      position:absolute;
+      left:0; top:0;
+      width:1920px; height:1080px;
+      background:rgba(0,0,0,0.55);
+      z-index:9999;
+    }
+    #winBanner{
+      position:absolute;
+      left:0; top:0;
+      width:1920px; height:1080px;
+      object-fit:fill;
+      pointer-events:none;
+      z-index:9999;
+    }
+    #winName{
+      position:absolute;
+      left:0; right:0;
+      top:calc(70px + 172px + 12px);
+      text-align:center;
+      font-family:"SourGummy", Arial, sans-serif;
+      font-size:130px;
+      font-weight:450;
+      color: var(--pink);
+      text-shadow:0 6px 18px rgba(0,0,0,0.8);
+      z-index:9999;
+    }
+    #winPortraitWrap{
+      position:absolute;
+      left:50%; top:56%;
+      transform:translate(-50%,-50%);
+      width:680px; height:500px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:9999;
+    }
+    #winPortrait{
+      width:100%; height:100%;
+      object-fit:contain;
+      filter:drop-shadow(0 18px 28px rgba(0,0,0,0.65));
+      transform-origin:50% 50%;
+    }
+    .winSpinInOut{ animation:winSpinInOut 2600ms ease-in-out forwards; }
+    @keyframes winSpinInOut{
+      0%  { transform:scale(0.18) rotate(0deg);    opacity:0; }
+      8%  { opacity:1; }
+      33% { transform:scale(1.55) rotate(720deg);  opacity:1; }
+      66% { transform:scale(0.12) rotate(1440deg); opacity:1; }
+      100%{ transform:scale(1.0)  rotate(1800deg); opacity:1; }
+    }
+    .winRock{ animation:winRock 950ms ease-in-out infinite; }
+    @keyframes winRock{
+      0%  { transform:scale(1.0) rotate(1790deg); }
+      50% { transform:scale(1.0) rotate(1810deg); }
+      100%{ transform:scale(1.0) rotate(1790deg); }
+    }
+    .winFadeOut{ animation:winFadeOut 900ms ease-in forwards; }
+    @keyframes winFadeOut{ 0%{opacity:1;}100%{opacity:0;} }
+
+    @keyframes idleShake{
+      0%   { transform:translate(-50%,-50%) rotate(-2deg); }
+      25%  { transform:translate(-50%,-50%) translateX(-4px) rotate(1deg); }
+      50%  { transform:translate(-50%,-50%) rotate(2deg); }
+      75%  { transform:translate(-50%,-50%) translateX(4px) rotate(-1deg); }
+      100% { transform:translate(-50%,-50%) rotate(-2deg); }
+    }
+    .catWrap.idling{ animation:idleShake 180ms ease-in-out infinite; }
+  
+#pfLayer{position:fixed;inset:0;display:none;z-index:12000;pointer-events:none;
+  font-family:"SourGummy",Arial,sans-serif}
+#pfLayer.on{display:block}
+#pfBack{position:absolute;inset:0;background:rgba(0,0,0,.72);opacity:0;transition:opacity .5s ease}
+#pfLayer.on #pfBack{opacity:1}
+#pfTitle{position:absolute;left:0;right:0;top:56px;text-align:center;
+  font-size:76px;color:#ffd23a;opacity:0;transition:opacity .5s ease}
+#pfLayer.show-title #pfTitle{opacity:1}
+#pfStage{position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);
+  width:1500px;height:820px}
+#pfStage .pfShot{position:absolute;left:50%;top:50%;
+  border:6px solid #FFACFF;border-radius:10px;background:#140a1c;
+  box-shadow:0 18px 50px rgba(0,0,0,.75);
+  transform:translate(-50%,-50%) scale(.55);opacity:0;
+  transition:transform .55s cubic-bezier(.2,.8,.25,1), opacity .3s ease}
+#pfStage .pfShot img{display:block;height:660px;width:auto;
+  filter:brightness(.12) contrast(.45) saturate(.15);
+  transition:filter 1.15s cubic-bezier(.3,.6,.4,1)}
+#pfStage .pfShot.developed img{filter:none}
+#pfStage .pfShot .pfTag{position:absolute;left:0;right:0;bottom:-2px;
+  text-align:center;font-size:30px;color:#ffe27a;background:rgba(20,10,28,.85);padding:4px 0}
+</style>
+</head>
+<body>
+<div class="root" id="root">
+
+  <img id="logo" src="./Images/logo.png" />
+  <img id="cmd"  src="./Images/command.png" class="hidden" />
+
+  <div class="finishLine"></div>
+
+  <div id="orbitLayer">
+    <div id="orbitTimer">90</div>
+    <img id="cmdOverlay" src="./Images/command.png" />
+    <div id="orbitCat1" class="orbitCat"><div class="orbitNum">1</div><img src="" /></div>
+    <div id="orbitCat2" class="orbitCat"><div class="orbitNum">2</div><img src="" /></div>
+    <div id="orbitCat3" class="orbitCat"><div class="orbitNum">3</div><img src="" /></div>
+  </div>
+
+  <div id="catListRow">
+    <div class="catListItem" id="catItem1">1. ?</div>
+    <div class="catListItem" id="catItem2">2. ?</div>
+    <div class="catListItem" id="catItem3">3. ?</div>
+  </div>
+
+  <div id="winLayer" class="hidden">
+    <img id="winBanner" src="./Images/winner.png" />
+    <div id="winPortraitWrap">
+      <img id="winPortrait" src="" />
+    </div>
+    <div id="winName" class="fxText">—</div>
+  </div>
+
+  <div class="panel" id="panel" style="display:none">
+    <div class="lanes">
+
+      <div class="lane" id="lane1">
+        <div class="row">
+          <div class="nameCell"><div id="h1" class="name fxText">—</div><div id="s1" class="stars"></div></div>
+          <div class="trackWrap">
+            <div id="w1" class="catWrap"><img id="img1" class="catImg" src="" /></div>
+          </div>
+          <div class="foodWrap"><img id="food1" class="foodImg" src="" /></div>
+        </div>
+      </div>
+
+      <div class="lane" id="lane2">
+        <div class="row">
+          <div class="nameCell"><div id="h2" class="name fxText">—</div><div id="s2" class="stars"></div></div>
+          <div class="trackWrap">
+            <div id="w2" class="catWrap"><img id="img2" class="catImg" src="" /></div>
+          </div>
+          <div class="foodWrap"><img id="food2" class="foodImg" src="" /></div>
+        </div>
+      </div>
+
+      <div class="lane" id="lane3">
+        <div class="row">
+          <div class="nameCell"><div id="h3" class="name fxText">—</div><div id="s3" class="stars"></div></div>
+          <div class="trackWrap">
+            <div id="w3" class="catWrap"><img id="img3" class="catImg" src="" /></div>
+          </div>
+          <div class="foodWrap"><img id="food3" class="foodImg" src="" /></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <audio id="audWinner"   src="./Audio/winner.mp3"   preload="auto"></audio>
+  <audio id="audGunshot"  src="./Audio/Gunshot.mp3"  preload="auto"></audio>
+  <audio id="audIdle"     src="./Audio/Idle.mp3"     preload="auto"></audio>
+  <audio id="audLight"    src="./Audio/LightSound.mp3" preload="auto"></audio>
+  <audio id="audStart"    src="./Audio/start.mp3"    preload="auto"></audio>
+
+</div>
+<div id="wcPile" aria-hidden="true">
+  <div id="wcCentre">
+    <div id="wcLetters"></div>
+    <div id="wcCount"></div>
+  </div>
+</div>
+<div id="wcFly"></div>
+
+<div id="pfLayer">
+  <div id="pfBack"></div>
+  <div id="pfTitle">PHOTO FINISH!</div>
+  <div id="pfStage"></div>
+</div>
+<style>
+#wcPile{position:fixed;left:0;right:0;top:0;bottom:0;display:none;
+  opacity:0;transition:opacity .9s ease;pointer-events:none;z-index:60;
+  font-family:"SourGummy", Arial, sans-serif}
+
+#wcCentre{position:absolute;left:50%;bottom:34px;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:2px}
+#wcLetters{display:flex;gap:52px;align-items:flex-end}
+#wcLetters span{display:inline-block;font-size:104px;font-weight:400;line-height:1;
+  color:#ffd23a;
+  animation:wcBob 2.4s ease-in-out infinite}
+#wcLetters span:nth-child(2n){animation-delay:.3s}
+#wcLetters span:nth-child(3n){animation-delay:.6s}
+@keyframes wcBob{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-10px) rotate(2deg)}}
+#wcCount{font-size:52px;color:#ffe27a;line-height:1;margin-top:2px;
+  letter-spacing:.03em}
+
+#wcFly{position:fixed;inset:0;pointer-events:none;z-index:5100}
+#wcFly .w{position:absolute;left:50%;bottom:190px;font-family:"SourGummy",Arial,sans-serif;
+  font-size:82px;color:#fff3c4;
+  white-space:nowrap}
+</style>
+<script src="./app.js"></script>
+</body>
+</html>

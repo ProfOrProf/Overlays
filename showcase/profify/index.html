@@ -1,0 +1,374 @@
+<!doctype html>
+<html>
+<head>
+<script src="demo.js"></script>
+<meta charset="utf-8">
+<title>Profify</title>
+<style>
+  :root {
+    --ink:#efe6d6; --ink-dim:#b3a68f;
+    --grace:#f0b13c; --panel:#0c0a09; --line:rgba(179,144,80,.22);
+    --serif:"Palatino Linotype",Palatino,"Book Antiqua","Iowan Old Style",Georgia,serif;
+    --fallEase:cubic-bezier(.32,0,.67,0);
+    --riseEase:cubic-bezier(.22,.9,.28,1);
+    --slideEase:cubic-bezier(.5,0,.75,0);
+    --titleSize:203px;
+    --artistSize:160px;
+    --reqSize:62px;
+  }
+  * { box-sizing:border-box; }
+  html,body { margin:0; height:100%; background:transparent; overflow:hidden; }
+
+  #stage {
+    position:absolute; left:50%; top:50%;
+    transform:translate(-50%,-50%) scale(var(--fit,1));
+    transform-origin:center;
+    font-family:var(--serif);
+  }
+
+  #card {
+    position:relative;
+    display:flex; align-items:center; gap:60px;
+    padding:60px;
+    background:linear-gradient(180deg, rgba(12,10,9,.94) 0%, rgba(12,10,9,.88) 100%);
+    border:3px solid rgba(240,177,60,.42);
+    border-radius:28px;
+    box-shadow:0 0 120px rgba(0,0,0,.65) inset, 0 24px 80px rgba(0,0,0,.5);
+  }
+  #card::before {
+    content:""; position:absolute; inset:14px; border:1px solid rgba(240,177,60,.16);
+    border-radius:18px; pointer-events:none;
+  }
+
+  #artwrap { position:relative; flex:none; align-self:center; }
+  #artclip {
+    position:relative; overflow:hidden; width:100%; height:100%;
+    border:3px solid var(--line); border-radius:18px;
+    box-shadow:0 18px 60px rgba(0,0,0,.6);
+    background:#070606;
+  }
+  .artlayer {
+    position:absolute; inset:0; width:100%; height:100%;
+    object-fit:cover; display:block; background:#070606;
+  }
+  #artnext { transform:translateY(-100%); }
+  #artglow {
+    position:absolute; inset:-26px; border-radius:26px; pointer-events:none;
+    box-shadow:0 0 90px 12px rgba(240,177,60,.14) inset;
+  }
+
+  #text { flex:none; width:900px; min-width:0; }
+
+  #labelclip { overflow:hidden; height:104px; margin-bottom:22px; }
+  #label {
+    font-size:66px; letter-spacing:.30em; text-transform:uppercase;
+    color:var(--grace); white-space:nowrap; line-height:104px;
+    text-shadow:0 0 26px rgba(240,177,60,.35);
+  }
+  #label .ch { display:inline-block; will-change:transform,opacity; }
+
+  #label.in-up    { animation:lblUp   .56s var(--riseEase) both; }
+  #label.in-fade  { animation:lblFade .56s ease both; }
+  #label.in-right { animation:lblRight .56s var(--riseEase) both; }
+  #label.out-left { animation:lblLeft .52s var(--slideEase) both; }
+  #label.out-fall .ch {
+    animation:chFall .52s var(--fallEase) both;
+    animation-delay:calc(var(--i,0) * 70ms);
+  }
+
+  @keyframes lblUp    { from { transform:translateY(104px); opacity:0 } to { transform:none; opacity:1 } }
+  @keyframes lblFade  { from { opacity:0 } to { opacity:1 } }
+  @keyframes lblRight { from { transform:translateX(62%);  opacity:0 } to { transform:none; opacity:1 } }
+  @keyframes lblLeft  { from { transform:none; opacity:1 } to { transform:translateX(-62%); opacity:0 } }
+  @keyframes chFall   { from { transform:translateY(0); opacity:1 } to { transform:translateY(150px); opacity:0 } }
+  @keyframes chRise   { from { transform:translateY(-140px); opacity:0 } to { transform:none; opacity:1 } }
+
+  #rule { height:2px; background:linear-gradient(90deg, var(--line), transparent); margin-bottom:38px; }
+
+  .rowclip { overflow:hidden; }
+  .slide { will-change:transform,opacity; }
+
+  .slide.out-left  { animation:rowLeftOut  .50s var(--slideEase) both; }
+  .slide.in-left   { animation:rowLeftIn   .56s var(--riseEase) both; }
+  .slide.out-down  { animation:rowDownOut  .46s var(--fallEase) both; }
+  .slide.in-up     { animation:rowUpIn     .56s var(--riseEase) both; }
+
+  @keyframes rowLeftOut { from { transform:none; opacity:1 } to { transform:translateX(-108%); opacity:0 } }
+  @keyframes rowLeftIn  { from { transform:translateX(-108%); opacity:0 } to { transform:none; opacity:1 } }
+  @keyframes rowDownOut { from { transform:none; opacity:1 } to { transform:translateY(115%); opacity:0 } }
+  @keyframes rowUpIn    { from { transform:translateY(115%); opacity:0 } to { transform:none; opacity:1 } }
+
+  .marquee { overflow:hidden; width:100%; }
+  .marquee > span { display:inline-block; white-space:nowrap; will-change:transform; }
+  .marquee.roll > span { animation:roll var(--dur,18s) linear -.5s infinite alternate; }
+  @keyframes roll {
+    from { transform:translateX(0); }
+    to   { transform:translateX(var(--shift,0px)); }
+  }
+
+  #title  { font-size:var(--titleSize); line-height:1.06; color:var(--ink);
+            text-shadow:0 3px 30px rgba(0,0,0,.8); }
+  #artist { font-size:var(--artistSize); line-height:1.14; color:var(--ink-dim); }
+  #artist .ch { display:inline-block; will-change:transform,opacity; }
+  #artist.fall .ch { animation:chFall .50s var(--fallEase) both; animation-delay:calc(var(--i,0) * 60ms); }
+  #artist.rise .ch { animation:chRise .52s var(--riseEase) both; animation-delay:calc(var(--i,0) * 60ms); }
+  #req    { font-size:var(--reqSize); color:var(--grace); min-height:0; }
+
+  #r-title  { margin-bottom:30px; }
+  #r-artist { margin-bottom:0; }
+  #r-req    { margin-top:32px; }
+  #r-req.empty { margin-top:0; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="card">
+    <div id="artwrap">
+      <div id="artclip">
+        <img id="art" class="artlayer" alt="">
+        <img id="artnext" class="artlayer" alt="">
+      </div>
+      <div id="artglow"></div>
+    </div>
+    <div id="text">
+      <div id="labelclip"><div id="label"></div></div>
+      <div id="rule"></div>
+      <div id="body">
+        <div class="rowclip" id="r-title"><div class="slide" id="s-title">
+          <div class="marquee" id="m-title"><span id="title">—</span></div></div></div>
+        <div class="rowclip" id="r-artist"><div class="slide" id="s-artist">
+          <div class="marquee" id="m-artist"><span id="artist"></span></div></div></div>
+        <div class="rowclip" id="r-req"><div class="slide" id="s-req"><div id="req"></div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+
+const BASE = { title:203, artist:160, req:62 };
+const FLOOR = 0.40;
+const OUT_MS = 560;
+const ART_MS = 640;
+const REQ_BACK_MS = 260;
+
+function sizeArt() {
+  const mA = $('#r-artist');
+  const a  = $('#artwrap');
+  const span = mA.offsetTop + mA.offsetHeight;
+  if (!span) return;
+  const side = Math.round(span * 1.04);
+  a.style.width  = side + 'px';
+  a.style.height = side + 'px';
+}
+
+function fit() {
+  const card = $('#card');
+  const w = card.offsetWidth, h = card.offsetHeight;
+  if (!w || !h) return;
+  $('#stage').style.setProperty('--fit', Math.min(innerWidth / w, innerHeight / h));
+}
+
+function shrinkToWidth(wrapId, spanId, cssVar, basePx) {
+  const wrap = document.getElementById(wrapId);
+  const span = document.getElementById(spanId);
+  let px = basePx;
+  document.documentElement.style.setProperty(cssVar, px + 'px');
+  const room = wrap.clientWidth;
+  if (!room) return px;
+  let guard = 0;
+  while (span.scrollWidth > room && px > basePx * FLOOR && guard++ < 40) {
+    px = Math.round(px - basePx * 0.04);
+    document.documentElement.style.setProperty(cssVar, px + 'px');
+  }
+  return px;
+}
+
+function relayout() {
+  shrinkToWidth('m-title', 'title', '--titleSize', BASE.title);
+  shrinkToWidth('m-artist', 'artist', '--artistSize', BASE.artist);
+  marqueeIfStillOver('m-title', 'title');
+  marqueeIfStillOver('m-artist', 'artist');
+  sizeArt();
+  fit();
+}
+addEventListener('resize', () => { relayout(); });
+
+function marqueeIfStillOver(wrapId, spanId) {
+  const wrap = document.getElementById(wrapId);
+  const span = document.getElementById(spanId);
+  wrap.classList.remove('roll');
+  span.style.removeProperty('--shift');
+  const over = span.scrollWidth - wrap.clientWidth;
+  if (over > 8) {
+    span.style.setProperty('--shift', (-over - 20) + 'px');
+    span.style.setProperty('--dur', Math.max(9, (over + 20) / 62) + 's');
+    wrap.classList.add('roll');
+  }
+}
+
+function setText(spanId, text) {
+  document.getElementById(spanId).textContent = text || '';
+}
+
+function writeChars(el, text, stagger) {
+  el.textContent = '';
+  const chars = Array.from(text || '');
+  for (let i = 0; i < chars.length; i++) {
+    const s = document.createElement('span');
+    s.className = 'ch';
+    s.textContent = chars[i] === ' ' ? ' ' : chars[i];
+    s.style.setProperty('--i', i % stagger);
+    el.appendChild(s);
+  }
+}
+
+function writeLabel(text) { writeChars($('#label'), text, 5); }
+
+const LABELS = { now:'Now Playing' };
+const ANIM = { now: { enter:'in-up' } };
+const ALL_ANIM = ['in-up','in-fade','in-right','out-left','out-fall'];
+
+let data = { now:null, next:null, last:null };
+
+function preload(src) {
+  return new Promise(res => {
+    if (!src) return res(null);
+    const i = new Image();
+    let done = false;
+    const finish = ok => { if (!done) { done = true; res(ok ? src : null); } };
+    i.onload = () => finish(true);
+    i.onerror = () => finish(false);
+    i.src = src;
+    setTimeout(() => finish(false), 2500);
+  });
+}
+
+function fillBody(d) {
+  setText('title', d && d.title ? d.title : (d ? '—' : 'Nothing playing'));
+  writeChars($('#artist'), d ? (d.artist || '') : '', 4);
+  const req = d && d.requestedBy ? ('(Req: @' + d.requestedBy + ')') : '';
+  $('#req').textContent = req;
+  $('#r-req').classList.toggle('empty', !req);
+}
+
+function once(el, cls, ms) {
+  return new Promise(res => {
+    el.classList.remove(cls);
+    void el.offsetWidth;
+    el.classList.add(cls);
+    setTimeout(res, ms);
+  });
+}
+
+async function slotArt(nextSrc) {
+  const art = $('#art'), nxt = $('#artnext');
+  if (!nextSrc) { art.removeAttribute('src'); return; }
+  if (!art.getAttribute('src')) { art.src = nextSrc; return; }
+  nxt.src = nextSrc;
+  nxt.style.transition = 'none';
+  nxt.style.transform = 'translateY(-100%)';
+  void nxt.offsetWidth;
+  const ease = `transform ${ART_MS}ms cubic-bezier(.22,.9,.28,1)`;
+  art.style.transition = ease;
+  nxt.style.transition = ease;
+  art.style.transform = 'translateY(100%)';
+  nxt.style.transform = 'translateY(0)';
+  await new Promise(r => setTimeout(r, ART_MS));
+  art.style.transition = 'none';
+  art.src = nextSrc;
+  art.style.transform = 'none';
+  nxt.style.transition = 'none';
+  nxt.style.transform = 'translateY(-100%)';
+  nxt.removeAttribute('src');
+}
+
+let animating = false;
+
+async function transitionTo(d) {
+  if (animating) return;
+  animating = true;
+  try {
+    const artSrc = await preload(d && d.art ? d.art : null);
+
+    const sTitle = $('#s-title'), sArtist = $('#s-artist'), sReq = $('#s-req');
+    const artist = $('#artist'), label = $('#label');
+
+    label.classList.remove(...ALL_ANIM);
+    void label.offsetWidth;
+    label.classList.add('out-fall');
+
+    sTitle.classList.remove('in-left','in-up');
+    sReq.classList.remove('in-left','in-up');
+    artist.classList.remove('rise');
+    void sTitle.offsetWidth;
+
+    sTitle.classList.add('out-left');
+    sReq.classList.add('out-left');
+    artist.classList.add('fall');
+
+    const artDone = slotArt(artSrc);
+    await new Promise(r => setTimeout(r, OUT_MS));
+
+    fillBody(d);
+    relayout();
+
+    sTitle.classList.remove('out-left');
+    sReq.classList.remove('out-left');
+    artist.classList.remove('fall');
+    void sTitle.offsetWidth;
+
+    label.classList.remove('out-fall');
+    writeLabel(LABELS.now);
+    void label.offsetWidth;
+    label.classList.add('in-up');
+
+    sTitle.classList.add('in-left');
+    artist.classList.add('rise');
+    setTimeout(() => sReq.classList.add('in-left'), REQ_BACK_MS);
+
+    await artDone;
+    requestAnimationFrame(relayout);
+  } catch (e) {
+    fillBody(d);
+    relayout();
+  } finally {
+    setTimeout(() => { animating = false; }, 120);
+  }
+}
+
+function showInstant(d) {
+  const label = $('#label');
+  label.classList.remove(...ALL_ANIM);
+  writeLabel(LABELS.now);
+  fillBody(d);
+  const art = $('#art');
+  if (d && d.art) art.src = d.art; else art.removeAttribute('src');
+  relayout();
+  label.classList.add(ANIM.now.enter);
+  requestAnimationFrame(relayout);
+}
+
+let nowSig = '';
+function sigOf(d) { return d ? ((d.title || '') + '|' + (d.artist || '')) : ''; }
+
+async function poll() {
+  try {
+    const r = await fetch('/games/profify/widget?v=' + Date.now()).then(r => r.json());
+    if (!r || !r.ok) return;
+    data = { now:r.now || null, next:r.next || null, last:r.last || null };
+    const sig = sigOf(data.now);
+    if (sig !== nowSig) {
+      nowSig = sig;
+      if (started) transitionTo(data.now);
+    }
+  } catch (e) {}
+}
+
+let started = false;
+poll().then(() => { nowSig = sigOf(data.now); started = true; showInstant(data.now); });
+setInterval(poll, 5000);
+</script>
+</body>
+</html>
