@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Showcase</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="robots" content="noindex"/>
+<meta name="theme-color" content="#070606"/>
+<style>
+  :root{
+    --ink:#efe6d6; --ink-dim:#b3a68f; --ink-faint:#6f665a; --grace:#f0b13c;
+    --panel:#0c0a09; --line:rgba(179,144,80,.22);
+    --serif:"Palatino Linotype",Palatino,"Book Antiqua","Iowan Old Style",Georgia,serif;
+  }
+  *{box-sizing:border-box}
+  html{color-scheme:dark}
+  html,body{margin:0;min-height:100%;background:#070606;color:var(--ink);font-family:var(--serif)}
+  ::selection{background:rgba(240,177,60,.25)}
+  #motes{position:fixed;inset:0;pointer-events:none;opacity:.5;z-index:0}
+  .vignette{position:fixed;inset:0;pointer-events:none;z-index:1;
+    background:radial-gradient(ellipse at 50% 42%,transparent 20%,rgba(0,0,0,.72) 78%)}
+  main{position:relative;z-index:2;max-width:1100px;margin:0 auto;padding:clamp(48px,9vh,110px) 24px 120px}
+  h1.title{font-weight:400;font-size:clamp(26px,5vw,52px);letter-spacing:.42em;text-indent:.42em;
+    margin:0;color:var(--grace);text-transform:uppercase;line-height:1.3;text-align:center;
+    text-shadow:0 0 34px rgba(240,177,60,.5),0 0 90px rgba(240,177,60,.22)}
+  .rule{width:min(340px,46vw);height:1px;margin:26px auto 54px;
+    background:linear-gradient(90deg,transparent,rgba(240,177,60,.8),transparent)}
+  .pieces{display:grid;gap:44px}
+  .piece{border:1px solid var(--line);background:rgba(255,255,255,.012);position:relative}
+  .piece::after{content:"";position:absolute;left:0;top:0;width:2px;height:100%;background:var(--grace);opacity:.55}
+  .piece .head{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;
+    padding:16px 20px;border-bottom:1px solid var(--line)}
+  .piece .nm{font-size:14px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink);
+    display:flex;align-items:center;gap:10px}
+  .piece .nm::before{content:"";width:7px;height:7px;background:var(--grace);transform:rotate(45deg);flex:0 0 auto}
+  .piece .sub{font-size:12.5px;font-style:italic;color:var(--ink-faint);letter-spacing:.06em}
+  .piece .view{padding:22px;display:grid;place-items:center;overflow:hidden}
+  .piece .view.dark{background:#1b1b1b}
+  .piece .view.frame{background:
+    radial-gradient(ellipse at 70% 40%,rgba(120,40,40,.3),transparent 55%),
+    radial-gradient(ellipse at 20% 80%,rgba(40,60,90,.3),transparent 60%),
+    linear-gradient(180deg,#1a1716,#0b0a0a)}
+  .scaler{position:relative;max-width:100%}
+  .scaler iframe{position:absolute;left:0;top:0;border:0;transform-origin:0 0;background:transparent}
+  .piece img{display:block;max-width:100%;height:auto}
+  .piece a.open{font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--grace);text-decoration:none;opacity:.8}
+  .piece a.open:hover{opacity:1}
+  .empty{text-align:center;font-style:italic;color:var(--ink-faint);letter-spacing:.1em}
+  a.back{position:fixed;top:18px;left:20px;z-index:3;color:var(--ink-faint);text-decoration:none;font-size:11px;letter-spacing:.22em;text-transform:uppercase}
+  a.back:hover{color:var(--grace)}
+  @media (prefers-reduced-motion:reduce){#motes{display:none}}
+</style>
+</head>
+<body>
+<canvas id="motes"></canvas>
+<div class="vignette"></div>
+
+<a class="back" href="/">&larr; Prof</a>
+
+<main>
+  <h1 class="title">Showcase</h1>
+  <div class="rule"></div>
+  <div class="pieces" id="pieces"></div>
+</main>
+
+<script>
+var PIECES = [
+  {
+    name: "AutoHitCounter",
+    sub: "GhostintheNoice",
+    frame: "/showcase/ghost-hit-strip/Overlay.html?demo",
+    width: 520, height: 110, zoom: 2, view: "frame"
+  }
+];
+</script>
+<script>
+(function(){
+  var host = document.getElementById('pieces');
+  if (!PIECES.length) { host.innerHTML = '<p class="empty">&mdash;</p>'; return; }
+  var scalers = [];
+  PIECES.forEach(function(p){
+    var el = document.createElement('section');
+    el.className = 'piece';
+    var head = '<div class="head"><span class="nm"></span><span class="sub"></span></div>';
+    el.innerHTML = head + '<div class="view ' + (p.view || 'dark') + '"></div>';
+    el.querySelector('.nm').textContent = p.name;
+    el.querySelector('.sub').textContent = p.sub || '';
+    var view = el.querySelector('.view');
+    if (p.frame) {
+      var s = document.createElement('div'); s.className = 'scaler';
+      var f = document.createElement('iframe');
+      f.src = p.frame; f.width = p.width; f.height = p.height; f.title = p.name;
+      f.setAttribute('loading', 'lazy'); f.setAttribute('scrolling', 'no');
+      s.appendChild(f); view.appendChild(s);
+      scalers.push({s: s, f: f, p: p, view: view});
+    } else if (p.image) {
+      var img = document.createElement('img'); img.src = p.image; img.alt = p.name; img.loading = 'lazy';
+      view.appendChild(img);
+    }
+    if (p.link) {
+      var a = document.createElement('a'); a.className = 'open'; a.href = p.link; a.target = '_blank'; a.rel = 'noopener';
+      a.textContent = 'Open';
+      el.querySelector('.head').appendChild(a);
+    }
+    host.appendChild(el);
+  });
+  function fit(){
+    scalers.forEach(function(x){
+      var room = x.view.clientWidth - 44;
+      var k = Math.min(x.p.zoom || 1, room / x.p.width);
+      x.f.style.transform = 'scale(' + k + ')';
+      x.s.style.width = (x.p.width * k) + 'px';
+      x.s.style.height = (x.p.height * k) + 'px';
+    });
+  }
+  addEventListener('resize', fit); fit();
+})();
+(function(){
+  var cv=document.getElementById('motes'),cx=cv.getContext('2d'),W,H,dust=[];
+  function size(){
+    var d=window.devicePixelRatio||1;
+    W=cv.width=innerWidth*d; H=cv.height=innerHeight*d;
+    cv.style.width=innerWidth+'px'; cv.style.height=innerHeight+'px';
+    dust=Array.from({length:Math.min(90,Math.round(innerWidth/16))},function(){
+      return {x:Math.random()*W,y:Math.random()*H,r:(Math.random()*1.6+0.4)*d,
+              s:Math.random()*0.22+0.04,a:Math.random()*0.5+0.12,p:Math.random()*Math.PI*2};
+    });
+  }
+  size(); addEventListener('resize',size);
+  (function tick(){
+    var d=window.devicePixelRatio||1;
+    cx.clearRect(0,0,W,H);
+    for(var i=0;i<dust.length;i++){
+      var m=dust[i];
+      m.y-=m.s*d; m.p+=0.01;
+      if(m.y<-8){ m.y=H+8; m.x=Math.random()*W; }
+      cx.beginPath();
+      cx.arc(m.x+Math.sin(m.p)*9*d,m.y,m.r,0,6.284);
+      cx.fillStyle='rgba(240,177,60,'+(m.a*(0.55+0.45*Math.sin(m.p*1.7)))+')';
+      cx.fill();
+    }
+    requestAnimationFrame(tick);
+  })();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="color-scheme" content="dark">
+<title>Auto Hit Counter Overlay</title>
+<style>
+:root{
+  --w:520px;
+  --ink:#f2f2f2; --dim:#bdbdbd;
+  --clean:#2fd159; --pace:#f5c400; --behind:#ff3b3b;
+  --state:var(--clean);
+  --bar-bg:rgba(255,255,255,.08);
+  --ghost:"Ghostphobia","Impact",sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:transparent;overflow:hidden;font-family:var(--ghost);color:var(--ink);letter-spacing:.04em;text-transform:uppercase}
+#overlay{width:var(--w);display:grid;row-gap:4px;padding:6px 8px 0}
+#title{font-size:26px;line-height:1.05;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.main{display:grid;grid-template-columns:1fr calc(var(--w) * .58) 1fr;align-items:center;column-gap:8px}
+.stat{display:grid;justify-items:center;line-height:1}
+.stat .v{font-size:30px;font-variant-numeric:tabular-nums}
+.stat .l{font-size:14px;color:var(--dim);letter-spacing:.12em;margin-top:3px}
+#total{color:var(--state)}
+.centre{display:grid;justify-items:center;min-width:0}
+#name{font-size:40px;line-height:1;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#name.hit{color:var(--behind)}
+#igt{font-size:16px;color:var(--dim);letter-spacing:.08em;font-variant-numeric:tabular-nums;margin-top:2px}
+#bar{height:8px;margin-top:2px;background:var(--bar-bg);position:relative;overflow:hidden}
+#fill{position:absolute;inset:0 auto 0 0;width:0;background:var(--state);transition:width .25s ease,background .25s ease}
+#done{display:none;font-size:20px;text-align:center;color:var(--state);line-height:1}
+#overlay.complete #done{display:block}
+#overlay.complete #bar{display:none}
+.flash{animation:flash .35s ease-out}
+@keyframes flash{from{filter:brightness(2.2)}to{filter:brightness(1)}}
+</style>
+</head>
+<body>
+<div id="overlay">
+  <div id="title"></div>
+  <div class="main">
+    <div class="stat"><span class="v" id="progress">0/0</span><span class="l">SPLIT</span></div>
+    <div class="centre"><span id="name"></span><span id="igt">0:00:00</span></div>
+    <div class="stat"><span class="v" id="total">0</span><span class="l">HITS</span></div>
+  </div>
+  <div id="bar"><div id="fill"></div></div>
+  <div id="done">RUN COMPLETE</div>
+</div>
+<script>
+(function(){
+  var WS_URL='ws://localhost:16200', RETRY=3000;
+  var cfg={showIgt:true,titleText:'',runCompleteText:'RUN COMPLETE'};
+  var root=document.documentElement, overlay=document.getElementById('overlay');
+  var el={igt:document.getElementById('igt'),title:document.getElementById('title'),total:document.getElementById('total'),
+          progress:document.getElementById('progress'),name:document.getElementById('name'),fill:document.getElementById('fill'),
+          done:document.getElementById('done')};
+  var lastTotal=-1;
+
+  function fmt(t){ return t ? String(t).replace(/^0(\d:)/,'$1') : ''; }
+
+  function pace(children, cur){
+    var d=0;
+    for(var i=0;i<children.length && i<=cur;i++){ d += (children[i].hits||0) - (children[i].pb||0); }
+    return d;
+  }
+
+  function render(s){
+    var children=s.splits.filter(function(x){return !x.isParent;});
+    var cur=children.findIndex(function(x){return x.isCurrent;});
+    var shown=cur>=0?cur:(s.isRunComplete?children.length-1:0);
+    var current=children[shown]||{name:'',hits:0};
+    var total=s.totalHits||0;
+    var colour = total===0 ? 'var(--clean)' : (pace(children, shown)<=0 ? 'var(--pace)' : 'var(--behind)');
+    root.style.setProperty('--state', colour);
+    el.total.textContent=total;
+    el.title.textContent=(cfg.titleText && cfg.titleText.trim()) || s.profileName || s.gameName || '';
+    el.progress.textContent=(shown+1)+'/'+children.length;
+    el.name.textContent=current.name||'';
+    el.name.classList.toggle('hit',(current.hits||0)>0);
+    el.fill.style.width=(children.length?((s.isRunComplete?children.length:shown)/children.length)*100:0)+'%';
+    overlay.classList.toggle('complete',!!s.isRunComplete);
+    el.done.textContent=cfg.runCompleteText||'RUN COMPLETE';
+    if(cfg.showIgt && s.inGameTime) el.igt.textContent=fmt(s.inGameTime);
+    el.igt.style.display=cfg.showIgt?'':'none';
+    if(lastTotal>=0 && total>lastTotal){ el.total.classList.remove('flash'); void el.total.offsetWidth; el.total.classList.add('flash'); }
+    lastTotal=total;
+  }
+
+  function applyConfig(c){
+    if(c.titleText!==undefined) cfg.titleText=c.titleText;
+    if(c.showIgt!==undefined) cfg.showIgt=!!c.showIgt;
+    if(c.runCompleteText) cfg.runCompleteText=c.runCompleteText;
+    if(c.overlayWidth>0) root.style.setProperty('--w', c.overlayWidth+'px');
+    if(c.customCss!==undefined){
+      var s=document.getElementById('customCss');
+      if(!s){ s=document.createElement('style'); s.id='customCss'; document.head.appendChild(s); }
+      s.textContent=c.customCss||'';
+    }
+  }
+
+  var last=null;
+  function connect(){
+    var ws=new WebSocket(WS_URL);
+    ws.onclose=function(){ setTimeout(connect,RETRY); };
+    ws.onerror=function(){ ws.close(); };
+    ws.onmessage=function(e){
+      var m=JSON.parse(e.data);
+      if(m.type==='state'){ last=m.data; render(m.data); }
+      else if(m.type==='igt'){ if(cfg.showIgt) el.igt.textContent=fmt(m.data); }
+      else if(m.type==='config'){ applyConfig(m.data); if(last) render(last); }
+    };
+  }
+
+  if(location.search.indexOf('demo')>=0){
+    var names=['Gravestone','Leonard\'s Hat','Catacombs','Rotten Grove','Mirror Hall','The Poker','Final Door'];
+    var demo={profileName:"Death's Poker Only Any%",totalHits:0,isRunComplete:false,inGameTime:'00:12:41',
+      splits:names.map(function(n,i){return {name:n,hits:0,pb:i%3===0?1:0,isCurrent:i===1,isParent:false};})};
+    var step=0, t=761;
+    render(demo);
+    setInterval(function(){
+      t++; demo.inGameTime='00:'+String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0');
+      el.igt.textContent=fmt(demo.inGameTime);
+      if(t%4===0){
+        step++;
+        var cur=demo.splits.findIndex(function(x){return x.isCurrent;});
+        if(step%3===0){ demo.splits[cur].hits++; demo.totalHits++; }
+        else if(cur<demo.splits.length-1){ demo.splits[cur].isCurrent=false; demo.splits[cur+1].isCurrent=true; }
+        else { demo.isRunComplete=true; }
+        render(demo);
+      }
+    },1000);
+  } else {
+    connect();
+  }
+})();
+</script>
+</body>
+</html>
