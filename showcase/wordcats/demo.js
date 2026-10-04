@@ -1,6 +1,6 @@
 (function(){
   var LETTERS = 'CATRSPOE';
-  var LANES = [['C1','Prof'],['C4','Chat'],['C7','Lurker']];
+  var LANES = [['C1','PB'],['C4','Splits'],['C7','Mikiri']];
   var WIN = 1000;
   var T_BET = 9, T_STAGE = 5, T_RUN = 22, T_END = 13;
   var CYCLE = T_BET + T_STAGE + T_RUN + T_END;

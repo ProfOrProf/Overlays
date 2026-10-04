@@ -27,10 +27,5 @@
       setTimeout(function(){ busy=false; var b=document.getElementById('pullBtn'); if(b) b.disabled=false; }, 2200);
     }, 700+3200+900+120);
   };
-  document.addEventListener('DOMContentLoaded',function(){
-    var b=document.createElement('button'); b.id='pullBtn'; b.type='button'; b.textContent='PULL';
-    b.addEventListener('click',function(){ b.disabled=true; window.__pull(); });
-    document.body.appendChild(b);
-    setTimeout(function(){ b.disabled=true; window.__pull(); }, 900);
-  });
+  setTimeout(function(){ window.__pull(); setInterval(window.__pull, 8500); }, 900);
 })();
