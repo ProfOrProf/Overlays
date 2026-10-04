@@ -34,6 +34,8 @@
     display:flex;align-items:center;gap:10px}
   .piece .nm::before{content:"";width:7px;height:7px;background:var(--grace);transform:rotate(45deg);flex:0 0 auto}
   .piece .sub{font-size:12.5px;font-style:italic;color:var(--ink-faint);letter-spacing:.06em}
+  .piece .variant{font-family:var(--serif);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--grace);background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:6px 10px;margin-left:auto;cursor:pointer}
+  .piece .variant:focus-visible{outline:1px solid var(--grace);outline-offset:2px}
   .piece .sub a{color:var(--grace);text-decoration:none;opacity:.85}
   .piece .sub a:hover{opacity:1}
   .piece .view{padding:22px;display:grid;place-items:center;overflow:hidden}
@@ -85,7 +87,10 @@ var PIECES = [
   {name: "Eldendle", twitch: "prof", frame: "/showcase/eldendle/", width: 1920, height: 1080, zoom: .55, view: "frame"},
   {name: "Profdle", twitch: "prof", frame: "/showcase/profdle/", width: 1920, height: 1080, zoom: .55, view: "frame"},
   {name: "Profify", twitch: "prof", frame: "/showcase/profify/", width: 1600, height: 500, zoom: .6, view: "frame"},
-  {name: "AutoHitCounter", sub: "GhostintheNoice", frame: "/showcase/ghost-hit-strip/?demo", width: 520, height: 110, zoom: 2, view: "frame"}
+  {name: "AutoHitCounter", view: "frame", variants: [
+    {label: "GhostintheNoice", sub: "GhostintheNoice", frame: "/showcase/ghost-hit-strip/?demo", width: 520, height: 110, zoom: 2},
+    {label: "exzerothree", twitch: "exzerothree", frame: "/showcase/exze-hit-strip/?demo", width: 560, height: 300, zoom: 1.6}
+  ]}
 ];
 </script>
 <script>
@@ -100,10 +105,16 @@ var PIECES = [
     el.innerHTML = head + '<div class="view ' + (p.view || 'dark') + '"></div>';
     el.querySelector('.nm').textContent = p.name;
     var sub = el.querySelector('.sub');
-    if (p.twitch) {
-      var tl = document.createElement('a'); tl.href = 'https://twitch.tv/' + p.twitch; tl.target = '_blank'; tl.rel = 'noopener';
-      tl.textContent = 'twitch.tv/' + p.twitch; sub.appendChild(tl);
-    } else { sub.textContent = p.sub || ''; }
+    function credit(){
+      sub.textContent = '';
+      if (p.twitch) {
+        var tl = document.createElement('a'); tl.href = 'https://twitch.tv/' + p.twitch; tl.target = '_blank'; tl.rel = 'noopener';
+        tl.textContent = 'twitch.tv/' + p.twitch; sub.appendChild(tl);
+      } else { sub.textContent = p.sub || ''; }
+    }
+    function useVariant(v){ ['label','sub','twitch','frame','width','height','zoom'].forEach(function(k){ p[k] = v[k]; }); }
+    if (p.variants) useVariant(p.variants[0]);
+    credit();
     var view = el.querySelector('.view');
     if (p.frame) {
       var s = document.createElement('div'); s.className = 'scaler';
@@ -121,8 +132,20 @@ var PIECES = [
         f.src = p.frame; go.remove();
       });
       players.push({f: f, go: go, s: s});
-      var key = (p.frame.split('/')[2] || '');
-      buttons[key] = go;
+      var keys = (p.variants || [p]).map(function(v){ return v.frame.split('/')[2] || ''; });
+      go._need = keys.length; go._got = 0;
+      keys.forEach(function(k){ buttons[k] = go; });
+      if (p.variants) {
+        var pick = document.createElement('select'); pick.className = 'variant'; pick.setAttribute('aria-label', p.name + ' version');
+        p.variants.forEach(function(v, i){ var o = document.createElement('option'); o.value = i; o.textContent = v.label; pick.appendChild(o); });
+        pick.addEventListener('change', function(){
+          var playing = f.getAttribute('src') && f.getAttribute('src') !== 'about:blank';
+          if (playing) { f.src = 'about:blank'; s.appendChild(go); }
+          useVariant(p.variants[+pick.value]); credit();
+          f.width = p.width; f.height = p.height; fit();
+        });
+        el.querySelector('.head').insertBefore(pick, sub);
+      }
       s.appendChild(f); s.appendChild(go); view.appendChild(s);
       scalers.push({s: s, f: f, p: p, view: view});
     } else if (p.image) {
@@ -153,7 +176,7 @@ var PIECES = [
     total[k] = m.files.length; done[k] = 0;
     m.files.forEach(function(u){ queue.push([k, u]); });
   });
-  function ready(k){ var b = buttons[k]; if (!b) return; b.textContent = 'Play'; b.disabled = false; }
+  function ready(k){ var b = buttons[k]; if (!b) return; b._got = (b._got || 0) + 1; if (b._got < (b._need || 1)) return; b.textContent = 'Play'; b.disabled = false; }
   function progress(k){
     done[k]++;
     var b = buttons[k];
