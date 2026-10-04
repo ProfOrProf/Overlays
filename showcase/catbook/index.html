@@ -21,12 +21,12 @@
   function shutter(){ flash.classList.add('on'); requestAnimationFrame(function(){ requestAnimationFrame(function(){ flash.classList.remove('on'); }); }); }
   function run(){
     var now=Date.now();
-    push(spawn,{type:'walk_in',catId:'C1',isShiny:false,departsAtMs:now+11000});
-    setTimeout(function(){ push(spawn,{type:'clip_complete'}); shutter(); }, 5000);
-    setTimeout(function(){ push(flip,{type:'flip_show',catId:'C1',userDisplay:'Prof',clipTimestamp:'Oct 3 2026',photoPath:'photo.jpg',isShiny:false,hideAfterMs:6500}); }, 5600);
+    push(spawn,{type:'walk_in',catId:'C1',isShiny:false,departsAtMs:now+8500});
+    setTimeout(function(){ shutter(); push(spawn,{type:'clip_complete'}); }, 4200);
+    setTimeout(function(){ push(flip,{type:'flip_show',catId:'C1',userDisplay:'Prof',clipTimestamp:'Oct 3 2026',photoPath:'photo.jpg',isShiny:false,hideAfterMs:6000}); }, 9100);
   }
   var ready=0;
-  function go(){ if(++ready<2) return; setTimeout(run,800); setInterval(run,17000); }
+  function go(){ if(++ready<2) return; setTimeout(run,800); setInterval(run,17500); }
   spawn.addEventListener('load',go); flip.addEventListener('load',go);
 })();
 </script>
