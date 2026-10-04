@@ -44,6 +44,9 @@
     linear-gradient(180deg,#1a1716,#0b0a0a)}
   .scaler{position:relative;max-width:100%}
   .scaler iframe{position:absolute;left:0;top:0;border:0;transform-origin:0 0;background:transparent;color-scheme:light}
+  .scaler .play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:2;font-family:var(--serif);font-size:13px;letter-spacing:.34em;text-transform:uppercase;color:var(--grace);background:rgba(7,6,6,.6);border:1px solid rgba(240,177,60,.5);border-radius:2px;padding:14px 38px;cursor:pointer;transition:background .3s,box-shadow .3s,letter-spacing .3s}
+  .scaler .play:hover{background:rgba(240,177,60,.1);box-shadow:0 0 30px rgba(240,177,60,.2);letter-spacing:.42em}
+  .scaler .play:focus-visible{outline:1px solid var(--grace);outline-offset:2px}
   .piece img{display:block;max-width:100%;height:auto}
   .piece a.open{font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--grace);text-decoration:none;opacity:.8}
   .piece a.open:hover{opacity:1}
@@ -67,7 +70,7 @@
 
 <script>
 var PIECES = [
-  {name: "Elden Cards", twitch: "prof", frame: "/showcase/elden-cards/", width: 760, height: 1000, zoom: .62, view: "frame"},
+  {name: "Elden Cards", twitch: "prof", frame: "/showcase/elden-cards/?play", width: 760, height: 1000, zoom: .62, view: "frame"},
   {name: "ProfCards", twitch: "prof", frame: "/showcase/profcards/", width: 1920, height: 1080, zoom: .55, view: "frame"},
   {name: "Sortie", twitch: "anubis520", frame: "/showcase/anubis-sortie/", width: 1920, height: 1080, zoom: .55, view: "frame"},
   {name: "Catbook", twitch: "exzerothree", frame: "/showcase/catbook/", width: 1920, height: 1080, zoom: .55, view: "frame"},
@@ -80,7 +83,6 @@ var PIECES = [
   {name: "Eldendle", twitch: "prof", frame: "/showcase/eldendle/", width: 1920, height: 1080, zoom: .55, view: "frame"},
   {name: "Profdle", twitch: "prof", frame: "/showcase/profdle/", width: 1920, height: 1080, zoom: .55, view: "frame"},
   {name: "Profify", twitch: "prof", frame: "/showcase/profify/", width: 1600, height: 500, zoom: .6, view: "frame"},
-  {name: "Scoundrel", twitch: "prof", frame: "/showcase/scoundrel/", width: 1920, height: 1080, zoom: .55, view: "frame"},
   {name: "AutoHitCounter", sub: "GhostintheNoice", frame: "/showcase/ghost-hit-strip/?demo", width: 520, height: 110, zoom: 2, view: "frame"}
 ];
 </script>
@@ -104,9 +106,12 @@ var PIECES = [
     if (p.frame) {
       var s = document.createElement('div'); s.className = 'scaler';
       var f = document.createElement('iframe');
-      f.src = p.frame; f.width = p.width; f.height = p.height; f.title = p.name;
-      f.setAttribute('loading', 'lazy'); f.setAttribute('scrolling', 'no');
-      s.appendChild(f); view.appendChild(s);
+      f.width = p.width; f.height = p.height; f.title = p.name;
+      f.setAttribute('scrolling', 'no');
+      var go = document.createElement('button'); go.type = 'button'; go.className = 'play'; go.textContent = 'Play';
+      go.setAttribute('aria-label', 'Play ' + p.name);
+      go.addEventListener('click', function(){ f.src = p.frame; go.remove(); });
+      s.appendChild(f); s.appendChild(go); view.appendChild(s);
       scalers.push({s: s, f: f, p: p, view: view});
     } else if (p.image) {
       var img = document.createElement('img'); img.src = p.image; img.alt = p.name; img.loading = 'lazy';
