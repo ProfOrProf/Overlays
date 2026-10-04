@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Yharnam Bridge</title>
+<title>Duel</title>
 <style>
   @font-face{font-family:"FleshAndBlood";src:url("_fonts/fleshandblood.ttf") format("truetype");font-display:swap;}
   *{margin:0;padding:0;box-sizing:border-box;}
@@ -23,6 +23,7 @@
   body.built .pc{transition-delay:var(--bd,0s),var(--bd,0s);}
   .fold{transform:rotateX(var(--fx,90deg));opacity:0;filter:drop-shadow(0 20px 24px rgba(0,0,0,.45));}
   .slide{--e:var(--easeS);transform:translateX(var(--sx,0px));opacity:0;filter:drop-shadow(0 20px 24px rgba(0,0,0,.45));}
+  @media (pointer:coarse){ .fold,.slide{filter:none;} }
   body.built .fold,body.built .slide{transform:none;opacity:1;}
 
   /* the moon rides an arc: X and Y tweened separately with different easings */
