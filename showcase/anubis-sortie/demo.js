@@ -20,5 +20,4 @@
   window.fetch=function(u){ u=String(u);
     if(u.indexOf('/games/sortie/state')>=0) return Promise.resolve(new Response(JSON.stringify({state:state()}),{headers:{'Content-Type':'application/json'}}));
     return real.apply(window,arguments); };
-  window.Audio=function(){ return {play:function(){return Promise.resolve();}}; };
 })();

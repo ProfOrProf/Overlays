@@ -273,7 +273,7 @@ function paintTimer(n){
 function glitchTimer(n){
   const t=$("timer");
   t.style.animation="timerglitch .45s steps(2,end)";
-  playSnd("TextGlitch.wav", "textGlitch");
+  playSnd("TextGlitch.mp3", "textGlitch");
   setTimeout(()=>paintTimer(n),470);
 }
 function startTimer(secs){
@@ -281,15 +281,15 @@ function startTimer(secs){
   clearInterval(_timerInt);
   $("timer").style.opacity="1";
   paintTimer(n); glitchTimer(n);
-  playSnd("TimeTick.wav", "tick"); ticks++;
+  playSnd("TimeTick.mp3", "tick"); ticks++;
   _timerInt=setInterval(()=>{
     n--; if(n<0)n=0;
     paintTimer(n);
-    if(ticks<5){ playSnd("TimeTick.wav", "tick"); ticks++; }
-    if(n===30){ glitchTimer(n); playSnd("30sec.wav", "sec30"); }
+    if(ticks<5){ playSnd("TimeTick.mp3", "tick"); ticks++; }
+    if(n===30){ glitchTimer(n); playSnd("30sec.mp3", "sec30"); }
     if(n===10) glitchTimer(n);
-    if(n===9)  playSnd("10sec.wav", "sec10");
-    if(n===4)  playSnd("5sec.wav", "sec5");
+    if(n===9)  playSnd("10sec.mp3", "sec10");
+    if(n===4)  playSnd("5sec.mp3", "sec5");
     if(n<=0) clearInterval(_timerInt);
   },1000);
 }
@@ -356,8 +356,8 @@ async function runPlay(msg){
     const budget = i<lines.length-1 ? (msg.introLineMs||3000) : (msg.introHoldMs||5000);
     lines[i].textContent=texts[i]; fitLine(lines[i]); lines[i].textContent="";
     lines[i].classList.add("on");
-    playSnd(`NibiHowTo${i+1}.wav`, "howVoice");
-    playSnd("HowToSFX1.wav", "howSfx");
+    playSnd(`NibiHowTo${i+1}.mp3`, "howVoice");
+    playSnd("HowToSFX1.mp3", "howSfx");
     const typeMs=Math.min(texts[i].length*55, budget*0.7);
     await typeLine(lines[i], texts[i], typeMs);
     await sleep(Math.max(0, budget-typeMs));
@@ -365,7 +365,7 @@ async function runPlay(msg){
   intro.classList.remove("show"); lines.forEach(l=>l.classList.remove("on"));
 
   { const pn=$("pname"); pn.style.opacity="1"; pn.classList.remove("glitchin"); void pn.offsetWidth; pn.classList.add("glitchin"); }
-  playSnd("TextGlitch.wav", "textGlitch");
+  playSnd("TextGlitch.mp3", "textGlitch");
 
   for(let i=0;i<3;i++){ $("c"+i).style.opacity="1"; $("n"+i).style.opacity="1"; }
   await sleep(msg.showMs||900);
@@ -388,11 +388,11 @@ async function runPlay(msg){
     let s1 = Math.floor(Math.random()*3), s2;
     do { s2 = Math.floor(Math.random()*3); } while(s2===s1);
     swapSlots(s1, s2, dur);
-    playSnd("Shuffle.wav", "shuffle");
+    playSnd("Shuffle.mp3", "shuffle");
     await sleep(dur);
   }
 
-  playSnd("HoloNibi.wav", "holo");
+  playSnd("HoloNibi.mp3", "holo");
   for(let i=0;i<3;i++){ const c=$("c"+i); c.style.setProperty('--flash',(msg.flashMs||1400)+'ms'); c.classList.add("flash"); }
   await sleep(msg.flashMs||1400);
 
@@ -425,7 +425,7 @@ async function runReveal(msg){
   const bScale = isCow ? CS() : OS();
   const bOX = isCow ? CX() : OX(), bOY = isCow ? CY() : OY();
 
-  playSnd("BeamStart.wav", "beamStart");
+  playSnd("BeamStart.mp3", "beamStart");
   const uHoverX = px-190+ufoX, uHoverY = y-ch/2-300+ufoY;
   $("ufo").style.transition="none";
   $("ufo").style.transform = `translate(${uHoverX}px, ${uHoverY-140}px) scale(${ufoS*0.25})`;
@@ -434,7 +434,7 @@ async function runReveal(msg){
   $("ufo").style.transform = `translate(${uHoverX}px, ${uHoverY}px) scale(${ufoS})`;
   await sleep(1200);
 
-  playSnd("BeamFinish.wav", "beamFinish");
+  playSnd("BeamFinish.mp3", "beamFinish");
   $("beam").style.transform = `translate(${px-beamW/2}px, ${beamY}px)`;
   $("beam").style.opacity="1";
   await sleep(400);
@@ -470,8 +470,8 @@ async function runReveal(msg){
   const res=$("result");
   res.className=""; res.textContent = timeout ? "TIME'S UP!" : won ? "WINNER!" : "ABDUCTED!";
   res.classList.add(won?"win":"lose","show");
-  playSnd("TextGlitch.wav", "textGlitch");
-  playSnd(timeout ? "TimeOutBoom.wav" : won ? "Winner.wav" : "Loser.wav", timeout ? "boom" : won ? "winner" : "loser");
+  playSnd("TextGlitch.mp3", "textGlitch");
+  playSnd(timeout ? "TimeOutBoom.mp3" : won ? "Winner.mp3" : "Loser.mp3", timeout ? "boom" : won ? "winner" : "loser");
 
   await sleep(beamMs + 350);
 
@@ -492,7 +492,7 @@ async function runReveal(msg){
     b.style.transition="opacity .2s ease"; b.style.opacity="0";
     await sleep(3700);                          // let the ~3.7s blast + boom finish first
     ex.style.transition="opacity .5s ease"; ex.style.opacity="0";
-    playSnd("GameEnd.wav","gameEnd");          // GameEnd is the last sound
+    playSnd("GameEnd.mp3","gameEnd");          // GameEnd is the last sound
     stage.style.transition="opacity 3000ms ease"; stage.classList.add("hidden");
     await sleep(3200);
     stage.style.transition=""; ex.style.transition=""; resetVisuals();
@@ -500,7 +500,7 @@ async function runReveal(msg){
   }
 
   // ── WIN / LOSS: the relic/cow is lifted into the UFO ──
-  const liftSnd = playSnd(isCow ? "Moo.wav" : "Object.wav", isCow ? "moo" : "object");
+  const liftSnd = playSnd(isCow ? "Moo.mp3" : "Object.mp3", isCow ? "moo" : "object");
   const objMs   = Math.round(beamMs*0.95);
   const fadeMs  = Math.round(objMs*0.30), fadeDelay = objMs - fadeMs;
   b.style.transition="none";
@@ -536,7 +536,7 @@ async function runReveal(msg){
   $("ufo").style.transition = "transform 5000ms cubic-bezier(.4,.2,.2,1), opacity 5000ms ease";
   $("ufo").style.transform = `translate(${uHoverX+60}px, ${uHoverY-1100}px) scale(${ufoS*0.03})`;
 
-  playSnd("GameEnd.wav", "gameEnd");
+  playSnd("GameEnd.mp3", "gameEnd");
   stage.style.transition = "opacity 5000ms ease";
   stage.classList.add("hidden");
   await sleep(5200);

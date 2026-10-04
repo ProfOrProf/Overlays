@@ -45,6 +45,7 @@
   .scaler{position:relative;max-width:100%}
   .scaler iframe{position:absolute;left:0;top:0;border:0;transform-origin:0 0;background:transparent;color-scheme:light}
   .scaler .play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:2;font-family:var(--serif);font-size:13px;letter-spacing:.34em;text-transform:uppercase;color:var(--grace);background:rgba(7,6,6,.6);border:1px solid rgba(240,177,60,.5);border-radius:2px;padding:14px 38px;cursor:pointer;transition:background .3s,box-shadow .3s,letter-spacing .3s}
+  .scaler .play:disabled{cursor:default;color:var(--ink-faint);border-color:var(--line);letter-spacing:.22em}
   .scaler .play:hover{background:rgba(240,177,60,.1);box-shadow:0 0 30px rgba(240,177,60,.2);letter-spacing:.42em}
   .scaler .play:focus-visible{outline:1px solid var(--grace);outline-offset:2px}
   .piece img{display:block;max-width:100%;height:auto}
@@ -68,10 +69,11 @@
   <div class="pieces" id="pieces"></div>
 </main>
 
+<script src="/showcase/manifest.js"></script>
 <script>
 var PIECES = [
-  {name: "Elden Cards", twitch: "prof", frame: "/showcase/elden-cards/?play", width: 760, height: 1000, zoom: .62, view: "frame"},
-  {name: "ProfCards", twitch: "prof", frame: "/showcase/profcards/", width: 1920, height: 1080, zoom: .55, view: "frame"},
+  {name: "ProfCards", twitch: "prof", frame: "/showcase/cards/?play", width: 1920, height: 1080, zoom: .55, view: "frame"},
+  {name: "Yharnam Bridge", twitch: "prof", frame: "/showcase/yharnam-bridge/?play", width: 1920, height: 1080, zoom: .55, view: "frame"},
   {name: "Sortie", twitch: "anubis520", frame: "/showcase/anubis-sortie/", width: 1920, height: 1080, zoom: .55, view: "frame"},
   {name: "Catbook", twitch: "exzerothree", frame: "/showcase/catbook/", width: 1920, height: 1080, zoom: .55, view: "frame"},
   {name: "WordCats", twitch: "exzerothree", frame: "/showcase/wordcats/", width: 1920, height: 1080, zoom: .55, view: "frame"},
@@ -90,7 +92,7 @@ var PIECES = [
 (function(){
   var host = document.getElementById('pieces');
   if (!PIECES.length) { host.innerHTML = '<p class="empty">&mdash;</p>'; return; }
-  var scalers = [];
+  var scalers = [], buttons = {}, players = [];
   PIECES.forEach(function(p){
     var el = document.createElement('section');
     el.className = 'piece';
@@ -108,9 +110,19 @@ var PIECES = [
       var f = document.createElement('iframe');
       f.width = p.width; f.height = p.height; f.title = p.name;
       f.setAttribute('scrolling', 'no');
-      var go = document.createElement('button'); go.type = 'button'; go.className = 'play'; go.textContent = 'Play';
+      var go = document.createElement('button'); go.type = 'button'; go.className = 'play'; go.textContent = 'Loading';
+      go.disabled = true;
       go.setAttribute('aria-label', 'Play ' + p.name);
-      go.addEventListener('click', function(){ f.src = p.frame; go.remove(); });
+      go.addEventListener('click', function(){
+        players.forEach(function(o){
+          if (o.f === f || !o.f.getAttribute('src') || o.f.getAttribute('src') === 'about:blank') return;
+          o.f.src = 'about:blank'; o.s.appendChild(o.go);
+        });
+        f.src = p.frame; go.remove();
+      });
+      players.push({f: f, go: go, s: s});
+      var key = (p.frame.split('/')[2] || '');
+      buttons[key] = go;
       s.appendChild(f); s.appendChild(go); view.appendChild(s);
       scalers.push({s: s, f: f, p: p, view: view});
     } else if (p.image) {
@@ -134,6 +146,26 @@ var PIECES = [
     });
   }
   addEventListener('resize', fit); fit();
+  var queue = [], total = {}, done = {};
+  Object.keys(buttons).forEach(function(k){
+    var m = (window.SHOWCASE_FILES || {})[k];
+    if (!m) { ready(k); return; }
+    total[k] = m.files.length; done[k] = 0;
+    m.files.forEach(function(u){ queue.push([k, u]); });
+  });
+  function ready(k){ var b = buttons[k]; if (!b) return; b.textContent = 'Play'; b.disabled = false; }
+  function progress(k){
+    done[k]++;
+    var b = buttons[k];
+    if (done[k] >= total[k]) ready(k);
+    else if (b) b.textContent = 'Loading ' + Math.round(100 * done[k] / total[k]) + '%';
+  }
+  function worker(){
+    var job = queue.shift(); if (!job) return;
+    fetch(job[1], {cache: 'force-cache'}).then(function(r){ return r.blob(); }).catch(function(){})
+      .then(function(){ progress(job[0]); worker(); });
+  }
+  for (var w = 0; w < 6; w++) worker();
 })();
 (function(){
   var cv=document.getElementById('motes'),cx=cv.getContext('2d'),W,H,dust=[];

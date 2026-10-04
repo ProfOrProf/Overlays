@@ -26,10 +26,10 @@ function mkAudio(path) {
   a.preload = "auto";
   return a;
 }
-const audWin   = mkAudio("./Audio/EldendleWin.wav");
-const audLoss  = mkAudio("./Audio/EldendleLoss.wav");
-const audWrong = mkAudio("./Audio/EldendleWrong.wav");
-const audStart = mkAudio("./Audio/EldendleStart.wav");
+const audWin   = mkAudio("./Audio/EldendleWin.mp3");
+const audLoss  = mkAudio("./Audio/EldendleLoss.mp3");
+const audWrong = mkAudio("./Audio/EldendleWrong.mp3");
+const audStart = mkAudio("./Audio/EldendleStart.mp3");
 
 function safePlay(aud) {
   try { aud.currentTime = 0; aud.play().catch(() => {}); } catch (e) {}

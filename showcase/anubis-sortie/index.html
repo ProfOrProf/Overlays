@@ -258,9 +258,9 @@
   const esc  = s => String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
   // ── sound ── (served from /games/sortie/Sounds/)
-  const SND = { start:'GameStart.wav', name:'NameSlide.wav', beep:'3Secs.wav',
-                closed:'DeploymentWindowClosed.wav', win:'Success.wav', loss:'Failure.wav' };
-  const sndUrl = f => BASE+'/games/sortie/Sounds/'+f;
+  const SND = { start:'GameStart.mp3', name:'NameSlide.mp3', beep:'3Secs.mp3',
+                closed:'DeploymentWindowClosed.mp3', win:'Success.mp3', loss:'Failure.mp3' };
+  const sndUrl = f => 'Sounds/'+f;
   Object.values(SND).forEach(f => { const a=new Audio(sndUrl(f)); a.preload='auto'; });
   function rawPlay(n){ const f=SND[n]; if(!f) return; try{ new Audio(sndUrl(f)).play().catch(()=>{}); }catch(e){} }
   function playSound(n){ if(SOUND_DELAY_MS>0) setTimeout(()=>rawPlay(n), SOUND_DELAY_MS); else rawPlay(n); }

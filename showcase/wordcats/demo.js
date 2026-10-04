@@ -67,8 +67,6 @@
     if (u.indexOf('/games/') >= 0 || u.indexOf('127.0.0.1') >= 0) return Promise.resolve(new Response('{}', {status: 404}));
     return real.apply(window, arguments);
   };
-  HTMLMediaElement.prototype.play = function(){ return Promise.resolve(); };
-  window.Audio = function(){ return {play: function(){ return Promise.resolve(); }, cloneNode: function(){ return this; }}; };
 
   document.addEventListener('DOMContentLoaded', function(){
     if (/[?&]capture/.test(location.search)) return;

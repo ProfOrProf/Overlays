@@ -9,3 +9,6 @@
   Content-Security-Policy: frame-ancestors 'none'
   Referrer-Policy: no-referrer
   X-Content-Type-Options: nosniff
+
+/showcase/*
+  Cache-Control: public, max-age=600

@@ -3,7 +3,6 @@
   var sink=null, dict={}, target='', n=0, done=true, idle=null, tried={};
   window.EventSource=function(){ sink=this; this.close=function(){}; };
   function send(m){ m.gameName='Profdle'; if(sink&&sink.onmessage) sink.onmessage({data:JSON.stringify(m)}); }
-  HTMLMediaElement.prototype.play=function(){ return Promise.resolve(); };
   var known={green:{},present:{},absent:{}};
   function learn(w){
     for(var i=0;i<5;i++){ var c=w[i];
@@ -21,7 +20,7 @@
     target=SAFE[Math.floor(Math.random()*SAFE.length)]; n=0; done=false; tried={}; known={green:{},present:{},absent:{}};
     send({type:'new_game',maxGuesses:6,autoReset:true}); arm();
   }
-  function arm(){ clearTimeout(idle); idle=setTimeout(autoGuess,4500); }
+  function arm(){ clearTimeout(idle); idle=setTimeout(autoGuess,2500); }
   function autoGuess(){
     if(done) return;
     var pool=SAFE.filter(function(w){ return !tried[w] && fits(w); });

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ProfCards</title>
+<script src="decks.js"></script>
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html, body { width:1920px; height:1080px; overflow:hidden; background:transparent; }
+  body { font-family:Georgia,serif; }
+  .table { position:absolute; inset:0; perspective:2600px; }
+  .slot { position:absolute; left:50%; top:53%; width:600px; height:825px; margin:-412px 0 0 -300px;
+    transition:transform .9s cubic-bezier(.22,.9,.24,1), opacity .5s ease; opacity:0; }
+  .slot.in { opacity:1; }
+  .flipper { position:relative; width:100%; height:100%; transform-style:preserve-3d; transition:transform 1.05s cubic-bezier(.45,.05,.2,1); }
+  .slot.up .flipper { transform:rotateY(180deg); }
+  .face { position:absolute; inset:0; border-radius:40px; overflow:hidden; backface-visibility:hidden; -webkit-backface-visibility:hidden; box-shadow:0 18px 40px rgba(0,0,0,.55); }
+  .face.front { transform:rotateY(180deg); }
+  .face.back img { width:100%; height:100%; display:block; object-fit:fill; }
+  .glow { position:absolute; inset:-42px; z-index:-1; border-radius:60px; filter:blur(24px); opacity:0; transition:opacity .8s ease; }
+  .slot.up .glow { opacity:1; animation:shimmer 2.2s ease-in-out infinite alternate; }
+  .r-Common .glow { background:radial-gradient(ellipse,rgba(176,176,176,.6),transparent 70%); }
+  .r-Uncommon .glow { background:radial-gradient(ellipse,rgba(76,175,80,.8),transparent 70%); }
+  .r-Rare .glow { background:radial-gradient(ellipse,rgba(33,150,243,.85),transparent 70%); }
+  .r-Epic .glow { background:radial-gradient(ellipse,rgba(148,0,255,.9),transparent 70%); }
+  .r-Legendary .glow { background:radial-gradient(ellipse,rgba(210,160,20,.95),transparent 70%); }
+  .r-Unique .glow { background:radial-gradient(ellipse 80% 65%,rgba(255,85,0,1),rgba(255,20,0,.6) 45%,transparent 80%); }
+  @keyframes shimmer { from{opacity:.55} to{opacity:1} }
+  .frame { position:absolute; inset:0; width:600px; height:825px; z-index:3; pointer-events:none; }
+  .r-Common .frame { filter:saturate(.25) brightness(1.1) hue-rotate(200deg); }
+  .r-Uncommon .frame { filter:sepia(1) hue-rotate(90deg) saturate(2.2) brightness(.95); }
+  .r-Rare .frame { filter:sepia(1) hue-rotate(207deg) saturate(1.6); }
+  .r-Epic .frame { filter:sepia(1) hue-rotate(268deg) saturate(2.8) brightness(.88); }
+  .r-Legendary .frame { filter:sepia(1) hue-rotate(10deg) saturate(2.2) brightness(1.06); }
+  .r-Unique .frame { filter:sepia(1) hue-rotate(343deg) saturate(2.8) brightness(.92); }
+  .art { position:absolute; left:51px; top:98px; width:499px; height:360px; object-fit:cover; object-position:top center; }
+  .prebuilt .art { left:0; top:0; width:600px; height:825px; object-fit:cover; object-position:center; }
+  .prebuilt .frame, .prebuilt .nm, .prebuilt .hd, .prebuilt .ds, .prebuilt .no, .prebuilt .tok { display:none; }
+  .nm { position:absolute; top:30px; left:60px; right:97px; height:75px; line-height:75px; font-family:var(--hf),Georgia,serif; font-size:38px; font-weight:bold; font-variant:small-caps; color:#3a2810; white-space:nowrap; overflow:hidden; z-index:4; }
+  .tok { position:absolute; top:30px; right:52px; width:35px; height:75px; object-fit:contain; object-position:right center; z-index:5; }
+  .hd { position:absolute; top:455px; left:60px; right:60px; height:60px; display:flex; align-items:center; font-family:var(--hf),Georgia,serif; font-size:30px; font-weight:bold; font-variant:small-caps; color:#3a2810; white-space:nowrap; overflow:hidden; z-index:4; }
+  .ds { position:absolute; top:530px; left:60px; right:60px; height:200px; font-family:var(--df),var(--hf),Georgia,serif; font-size:28px; color:#2e1c08; line-height:1.35; text-align:justify; overflow:hidden; z-index:4; }
+  .no { position:absolute; left:464px; top:741px; width:72px; height:28px; display:flex; align-items:center; justify-content:center; font-family:var(--df),var(--hf),Georgia,serif; font-size:37px; font-weight:bold; color:#3a2810; z-index:4; }
+  #who { position:absolute; left:0; right:0; top:26px; text-align:center; font-family:var(--hf),Georgia,serif; font-size:58px; font-variant:small-caps; color:#fff;
+    text-shadow:-1px -1px 0 rgba(0,0,0,.9),1px -1px 0 rgba(0,0,0,.9),-1px 1px 0 rgba(0,0,0,.9),1px 1px 0 rgba(0,0,0,.9),0 0 20px rgba(255,255,255,1),0 0 10px rgba(255,255,255,.8); opacity:0; transition:opacity .5s; }
+  #who.on { opacity:1; }
+  #deck { position:absolute; left:40px; top:34px; z-index:30; font:400 26px "Palatino Linotype",Palatino,Georgia,serif; letter-spacing:.12em; text-transform:uppercase;
+    color:#f0b13c; background:rgba(7,6,6,.85); border:1px solid rgba(240,177,60,.55); border-radius:2px; padding:14px 22px; cursor:pointer; }
+  #deck:focus-visible { outline:1px solid #f0b13c; outline-offset:2px; }
+  #play { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); font:400 44px "Palatino Linotype",Palatino,Georgia,serif; letter-spacing:.34em; text-transform:uppercase; color:#f0b13c; background:rgba(7,6,6,.82); border:1px solid rgba(240,177,60,.6); border-radius:2px; padding:26px 70px; cursor:pointer; transition:letter-spacing .3s, box-shadow .3s; z-index:20; }
+  #play:hover { letter-spacing:.42em; box-shadow:0 0 30px rgba(240,177,60,.3); }
+</style>
+</head>
+<body>
+<label for="deck" style="position:absolute;left:-10000px">Deck</label>
+<select id="deck"></select>
+<div id="who">Prof</div>
+<div class="table" id="table"></div>
+<button id="play" type="button">Play</button>
+<script>
+(function(){
+  var table=document.getElementById('table'), who=document.getElementById('who'), sel=document.getElementById('deck');
+  var TOKENS={Common:'C',Uncommon:'UC',Rare:'R',Epic:'E',Legendary:'L',Unique:'Star'};
+  var run=0, deck=DECKS[0], fontStyle=document.createElement('style'); document.head.appendChild(fontStyle);
+  DECKS.forEach(function(d,i){ var o=document.createElement('option'); o.value=i; o.textContent=d.name; sel.appendChild(o); });
+  function useDeck(d){
+    deck=d; var css='', root=document.documentElement;
+    if(d.headerFont){ css+="@font-face{font-family:'HF_"+d.key+"';src:url('"+d.key+"/"+d.headerFont+"');}"; root.style.setProperty('--hf',"'HF_"+d.key+"'"); }
+    else root.style.setProperty('--hf','Georgia');
+    if(d.descFont){ css+="@font-face{font-family:'DF_"+d.key+"';src:url('"+d.key+"/"+d.descFont+"');}"; root.style.setProperty('--df',"'DF_"+d.key+"'"); }
+    else root.style.setProperty('--df',"var(--hf)");
+    fontStyle.textContent=css;
+  }
+  function pad3(n){ return String(n).padStart(3,'0'); }
+  function card(c){
+    var s=document.createElement('div'); s.className='slot r-'+c.rarity+(deck.mode==='prebuilt'?' prebuilt':'');
+    s.innerHTML='<div class="glow"></div><div class="flipper"><div class="face back"><img alt=""></div>'+
+      '<div class="face front"><img class="art" alt=""><img class="frame" alt=""><div class="nm"></div><img class="tok" alt=""><div class="hd"></div><div class="ds"></div><div class="no"></div></div></div>';
+    s.querySelector('.back img').src=deck.key+'/'+deck.back;
+    s.querySelector('.art').src=deck.key+'/'+c.art;
+    s.querySelector('.frame').src=deck.key+'/'+deck.front;
+    s.querySelector('.tok').src='RarityTokens/'+(TOKENS[c.rarity]||'C')+'.png';
+    s.querySelector('.nm').textContent=c.name;
+    s.querySelector('.hd').textContent=c.type+(c.region?' — '+c.region:'');
+    s.querySelector('.ds').textContent=c.description;
+    s.querySelector('.no').textContent='#'+pad3(c.id);
+    table.appendChild(s);
+    [['.nm',38,16],['.hd',30,14]].forEach(function(f){ var el=s.querySelector(f[0]), z=f[1]; el.style.fontSize=z+'px'; while(el.scrollWidth>el.clientWidth && z>f[2]){ z-=1; el.style.fontSize=z+'px'; } });
+    var ds=s.querySelector('.ds'), dz=28; while(ds.scrollHeight>ds.clientHeight && dz>16){ dz-=1; ds.style.fontSize=dz+'px'; }
+    return s;
+  }
+  function place(s,x,y,rot,sc){ s.style.transform='translate('+x+'px,'+y+'px) rotate('+rot+'deg) scale('+sc+')'; }
+  function waitFor(id){ return function(ms){ return new Promise(function(res,rej){ setTimeout(function(){ id===run?res():rej('stop'); },ms); }); }; }
+  function preload(d){
+    return Promise.all(d.cards.map(function(c){ return new Promise(function(r){ var i=new Image(); i.onload=i.onerror=r; i.src=d.key+'/'+c.art; }); })
+      .concat([d.back,d.front].map(function(f){ return new Promise(function(r){ var i=new Image(); i.onload=i.onerror=r; i.src=d.key+'/'+f; }); }))
+      .concat([document.fonts.ready]));
+  }
+  async function single(wait){
+    table.innerHTML='';
+    var s=card(deck.cards[0]);
+    place(s,0,30,0,.98); await wait(30); s.classList.add('in'); who.classList.add('on');
+    await wait(1400); s.classList.add('up');
+    await wait(4200); s.classList.remove('up');
+    await wait(1600); s.classList.remove('in'); who.classList.remove('on');
+    await wait(700);
+  }
+  async function fan(wait){
+    table.innerHTML='';
+    var slots=deck.cards.slice(1,6).map(card);
+    slots.forEach(function(s){ place(s,0,40,0,.5); });
+    await wait(30);
+    slots.forEach(function(s){ s.classList.add('in'); }); who.classList.add('on');
+    await wait(500);
+    slots.forEach(function(s,i){ var k=i-2; place(s,k*330,0+Math.abs(k)*26,k*7,.6); });
+    await wait(1100);
+    for(var i=0;i<slots.length;i++){ slots[i].classList.add('up'); await wait(650); }
+    await wait(3600);
+    for(var j=slots.length-1;j>=0;j--){ slots[j].classList.remove('up'); await wait(250); }
+    await wait(1200);
+    slots.forEach(function(s){ place(s,0,40,0,.5); });
+    await wait(900);
+    slots.forEach(function(s){ s.classList.remove('in'); }); who.classList.remove('on');
+    await wait(700);
+  }
+  async function loop(){
+    var id=++run, wait=waitFor(id);
+    table.innerHTML=''; who.classList.remove('on');
+    try{ await preload(deck); if(id!==run) return; for(;;){ await single(wait); await fan(wait); } }catch(e){}
+  }
+  var started=false, btn=document.getElementById('play');
+  function start(){ if(started) return; started=true; btn.remove(); loop(); }
+  btn.addEventListener('click',start);
+  sel.addEventListener('change',function(){ useDeck(DECKS[+sel.value]); if(started) loop(); });
+  useDeck(DECKS[0]);
+  DECKS.forEach(preload);
+  if(/[?&]play/.test(location.search)) start();
+})();
+</script>
+</body>
+</html>

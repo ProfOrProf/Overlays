@@ -95,6 +95,5 @@
     if(u.indexOf('/games/fightgame/state')>=0) return Promise.resolve(new Response(JSON.stringify({state:S}),{headers:{'Content-Type':'application/json'}}));
     if(u.indexOf('/health')===0) return Promise.resolve(new Response('{}'));
     return real.apply(window,arguments); };
-  HTMLMediaElement.prototype.play=function(){ return Promise.resolve(); };
   setTimeout(match,700);
 })();
