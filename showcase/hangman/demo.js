@@ -9,7 +9,7 @@
     S.phase='active'; S.phraseGuess=false; sync(); arm();
   }
   function end(ph){ S.phase=ph; sync(); clearTimeout(idleT); setTimeout(function(){ S.phase='idle'; sync(); setTimeout(start,1500); },7000); }
-  function arm(){ clearTimeout(idleT); idleT=setTimeout(function(){ autoGuess(); },5000); }
+  function arm(){ clearTimeout(idleT); idleT=setTimeout(function(){ autoGuess(); },1800); }
   function autoGuess(){
     if(S.phase!=='active') return;
     for(var i=0;i<ORDER.length;i++){ if(guessed.indexOf(ORDER[i])<0){ guess(ORDER[i],'Chat'); return; } }
@@ -39,13 +39,5 @@
   real('phrases.txt').then(function(r){return r.text();}).then(function(t){
     words=t.split(/\r?\n/).map(function(s){return s.trim();}).filter(function(s){return /^[A-Za-z ]{4,}$/.test(s);});
     setTimeout(start,800);
-  });
-  document.addEventListener('DOMContentLoaded',function(){
-    var f=document.createElement('form'); f.id='guessBox';
-    f.innerHTML='<label for="hmIn">!guess</label><input id="hmIn" autocomplete="off" maxlength="24" placeholder="a letter or the word"><button type="submit">Guess</button><span id="hmMsg"></span>';
-    document.body.appendChild(f);
-    var i=f.querySelector('input'), m=f.querySelector('#hmMsg');
-    var copy={hit:'Yes!',miss:'Nope',used:'Already guessed',solved:'Solved!',nope:'Not it',lost:'Hanged',wait:'Next round soon'};
-    f.addEventListener('submit',function(e){ e.preventDefault(); var r=window.__hmGuess(i.value); m.textContent=copy[r]||''; i.value=''; setTimeout(function(){ m.textContent=''; },1600); });
   });
 })();

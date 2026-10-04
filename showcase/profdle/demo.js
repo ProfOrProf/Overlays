@@ -20,7 +20,7 @@
     target=SAFE[Math.floor(Math.random()*SAFE.length)]; n=0; done=false; tried={}; known={green:{},present:{},absent:{}};
     send({type:'new_game',maxGuesses:6,autoReset:true}); arm();
   }
-  function arm(){ clearTimeout(idle); idle=setTimeout(autoGuess,2500); }
+  function arm(){ clearTimeout(idle); idle=setTimeout(autoGuess,1800); }
   function autoGuess(){
     if(done) return;
     var pool=SAFE.filter(function(w){ return !tried[w] && fits(w); });
@@ -45,13 +45,5 @@
   fetch('words/en.txt').then(function(r){return r.text();}).then(function(t){
     t.split(/\r?\n/).forEach(function(w){ w=w.trim().toLowerCase(); if(w.length===5) dict[w]=1; });
     setTimeout(newGame,700);
-  });
-  document.addEventListener('DOMContentLoaded',function(){
-    var f=document.createElement('form'); f.id='guessBox';
-    f.innerHTML='<label for="pdIn">!guess</label><input id="pdIn" autocomplete="off" maxlength="5" placeholder="5 letters"><button type="submit">Guess</button><span id="pdMsg"></span>';
-    document.body.appendChild(f);
-    var i=f.querySelector('input'), m=f.querySelector('#pdMsg');
-    var copy={five:'5 letters',word:'Not a word',used:'Already tried',won:'Got it!',wait:'Next word soon'};
-    f.addEventListener('submit',function(e){ e.preventDefault(); var r=guess(i.value); m.textContent=copy[r]||''; i.value=''; setTimeout(function(){ m.textContent=''; },1600); });
   });
 })();

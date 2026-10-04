@@ -1,6 +1,6 @@
 (function(){
   var LETTERS = 'CATRSPOE';
-  var LANES = [['C1','Prof'],['C4','Chat'],['C7','You']];
+  var LANES = [['C1','Prof'],['C4','Chat'],['C7','Lurker']];
   var WIN = 1000;
   var T_BET = 9, T_STAGE = 5, T_RUN = 22, T_END = 13;
   var CYCLE = T_BET + T_STAGE + T_RUN + T_END;
@@ -67,20 +67,4 @@
     if (u.indexOf('/games/') >= 0 || u.indexOf('127.0.0.1') >= 0) return Promise.resolve(new Response('{}', {status: 404}));
     return real.apply(window, arguments);
   };
-
-  document.addEventListener('DOMContentLoaded', function(){
-    if (/[?&]capture/.test(location.search)) return;
-    var box = document.createElement('form');
-    box.id = 'guessBox';
-    box.innerHTML = '<label for="guessInput">!guess</label><input id="guessInput" autocomplete="off" maxlength="12" placeholder="type a word"><button type="submit">Guess</button><span id="guessMsg"></span>';
-    document.body.appendChild(box);
-    var input = box.querySelector('input'), msg = box.querySelector('#guessMsg');
-    var copy = {ok: 'Nice!', used: 'Already found', letters: 'Not in the letters', 'short': '3 letters or more'};
-    box.addEventListener('submit', function(ev){
-      ev.preventDefault();
-      var r = window.__wcGuess(input.value);
-      msg.textContent = copy[r] || ''; input.value = '';
-      setTimeout(function(){ msg.textContent = ''; }, 1600);
-    });
-  });
 })();
