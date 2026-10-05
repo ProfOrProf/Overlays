@@ -55,13 +55,13 @@ body{background:transparent;overflow:hidden;font-family:var(--gummy);color:var(-
 #paw.swiping{display:block}
 .flash{animation:flash .35s ease-out}
 @keyframes flash{from{filter:brightness(2.2)}to{filter:brightness(1)}}
-#games{position:absolute;left:0;right:0;top:calc((var(--stage-h) - 118px) / 2 - 44px);display:flex;justify-content:center;align-items:center;gap:11px;height:22px;z-index:2}
-#games .g{height:15px;background:#9a9a9a;opacity:.5;-webkit-mask:var(--logo) center/contain no-repeat;mask:var(--logo) center/contain no-repeat;transition:background .35s,opacity .35s}
-#games .g.txt{-webkit-mask:none;mask:none;background:none;color:#9a9a9a;font:600 12px "Palatino Linotype",Palatino,Georgia,serif;letter-spacing:.06em;line-height:15px;white-space:nowrap;transition:color .35s,opacity .35s}
+#games{position:absolute;left:0;right:0;top:calc((var(--stage-h) - 118px) / 2 - 40px);display:flex;justify-content:center;align-items:center;gap:22px;height:26px;z-index:2}
+#games .g{height:22px;background:#9a9a9a;opacity:.41;-webkit-mask:var(--logo) center/contain no-repeat;mask:var(--logo) center/contain no-repeat;transition:background .35s,opacity .35s}
 #games .g.run{background:#ffffff;opacity:1}
 #games .g.done{background:var(--clean);opacity:1}
-#games .g.txt.run{color:#ffffff}
-#games .g.txt.done{color:var(--clean)}
+#glogo{display:none;height:40px;max-width:100%;object-fit:contain}
+#glogo.on{display:block}
+#name.off{display:none}
 </style>
 </head>
 <body>
@@ -71,17 +71,17 @@ body{background:transparent;overflow:hidden;font-family:var(--gummy);color:var(-
     <div id="title"></div>
     <div class="main">
       <div class="stat"><span class="v" id="progress">0/0</span><span class="l">SPLIT</span></div>
-      <div class="centre"><span id="name"></span><span id="igt">0:00:00</span></div>
+      <div class="centre"><img id="glogo" alt=""><span id="name"></span><span id="igt">0:00:00</span></div>
       <div class="stat"><span class="v" id="total">0</span><span class="l">HITS</span></div>
     </div>
       <div id="bar"><div id="fill"></div><div id="marks"></div></div>
   </div>
   <div id="games">
-    <div class="g" data-game="Elden Ring" style="--logo:url(logos/er.png);width:104px"></div>
-    <div class="g" data-game="Sekiro" style="--logo:url(logos/sk.png);width:75px"></div>
-    <div class="g" data-game="Dark Souls III" style="--logo:url(logos/ds3.png);width:152px"></div>
-    <div class="g" data-game="Bloodborne" style="--logo:url(logos/bb.png);width:82px"></div>
-    <div class="g txt" data-game="Dark Souls II">DARK SOULS II</div>
+    <div class="g" data-game="Elden Ring" style="--logo:url(logos/tag_er.png);width:39px"></div>
+    <div class="g" data-game="Sekiro" style="--logo:url(logos/tag_sk.png);width:36px"></div>
+    <div class="g" data-game="Dark Souls III" style="--logo:url(logos/tag_ds3.png);width:53px"></div>
+    <div class="g" data-game="Bloodborne" style="--logo:url(logos/tag_bb.png);width:37px"></div>
+    <div class="g" data-game="Dark Souls II" style="--logo:url(logos/tag_ds2.png);width:54px"></div>
   </div>
   <img id="paw" src="scratch.gif" alt="">
 </div>
@@ -154,6 +154,9 @@ body{background:transparent;overflow:hidden;font-family:var(--gummy);color:var(-
     el.progress.textContent=(shown+1)+'/'+children.length;
     el.name.textContent=s.isRunComplete ? (cfg.runCompleteText||'RUN COMPLETE') : (current.name||'');
     el.name.classList.toggle('hit',!s.isRunComplete && (current.hits||0)>0);
+    var lg=GAME_LOGOS[current.name], gl=document.getElementById('glogo');
+    if(!s.isRunComplete && lg){ if(gl.getAttribute('src')!==lg) gl.src=lg; gl.classList.add('on'); el.name.classList.add('off'); }
+    else { gl.classList.remove('on'); el.name.classList.remove('off'); }
     el.fill.style.width=(children.length?((s.isRunComplete?children.length:shown)/children.length)*100:0)+'%';
     marks(children);
     overlay.classList.toggle('complete',!!s.isRunComplete);
@@ -195,6 +198,7 @@ body{background:transparent;overflow:hidden;font-family:var(--gummy);color:var(-
   document.addEventListener('click',function(){ swipe(); });
 
 
+  var GAME_LOGOS={'Elden Ring':'logos/er.png','Sekiro':'logos/sk.png','Dark Souls III':'logos/ds3.png','Bloodborne':'logos/bb.png'};
   function paintGames(s){
     var kids=s.splits.filter(function(x){return !x.isParent;});
     var cur=kids.findIndex(function(x){return x.isCurrent;});
