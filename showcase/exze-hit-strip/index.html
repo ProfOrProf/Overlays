@@ -202,6 +202,7 @@ body{background:transparent;overflow:hidden;font-family:var(--gummy);color:var(-
 
 
   var GAME_LOGOS={'Elden Ring':'logos/er.png','Sekiro':'logos/sk.png','Dark Souls III':'logos/ds3.png','Bloodborne':'logos/bb.png','Dark Souls II':'logos/ds2.png'};
+  Object.keys(GAME_LOGOS).forEach(function(k){ new Image().src=GAME_LOGOS[k]; });
   function paintGames(s){
     var kids=s.splits.filter(function(x){return !x.isParent;});
     var cur=kids.findIndex(function(x){return x.isCurrent;});
