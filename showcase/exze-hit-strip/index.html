@@ -57,7 +57,7 @@ body{background:transparent;overflow:hidden;font-family:var(--gummy);color:var(-
 #paw.swiping{display:block}
 .flash{animation:flash .35s ease-out}
 @keyframes flash{from{filter:brightness(2.2)}to{filter:brightness(1)}}
-#games{position:absolute;left:0;right:0;top:calc((var(--stage-h) - 118px) / 2 - 46px);display:flex;justify-content:center;align-items:center;gap:29px;height:26px;z-index:2;padding:0 8px}
+#games{position:absolute;left:0;right:0;top:calc((var(--stage-h) - 118px) / 2 - 46px);display:flex;justify-content:center;align-items:center;gap:29px;height:26px;z-index:2;padding:0 8px;transform:translateX(8.02px)}
 #games .cell{display:flex}
 #games .g{height:22px;background:#9a9a9a;opacity:.41;-webkit-mask:var(--logo) center/contain no-repeat;mask:var(--logo) center/contain no-repeat;transition:background .35s,opacity .35s}
 #games .g.run{background:#ffffff;opacity:1}
