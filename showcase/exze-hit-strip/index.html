@@ -55,6 +55,13 @@ body{background:transparent;overflow:hidden;font-family:var(--gummy);color:var(-
 #paw.swiping{display:block}
 .flash{animation:flash .35s ease-out}
 @keyframes flash{from{filter:brightness(2.2)}to{filter:brightness(1)}}
+#games{position:absolute;left:0;right:0;top:calc((var(--stage-h) - 118px) / 2 - 44px);display:flex;justify-content:center;align-items:center;gap:11px;height:22px;z-index:2}
+#games .g{height:15px;background:#9a9a9a;opacity:.5;-webkit-mask:var(--logo) center/contain no-repeat;mask:var(--logo) center/contain no-repeat;transition:background .35s,opacity .35s}
+#games .g.txt{-webkit-mask:none;mask:none;background:none;color:#9a9a9a;font:600 12px "Palatino Linotype",Palatino,Georgia,serif;letter-spacing:.06em;line-height:15px;white-space:nowrap;transition:color .35s,opacity .35s}
+#games .g.run{background:#ffffff;opacity:1}
+#games .g.done{background:var(--clean);opacity:1}
+#games .g.txt.run{color:#ffffff}
+#games .g.txt.done{color:var(--clean)}
 </style>
 </head>
 <body>
@@ -68,6 +75,13 @@ body{background:transparent;overflow:hidden;font-family:var(--gummy);color:var(-
       <div class="stat"><span class="v" id="total">0</span><span class="l">HITS</span></div>
     </div>
       <div id="bar"><div id="fill"></div><div id="marks"></div></div>
+  </div>
+  <div id="games">
+    <div class="g" data-game="Elden Ring" style="--logo:url(logos/er.png);width:104px"></div>
+    <div class="g" data-game="Sekiro" style="--logo:url(logos/sk.png);width:75px"></div>
+    <div class="g" data-game="Dark Souls III" style="--logo:url(logos/ds3.png);width:152px"></div>
+    <div class="g" data-game="Bloodborne" style="--logo:url(logos/bb.png);width:82px"></div>
+    <div class="g txt" data-game="Dark Souls II">DARK SOULS II</div>
   </div>
   <img id="paw" src="scratch.gif" alt="">
 </div>
@@ -127,6 +141,7 @@ body{background:transparent;overflow:hidden;font-family:var(--gummy);color:var(-
   }
 
   function render(s){
+    paintGames(s);
     var children=s.splits.filter(function(x){return !x.isParent;});
     var cur=children.findIndex(function(x){return x.isCurrent;});
     var shown=cur>=0?cur:(s.isRunComplete?children.length-1:0);
@@ -179,8 +194,20 @@ body{background:transparent;overflow:hidden;font-family:var(--gummy);color:var(-
   window.addEventListener('keydown',function(e){ if(e.key==='h'||e.key==='H') swipe(); });
   document.addEventListener('click',function(){ swipe(); });
 
+
+  function paintGames(s){
+    var kids=s.splits.filter(function(x){return !x.isParent;});
+    var cur=kids.findIndex(function(x){return x.isCurrent;});
+    [].forEach.call(document.querySelectorAll('#games .g'),function(g){
+      var i=kids.findIndex(function(x){return x.name===g.dataset.game;});
+      g.classList.remove('run','done');
+      if(i<0) return;
+      if(s.isRunComplete || (cur>=0 && i<cur)) g.classList.add('done');
+      else if(i===cur) g.classList.add('run');
+    });
+  }
   if(params.has('demo')){
-    var names=['Dark Souls','Dark Souls II','Dark Souls III','Bloodborne','Sekiro','Elden Ring'];
+    var names=['Elden Ring','Sekiro','Dark Souls III','Bloodborne','Dark Souls II'];
     function fresh(){ return {profileName:'Dog Run',totalHits:0,isRunComplete:false,inGameTime:'02:41:08',
       splits:names.map(function(n,i){return {name:n,hits:0,pb:i%3===0?1:0,isCurrent:i===0,isParent:false};})}; }
     var demo=fresh(), step=0, t=9668, held=0;
