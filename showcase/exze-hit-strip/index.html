@@ -19,8 +19,8 @@ body{background:transparent;overflow:hidden;font-family:var(--gummy);color:var(-
 #stage{position:relative;width:var(--w);height:var(--stage-h)}
 #overlay{position:absolute;left:0;right:0;top:calc((var(--stage-h) - 118px) / 2);
   display:grid;row-gap:4px;padding:6px 8px 0}
-#flash{position:absolute;left:-10px;right:-10px;top:-10px;bottom:-10px;z-index:0;
-  background:radial-gradient(ellipse at 50% 50%,rgba(255,60,96,.52),rgba(255,30,70,.12) 70%,rgba(255,30,70,0) 100%);
+#flash{position:absolute;left:0;right:0;top:-44px;bottom:-44px;z-index:0;
+  background:radial-gradient(closest-side ellipse at 50% 50%,rgba(255,60,96,.52),rgba(255,30,70,.2) 55%,rgba(255,30,70,0) 100%);
   opacity:0;pointer-events:none}
 #flash.pop{animation:redflash .45s ease-out}
 @keyframes redflash{0%{opacity:0}8%{opacity:1}100%{opacity:0}}
@@ -57,8 +57,8 @@ body{background:transparent;overflow:hidden;font-family:var(--gummy);color:var(-
 #paw.swiping{display:block}
 .flash{animation:flash .35s ease-out}
 @keyframes flash{from{filter:brightness(2.2)}to{filter:brightness(1)}}
-#games{position:absolute;left:0;right:0;top:calc((var(--stage-h) - 118px) / 2 - 46px);display:flex;justify-content:center;align-items:center;gap:0;height:26px;z-index:2;padding:0 8px}
-#games .cell{width:72px;display:flex;justify-content:center}
+#games{position:absolute;left:0;right:0;top:calc((var(--stage-h) - 118px) / 2 - 46px);display:flex;justify-content:center;align-items:center;gap:29px;height:26px;z-index:2;padding:0 8px}
+#games .cell{display:flex}
 #games .g{height:22px;background:#9a9a9a;opacity:.41;-webkit-mask:var(--logo) center/contain no-repeat;mask:var(--logo) center/contain no-repeat;transition:background .35s,opacity .35s}
 #games .g.run{background:#ffffff;opacity:1}
 #games .g.done{background:var(--clean);opacity:1}
@@ -80,11 +80,11 @@ body{background:transparent;overflow:hidden;font-family:var(--gummy);color:var(-
       <div id="bar"><div id="fill"></div><div id="marks"></div></div>
   </div>
   <div id="games">
-    <div class="cell"><div class="g" data-game="Elden Ring" style="--logo:url(logos/tag_er.png);width:39px"></div></div>
-    <div class="cell"><div class="g" data-game="Sekiro" style="--logo:url(logos/tag_sk.png);width:36px"></div></div>
-    <div class="cell"><div class="g" data-game="Dark Souls III" style="--logo:url(logos/tag_ds3.png);width:53px"></div></div>
-    <div class="cell"><div class="g" data-game="Bloodborne" style="--logo:url(logos/tag_bb.png);width:37px"></div></div>
-    <div class="cell"><div class="g" data-game="Dark Souls II" style="--logo:url(logos/tag_ds2.png);width:54px"></div></div>
+    <div class="cell"><div class="g" data-game="Elden Ring" style="--logo:url(logos/tag_er.png);width:39.19px"></div></div>
+    <div class="cell"><div class="g" data-game="Sekiro" style="--logo:url(logos/tag_sk.png);width:36.21px"></div></div>
+    <div class="cell"><div class="g" data-game="Dark Souls III" style="--logo:url(logos/tag_ds3.png);width:52.71px"></div></div>
+    <div class="cell"><div class="g" data-game="Bloodborne" style="--logo:url(logos/tag_bb.png);width:37.12px"></div></div>
+    <div class="cell"><div class="g" data-game="Dark Souls II" style="--logo:url(logos/tag_ds2.png);width:54.31px"></div></div>
   </div>
   <img id="paw" src="scratch.gif" alt="">
 </div>
