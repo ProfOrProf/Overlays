@@ -25,10 +25,12 @@ body{background:transparent;overflow:hidden;font-family:var(--gummy);color:var(-
 #flash.pop{animation:redflash .45s ease-out}
 @keyframes redflash{0%{opacity:0}8%{opacity:1}100%{opacity:0}}
 #overlay > *:not(#flash){position:relative;z-index:1}
-#title{font-size:30px;line-height:1.05;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#FFACFF;
+#title{font-size:30px;line-height:1.05;text-align:center;white-space:nowrap;overflow:visible;margin:2px 0 8px;color:#FFACFF;
   text-shadow:0 0 18px rgba(255,172,255,.45)}
 .main{display:grid;grid-template-columns:1fr calc(var(--w) * .58) 1fr;align-items:center;column-gap:8px}
 .stat{display:grid;justify-items:center;line-height:1}
+.main .stat:first-child{justify-self:start;margin-left:6px}
+.main .stat:last-child{justify-self:end;margin-right:5px}
 .stat .v{font-size:30px;font-variant-numeric:tabular-nums}
 .stat .l{font-size:14px;color:var(--dim);letter-spacing:.12em;margin-top:3px}
 #total{color:var(--state)}
@@ -55,7 +57,8 @@ body{background:transparent;overflow:hidden;font-family:var(--gummy);color:var(-
 #paw.swiping{display:block}
 .flash{animation:flash .35s ease-out}
 @keyframes flash{from{filter:brightness(2.2)}to{filter:brightness(1)}}
-#games{position:absolute;left:0;right:0;top:calc((var(--stage-h) - 118px) / 2 - 40px);display:flex;justify-content:center;align-items:center;gap:22px;height:26px;z-index:2}
+#games{position:absolute;left:0;right:0;top:calc((var(--stage-h) - 118px) / 2 - 46px);display:flex;justify-content:center;align-items:center;gap:0;height:26px;z-index:2;padding:0 8px}
+#games .cell{width:72px;display:flex;justify-content:center}
 #games .g{height:22px;background:#9a9a9a;opacity:.41;-webkit-mask:var(--logo) center/contain no-repeat;mask:var(--logo) center/contain no-repeat;transition:background .35s,opacity .35s}
 #games .g.run{background:#ffffff;opacity:1}
 #games .g.done{background:var(--clean);opacity:1}
@@ -77,11 +80,11 @@ body{background:transparent;overflow:hidden;font-family:var(--gummy);color:var(-
       <div id="bar"><div id="fill"></div><div id="marks"></div></div>
   </div>
   <div id="games">
-    <div class="g" data-game="Elden Ring" style="--logo:url(logos/tag_er.png);width:39px"></div>
-    <div class="g" data-game="Sekiro" style="--logo:url(logos/tag_sk.png);width:36px"></div>
-    <div class="g" data-game="Dark Souls III" style="--logo:url(logos/tag_ds3.png);width:53px"></div>
-    <div class="g" data-game="Bloodborne" style="--logo:url(logos/tag_bb.png);width:37px"></div>
-    <div class="g" data-game="Dark Souls II" style="--logo:url(logos/tag_ds2.png);width:54px"></div>
+    <div class="cell"><div class="g" data-game="Elden Ring" style="--logo:url(logos/tag_er.png);width:39px"></div></div>
+    <div class="cell"><div class="g" data-game="Sekiro" style="--logo:url(logos/tag_sk.png);width:36px"></div></div>
+    <div class="cell"><div class="g" data-game="Dark Souls III" style="--logo:url(logos/tag_ds3.png);width:53px"></div></div>
+    <div class="cell"><div class="g" data-game="Bloodborne" style="--logo:url(logos/tag_bb.png);width:37px"></div></div>
+    <div class="cell"><div class="g" data-game="Dark Souls II" style="--logo:url(logos/tag_ds2.png);width:54px"></div></div>
   </div>
   <img id="paw" src="scratch.gif" alt="">
 </div>
@@ -198,7 +201,7 @@ body{background:transparent;overflow:hidden;font-family:var(--gummy);color:var(-
   document.addEventListener('click',function(){ swipe(); });
 
 
-  var GAME_LOGOS={'Elden Ring':'logos/er.png','Sekiro':'logos/sk.png','Dark Souls III':'logos/ds3.png','Bloodborne':'logos/bb.png'};
+  var GAME_LOGOS={'Elden Ring':'logos/er.png','Sekiro':'logos/sk.png','Dark Souls III':'logos/ds3.png','Bloodborne':'logos/bb.png','Dark Souls II':'logos/ds2.png'};
   function paintGames(s){
     var kids=s.splits.filter(function(x){return !x.isParent;});
     var cur=kids.findIndex(function(x){return x.isCurrent;});
