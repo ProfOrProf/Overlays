@@ -25,8 +25,9 @@ body{background:transparent;overflow:hidden;font-family:var(--gummy);color:var(-
 #flash.pop{animation:redflash .45s ease-out}
 @keyframes redflash{0%{opacity:0}8%{opacity:1}100%{opacity:0}}
 #overlay > *:not(#flash){position:relative;z-index:1}
-#title{font-size:30px;line-height:1.05;text-align:center;white-space:nowrap;overflow:visible;margin:2px 0 8px;color:#FFACFF;
-  text-shadow:0 0 18px rgba(255,172,255,.45)}
+#title{display:grid;justify-items:center;align-items:center;min-height:40px;margin:2px 0 6px}
+#gname{font-size:26px;line-height:1.05;text-align:center;white-space:nowrap;color:var(--ink);
+  font-family:"Palatino Linotype",Palatino,Georgia,serif;text-shadow:0 0 18px rgba(255,172,255,.35)}
 .main{display:grid;grid-template-columns:1fr calc(var(--w) * .58) 1fr;align-items:center;column-gap:8px}
 .stat{display:grid;justify-items:center;line-height:1}
 .main .stat:first-child{justify-self:start;margin-left:6px}
@@ -62,19 +63,19 @@ body{background:transparent;overflow:hidden;font-family:var(--gummy);color:var(-
 #games .g{height:22px;background:#9a9a9a;opacity:.41;-webkit-mask:var(--logo) center/contain no-repeat;mask:var(--logo) center/contain no-repeat;transition:background .35s,opacity .35s}
 #games .g.run{background:#ffffff;opacity:1}
 #games .g.done{background:var(--clean);opacity:1}
-#glogo{display:none;height:40px;max-width:100%;object-fit:contain}
+#glogo{display:none;height:40px;max-width:78%;object-fit:contain;filter:drop-shadow(0 2px 10px rgba(0,0,0,.6))}
 #glogo.on{display:block}
-#name.off{display:none}
+#glogo.on + #gname{display:none}
 </style>
 </head>
 <body>
 <div id="stage">
   <div id="overlay">
     <div id="flash"></div>
-    <div id="title"></div>
+    <div id="title"><img id="glogo" alt=""><div id="gname"></div></div>
     <div class="main">
       <div class="stat"><span class="v" id="progress">0/0</span><span class="l">SPLIT</span></div>
-      <div class="centre"><img id="glogo" alt=""><span id="name"></span><span id="igt">0:00:00</span></div>
+      <div class="centre"><span id="name"></span><span id="igt">0:00:00</span></div>
       <div class="stat"><span class="v" id="total">0</span><span class="l">HITS</span></div>
     </div>
       <div id="bar"><div id="fill"></div><div id="marks"></div></div>
@@ -92,7 +93,7 @@ body{background:transparent;overflow:hidden;font-family:var(--gummy);color:var(-
 (function(){
   var WS_URL='ws://localhost:16200', RETRY=3000;
   var SWIPE_MS=700, IMPACT_MS=500;
-  var cfg={showIgt:true,titleText:'Dog Run',runCompleteText:'RUN COMPLETE'};
+  var cfg={showIgt:true,titleText:'',runCompleteText:'RUN COMPLETE'};
   var root=document.documentElement, overlay=document.getElementById('overlay');
   var el={igt:document.getElementById('igt'),title:document.getElementById('title'),total:document.getElementById('total'),
           progress:document.getElementById('progress'),name:document.getElementById('name'),fill:document.getElementById('fill'),
@@ -136,8 +137,7 @@ body{background:transparent;overflow:hidden;font-family:var(--gummy);color:var(-
     for(var i=0;i<n;i++){
       var h=children[i].hits||0;
       for(var k=0;k<h;k++){
-        var slot=(i + (h===1 ? .5 : (k+1)/(h+1))) / n;
-        html+='<i style="left:'+(slot*100).toFixed(2)+'%"></i>';
+        html+='<i style="left:'+Math.max(0.6,(i/n)*100).toFixed(3)+'%;margin-left:'+(-2.5 - k*7)+'px"></i>';
       }
     }
     el.marks.innerHTML=html;
@@ -153,13 +153,14 @@ body{background:transparent;overflow:hidden;font-family:var(--gummy);color:var(-
     var colour = total===0 ? 'var(--clean)' : (pace(children, shown)<=0 ? 'var(--pace)' : 'var(--behind)');
     root.style.setProperty('--state', colour);
     el.total.textContent=total;
-    el.title.textContent=(cfg.titleText && cfg.titleText.trim()) || s.profileName || s.gameName || '';
+    var game=s.gameName || s.profileName || '';
+    var lg=GAME_LOGOS[game], gl=document.getElementById('glogo');
+    document.getElementById('gname').textContent=game;
+    if(lg){ if(gl.getAttribute('src')!==lg) gl.src=lg; gl.classList.add('on'); }
+    else gl.classList.remove('on');
     el.progress.textContent=(shown+1)+'/'+children.length;
     el.name.textContent=s.isRunComplete ? (cfg.runCompleteText||'RUN COMPLETE') : (current.name||'');
     el.name.classList.toggle('hit',!s.isRunComplete && (current.hits||0)>0);
-    var lg=GAME_LOGOS[current.name], gl=document.getElementById('glogo');
-    if(!s.isRunComplete && lg){ if(gl.getAttribute('src')!==lg) gl.src=lg; gl.classList.add('on'); el.name.classList.add('off'); }
-    else { gl.classList.remove('on'); el.name.classList.remove('off'); }
     el.fill.style.width=(children.length?((s.isRunComplete?children.length:shown)/children.length)*100:0)+'%';
     marks(children);
     overlay.classList.toggle('complete',!!s.isRunComplete);
@@ -203,28 +204,42 @@ body{background:transparent;overflow:hidden;font-family:var(--gummy);color:var(-
 
   var GAME_LOGOS={'Elden Ring':'logos/er.png','Sekiro':'logos/sk.png','Dark Souls III':'logos/ds3.png','Bloodborne':'logos/bb.png','Dark Souls II':'logos/ds2.png'};
   Object.keys(GAME_LOGOS).forEach(function(k){ new Image().src=GAME_LOGOS[k]; });
+  var RUN_ORDER=['Elden Ring','Sekiro','Dark Souls III','Bloodborne','Dark Souls II'];
+
   function paintGames(s){
-    var kids=s.splits.filter(function(x){return !x.isParent;});
-    var cur=kids.findIndex(function(x){return x.isCurrent;});
+    var game=s.gameName || s.profileName || '';
+    var at=RUN_ORDER.indexOf(game);
+    var done=(s.done||[]).map(function(x){return String(x);});
     [].forEach.call(document.querySelectorAll('#games .g'),function(g){
-      var i=kids.findIndex(function(x){return x.name===g.dataset.game;});
+      var i=RUN_ORDER.indexOf(g.dataset.game);
       g.classList.remove('run','done');
       if(i<0) return;
-      if(s.isRunComplete || (cur>=0 && i<cur)) g.classList.add('done');
-      else if(i===cur) g.classList.add('run');
+      var isDone = done.length ? done.indexOf(g.dataset.game)>=0 : (at>=0 && i<at);
+      if(isDone) g.classList.add('done');
+      else if(i===at) g.classList.add('run');
     });
   }
   if(params.has('demo')){
-    var names=['Elden Ring','Sekiro','Dark Souls III','Bloodborne','Dark Souls II'];
-    function fresh(){ return {profileName:'Dog Run',totalHits:0,isRunComplete:false,inGameTime:'02:41:08',
-      splits:names.map(function(n,i){return {name:n,hits:0,pb:i%3===0?1:0,isCurrent:i===0,isParent:false};})}; }
+    var LEGS=[
+      {game:'Elden Ring',     bosses:['Margit','Godrick','Rennala','Radahn','Morgott']},
+      {game:'Sekiro',         bosses:['Gyoubu','Lady Butterfly','Genichiro','Guardian Ape','Owl']},
+      {game:'Dark Souls III', bosses:['Vordt','Abyss Watchers','Pontiff','Dancer','Soul of Cinder']},
+      {game:'Bloodborne',     bosses:['Gascoigne','Vicar Amelia','Rom','The One Reborn','Gehrman']},
+      {game:'Dark Souls II',  bosses:['The Pursuer','Ruin Sentinels','Smelter Demon','Looking Glass Knight','Nashandra']}
+    ];
+    var leg=0;
+    function fresh(){
+      var L=LEGS[leg % LEGS.length];
+      return {profileName:'Dog Run', gameName:L.game, done:LEGS.slice(0, leg % LEGS.length).map(function(x){return x.game;}),
+        totalHits:0,isRunComplete:false,inGameTime:'02:41:08',
+        splits:L.bosses.map(function(n,i){return {name:n,hits:0,pb:i%3===0?1:0,isCurrent:i===0,isParent:false};})}; }
     var demo=fresh(), step=0, t=9668, held=0;
     render(demo);
     setInterval(function(){
       t++;
       demo.inGameTime=String(Math.floor(t/3600)).padStart(2,'0')+':'+String(Math.floor(t/60)%60).padStart(2,'0')+':'+String(t%60).padStart(2,'0');
       el.igt.textContent=fmt(demo.inGameTime);
-      if(demo.isRunComplete){ if(++held>=6){ demo=fresh(); step=0; held=0; lastTotal=-1; render(demo); } return; }
+      if(demo.isRunComplete){ if(++held>=5){ leg++; demo=fresh(); step=0; held=0; lastTotal=-1; render(demo); } return; }
       if(t%4===0){
         step++;
         var cur=demo.splits.findIndex(function(x){return x.isCurrent;});
