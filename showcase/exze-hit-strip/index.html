@@ -9,7 +9,8 @@
   --w:520px;
   --stage-h:300px;
   --ink:#ffe9ff; --dim:#d9a8e8;
-  --clean:#9af0b8; --pace:#ffd23a; --behind:#ff5c8a;
+  --clean:#9af0b8; --pace:#ffd23a; --behind:#ff5c8a; --fail:#ff3b3b;
+  --done:var(--clean);
   --state:var(--clean);
   --bar-bg:rgba(255,172,255,.14);
   --gummy:"SourGummy","Trebuchet MS",sans-serif;
@@ -36,15 +37,16 @@ body{background:transparent;overflow:hidden;font-family:var(--gummy);color:var(-
 .stat .l{font-size:14px;color:var(--dim);letter-spacing:.12em;margin-top:3px}
 #total{color:var(--state)}
 .centre{display:grid;justify-items:center;min-width:0}
-#name{font-size:40px;line-height:1;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#name{font-size:40px;line-height:1;max-width:100%;white-space:nowrap;overflow:hidden}
+#name b{display:inline-block;font-weight:inherit;will-change:transform}
 #name.hit{color:var(--behind)}
 #igt{font-size:16px;color:var(--dim);letter-spacing:.08em;font-variant-numeric:tabular-nums;margin-top:2px}
 #bar{height:8px;margin-top:2px;background:var(--bar-bg);position:relative;border-radius:4px}
-#fill{position:absolute;inset:0 auto 0 0;width:0;background:var(--state);transition:width .25s ease,background .25s ease;border-radius:4px}
+#fill{position:absolute;inset:0 auto 0 0;width:0;background:var(--dim);transition:width .25s ease;border-radius:4px}
 #marks{position:absolute;inset:-3px 0;pointer-events:none}
 #marks i{position:absolute;top:0;bottom:0;width:5px;margin-left:-2.5px;border-radius:2px;
   background:#b3202f;box-shadow:0 0 6px rgba(179,32,47,.8)}
-#overlay.complete #name{color:var(--state)}
+#overlay.complete #name{color:var(--done)}
 #overlay.struck{animation:knock .4s ease-out}
 @keyframes knock{
   0%{transform:translate(0,0) rotate(0)}
@@ -75,7 +77,7 @@ body{background:transparent;overflow:hidden;font-family:var(--gummy);color:var(-
     <div id="title"><img id="glogo" alt=""><div id="gname"></div></div>
     <div class="main">
       <div class="stat"><span class="v" id="progress">0/0</span><span class="l">SPLIT</span></div>
-      <div class="centre"><span id="name"></span><span id="igt">0:00:00</span></div>
+      <div class="centre"><span id="name"><b></b></span><span id="igt">0:00:00</span></div>
       <div class="stat"><span class="v" id="total">0</span><span class="l">HITS</span></div>
     </div>
       <div id="bar"><div id="fill"></div><div id="marks"></div></div>
@@ -124,6 +126,30 @@ body{background:transparent;overflow:hidden;font-family:var(--gummy);color:var(-
     pawTimer=setTimeout(function(){ el.paw.classList.remove('swiping'); }, SWIPE_MS);
   }
 
+  var nameRoll=null, nameShown='';
+
+  function setName(text){
+    var inner=el.name.firstElementChild || el.name;
+    if(text===nameShown){ return; }
+    nameShown=text;
+    inner.textContent=text;
+    if(nameRoll){ nameRoll.cancel(); nameRoll=null; }
+    inner.style.transform='translateX(0)';
+    requestAnimationFrame(function(){
+      var over=inner.scrollWidth - el.name.clientWidth;
+      if(over<=2 || !inner.animate) return;
+      var travel=Math.max(900, (over/45)*1000), hold=5000, rest=2000, back=700;
+      var total=hold+travel+rest+back;
+      nameRoll=inner.animate([
+        {transform:'translateX(0)',            offset:0},
+        {transform:'translateX(0)',            offset:hold/total},
+        {transform:'translateX(-'+over+'px)',  offset:(hold+travel)/total},
+        {transform:'translateX(-'+over+'px)',  offset:(hold+travel+rest)/total},
+        {transform:'translateX(0)',            offset:1}
+      ], {duration:total, iterations:Infinity, easing:'linear'});
+    });
+  }
+
   function fmt(t){ return t ? String(t).replace(/^0(\d:)/,'$1') : ''; }
 
   function pace(children, cur){
@@ -150,8 +176,10 @@ body{background:transparent;overflow:hidden;font-family:var(--gummy);color:var(-
     var shown=cur>=0?cur:(s.isRunComplete?children.length-1:0);
     var current=children[shown]||{name:'',hits:0};
     var total=s.totalHits||0;
-    var colour = total===0 ? 'var(--clean)' : (pace(children, shown)<=0 ? 'var(--pace)' : 'var(--behind)');
+    var behind = pace(children, shown) > 0;
+    var colour = total===0 ? 'var(--clean)' : (behind ? 'var(--behind)' : 'var(--pace)');
     root.style.setProperty('--state', colour);
+    root.style.setProperty('--done', total===0 ? 'var(--clean)' : (behind ? 'var(--fail)' : 'var(--ink)'));
     el.total.textContent=total;
     var game=s.gameName || s.profileName || '';
     var lg=GAME_LOGOS[game], gl=document.getElementById('glogo');
@@ -159,7 +187,7 @@ body{background:transparent;overflow:hidden;font-family:var(--gummy);color:var(-
     if(lg){ if(gl.getAttribute('src')!==lg) gl.src=lg; gl.classList.add('on'); }
     else gl.classList.remove('on');
     el.progress.textContent=(shown+1)+'/'+children.length;
-    el.name.textContent=s.isRunComplete ? (cfg.runCompleteText||'RUN COMPLETE') : (current.name||'');
+    setName(s.isRunComplete ? (cfg.runCompleteText||'RUN COMPLETE') : (current.name||''));
     el.name.classList.toggle('hit',!s.isRunComplete && (current.hits||0)>0);
     el.fill.style.width=(children.length?((s.isRunComplete?children.length:shown)/children.length)*100:0)+'%';
     marks(children);
