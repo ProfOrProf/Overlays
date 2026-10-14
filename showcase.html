@@ -163,12 +163,25 @@ var PIECES = [
     scalers.forEach(function(x){
       var room = x.view.clientWidth - 44;
       var k = Math.min(x.p.zoom || 1, room / x.p.width);
-      x.f.style.transform = 'scale(' + k + ')';
+      x.f.style.transform = 'none'; x.f.style.zoom = String(k);
       x.s.style.width = (x.p.width * k) + 'px';
       x.s.style.height = (x.p.height * k) + 'px';
     });
+    snap();
+  }
+  function snap(){
+    var d = window.devicePixelRatio || 1;
+    scalers.forEach(function(x){
+      x.s.style.translate = '0px 0px';
+      var r = x.s.getBoundingClientRect();
+      var dx = Math.round(r.left * d) / d - r.left, dy = Math.round(r.top * d) / d - r.top;
+      x.s.style.translate = dx + 'px ' + dy + 'px';
+    });
   }
   addEventListener('resize', fit); fit();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(snap);
+  addEventListener('load', snap);
+  if (window.ResizeObserver) new ResizeObserver(function(){ snap(); }).observe(document.body);
   var queue = [], total = {}, done = {};
   Object.keys(buttons).forEach(function(k){
     var m = (window.SHOWCASE_FILES || {})[k];
