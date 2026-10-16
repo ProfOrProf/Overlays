@@ -1,0 +1,121 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>TINY WAYNE THE HERO</title>
+<meta name="robots" content="noindex, nofollow">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { width:100%; height:100%; overflow:hidden; background:#000; font-family:"Segoe UI",Verdana,sans-serif; user-select:none; }
+  canvas { display:block; }
+
+  #hud { position:fixed; inset:0; pointer-events:none; display:none; }
+  #hearts { position:fixed; top:18px; left:22px; font-size:34px; letter-spacing:2px;
+            text-shadow:0 2px 0 rgba(0,0,0,.6); max-width:60vw; }
+  #lives  { position:fixed; top:58px; left:24px; font-size:22px; font-weight:900; color:#fff;
+            text-shadow:0 2px 0 #000; letter-spacing:1px; }
+  .meter  { position:fixed; left:22px; width:210px; height:16px; border:3px solid #000;
+            border-radius:9px; background:rgba(0,0,0,.55); overflow:hidden; }
+  .meter .fill { height:100%; width:100%; border-radius:5px; transition:width .12s linear; }
+  #magicM { top:96px; } #magicM .fill { background:linear-gradient(#e29bff,#8a2be2); }
+  #fuelM  { top:120px; } #fuelM  .fill { background:linear-gradient(#ffd27a,#ff7b00); }
+  .mlabel { position:fixed; left:240px; font-size:13px; font-weight:800; color:#fff; text-shadow:0 2px 0 #000; }
+  #magicL { top:96px; } #fuelL { top:120px; }
+
+  #counts { position:fixed; top:18px; right:22px; text-align:right; font-size:22px; font-weight:900;
+            color:#fff; text-shadow:0 2px 0 #000; line-height:1.5; }
+  #announce { position:fixed; top:26%; width:100%; text-align:center; font-size:64px; font-weight:900;
+              color:#fff; text-shadow:0 4px 0 #000, 0 0 30px rgba(255,255,255,.35);
+              opacity:0; transition:opacity .25s; letter-spacing:2px; }
+  #subann   { position:fixed; top:calc(26% + 78px); width:100%; text-align:center; font-size:26px;
+              font-weight:800; color:#ffe66d; text-shadow:0 3px 0 #000; opacity:0; transition:opacity .25s; }
+
+  .screen { position:fixed; inset:0; display:flex; flex-direction:column; align-items:center;
+            justify-content:center; text-align:center; z-index:10; }
+  #title  { background:linear-gradient(#3ec5ff 0%, #8fe0ff 55%, #ffe29b 56%, #ffd27a 100%); }
+  #title h1 { font-size:clamp(42px, 8.5vw, 110px); font-weight:900; line-height:1.02; letter-spacing:1px;
+              color:#fff; -webkit-text-stroke:4px #1b2a6b;
+              text-shadow:0 6px 0 #1b2a6b, 0 12px 24px rgba(0,0,0,.35); transform:rotate(-2deg); }
+  #title h1 .mw { color:#ffe66d; } #title h1 .hero { color:#ff5c5c; }
+  #title h2 { margin-top:14px; font-size:clamp(14px,2vw,22px); font-weight:800; color:#1b2a6b;
+              background:rgba(255,255,255,.75); padding:8px 22px; border-radius:20px; }
+  #press { margin-top:44px; font-size:clamp(18px,3vw,32px); font-weight:900; color:#fff;
+           text-shadow:0 3px 0 #1b2a6b; animation:blink 1s steps(2) infinite; }
+  @keyframes blink { 50% { opacity:.15; } }
+  #controls { margin-top:36px; font-size:14px; font-weight:700; color:#1b2a6b; line-height:1.9;
+              background:rgba(255,255,255,.65); padding:14px 26px; border-radius:14px; }
+  #controls b { color:#c22; }
+
+  #win { background:radial-gradient(circle at 50% 35%, #4a2a7a 0%, #14082e 70%); display:none; }
+  #win h1 { font-size:clamp(40px,8vw,100px); font-weight:900; color:#ffe66d;
+            -webkit-text-stroke:3px #7a1fa0; text-shadow:0 6px 0 #7a1fa0, 0 0 60px #ff8ae2; transform:rotate(-2deg); }
+  #win h2 { margin-top:10px; font-size:clamp(18px,3vw,34px); color:#8affc1; font-weight:900; text-shadow:0 3px 0 #000; }
+  #winstats { margin-top:26px; font-size:22px; font-weight:800; color:#fff; line-height:2; text-shadow:0 2px 0 #000; }
+  #again { margin-top:34px; font-size:26px; font-weight:900; color:#fff; text-shadow:0 3px 0 #7a1fa0;
+           animation:blink 1.1s steps(2) infinite; }
+
+  #paused { position:fixed; inset:0; display:none; align-items:center; justify-content:center;
+            background:rgba(0,0,0,.55); z-index:9; font-size:70px; font-weight:900; color:#fff;
+            text-shadow:0 4px 0 #000; letter-spacing:4px; }
+
+  #gameover { background:radial-gradient(circle at 50% 40%, #3a0a12 0%, #12040a 70%); display:none; }
+  #gameover h1 { font-size:clamp(44px,9vw,110px); font-weight:900; color:#ff4d4d;
+                 -webkit-text-stroke:3px #5a0a12; text-shadow:0 6px 0 #5a0a12, 0 0 50px rgba(255,60,60,.4); transform:rotate(-2deg); }
+  #gameover h2 { margin-top:14px; font-size:clamp(16px,2.6vw,28px); color:#ffd0a0; font-weight:900; text-shadow:0 3px 0 #000; }
+  #goagain { margin-top:38px; font-size:24px; font-weight:900; color:#fff; text-shadow:0 3px 0 #5a0a12;
+             animation:blink 1.1s steps(2) infinite; }
+
+  #bossbar { position:fixed; top:110px; left:50%; transform:translateX(-50%); width:min(760px,80vw);
+             display:none; text-align:center; z-index:8; }
+  #bossname { font-size:30px; font-weight:900; color:#fff; letter-spacing:2px; text-transform:uppercase;
+              text-shadow:0 3px 0 #000, 0 0 18px rgba(255,60,60,.5); margin-bottom:6px; }
+  #bbtrack { height:26px; border:4px solid #000; border-radius:14px; background:rgba(10,4,8,.72);
+             overflow:hidden; box-shadow:0 6px 20px rgba(0,0,0,.5); position:relative; }
+  #bbfill { height:100%; width:100%; border-radius:8px; transition:width .18s ease;
+            background:linear-gradient(#ff7a6e, #d81f1f 55%, #7a0c0c); }
+  #bbtrack::before, #bbtrack::after { content:''; position:absolute; top:0; bottom:0; width:3px;
+            background:rgba(0,0,0,.55); }
+  #bbtrack::before { left:33.3%; } #bbtrack::after { left:66.6%; }
+</style>
+</head>
+<body>
+<div id="hud">
+  <div id="hearts"></div><div id="lives"></div>
+  <div class="meter" id="magicM"><div class="fill"></div></div><div class="mlabel" id="magicL">MAGIC</div>
+  <div class="meter" id="fuelM"><div class="fill"></div></div><div class="mlabel" id="fuelL">MR. BIG STUFF</div>
+  <div id="counts"></div>
+  <div id="announce"></div><div id="subann"></div>
+  <div id="bossbar"><div id="bossname"></div><div id="bbtrack"><div id="bbfill"></div></div></div>
+</div>
+
+<div class="screen" id="title">
+  <h1><span class="mw">TINY WAYNE</span><br><span class="hero">THE HERO</span></h1>
+  <h2>a game by Tiny Wayne, age 4 &nbsp;•&nbsp; built with Daddy &amp; Rocky</h2>
+  <div id="press">PRESS START</div>
+  <div id="lvlpick" style="margin-top:10px;font-size:clamp(14px,2vw,22px);font-weight:900;color:#1b2a6b;"></div>
+  <div id="controls">
+    🎮 <b>Left stick</b> move &nbsp; <b>✕/A</b> jump · hold for Mr.&nbsp;Big&nbsp;Stuff &nbsp; <b>○/B</b> 🌀 roll &nbsp; <b>□/X</b> 🧃 apple juice &nbsp; <b>△/Y</b> kick &nbsp; <b>R1/RB</b> ⚔️ sword &nbsp; <b>R2/RT</b> 🔥 &nbsp; <b>L2/LT</b> 💧<br>
+    ⌨️ <b>WASD</b> move &nbsp; <b>Space</b> jump/jetpack &nbsp; <b>Shift</b> 🌀 roll &nbsp; <b>F</b> 🧃 juice &nbsp; <b>J</b>/<b>L</b> ⚔️ sword &nbsp; <b>K</b> kick &nbsp; <b>1</b> 🔥 &nbsp; <b>2</b> 💧 &nbsp; <b>Esc</b> pause<br>
+    ⚔️ <b>SOULS RULES:</b> 3 lives · 🧃 5 apple juices refill your hearts · 🧁 a 1-in-100 <b>chocolate muffin</b> = +1 life · every boss you befriend gives you their <b>heart</b> — collect ROYGBIV, silver, gold… then 💎
+  </div>
+</div>
+
+<div class="screen" id="gameover">
+  <h1>GAME OVER</h1>
+  <h2>even heroes need a snack break. 🧃<br>the bosses are still waiting to be your friends…</h2>
+  <div id="goagain">PRESS START TO TRY AGAIN</div>
+</div>
+
+<div class="screen" id="win">
+  <h1>YOU WIN!</h1>
+  <h2 id="winsub">EVERYONE IS FRIENDS NOW! 💚</h2>
+  <div id="winstats"></div>
+  <div id="again">PRESS START TO PLAY AGAIN</div>
+</div>
+
+<div id="paused">PAUSED</div>
+
+<script src="three.min.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
