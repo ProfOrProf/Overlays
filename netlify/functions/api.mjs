@@ -228,6 +228,10 @@ export function createHandler({ store, users, mint = defaultMint, now = defaultN
     const exists = await readJSON(metaKey);
     if (!exists) return json(404, { error: "no such idea" });
 
+    if (kind === "meta" && seg.length === 3 && method === "GET") {
+      return json(200, exists);
+    }
+
     if (kind === "note" && seg.length === 3 && method === "PUT") {
       const html = sanitizeNote(optStr(body.html, 60000));
       if (body.html != null && html === null) return bad("note too long");

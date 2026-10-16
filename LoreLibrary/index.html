@@ -3,7 +3,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <meta name="robots" content="noindex,nofollow"/>
 <meta name="referrer" content="no-referrer"/>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-lO6HcGFJTfn+sqKGYpluiTM+S/qhLQ9Y1MP79Y34aUw='; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; media-src 'self' blob: data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-QKVOpeVocBdoYItacUl0/mc+5EO2vBwTlGcpeM4FeJ0='; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; media-src 'self' blob: data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'"/>
 <style>
   :root{
     --ink:#efe6d6; --ink-dim:#b3a68f; --ink-faint:#6f665a; --grace:#f0b13c;
@@ -693,8 +693,9 @@ async function roomToken(pw, rec){
 async function roomMember(tok){
   try {
     const res = await fetch('/api/collab/me', {headers: {'authorization': 'Bearer ' + tok}});
-    return res.ok ? ((await res.json()).user || null) : null;
-  } catch { return null; }
+    if (!res.ok) return {reached: false, user: null};
+    return {reached: true, user: (await res.json()).user || null};
+  } catch { return {reached: false, user: null}; }
 }
 async function signIn(user, pw){
   const name = user.trim().toLowerCase();
@@ -709,11 +710,16 @@ async function signIn(user, pw){
   sessionStorage.setItem('lore.dk', btoa(String.fromCharCode(...raw)));
   sessionStorage.setItem('lore.who', name);
   sessionStorage.removeItem('lore.tok');
-  const member = tok && await roomMember(tok);
-  if (member){
-    sessionStorage.setItem('lore.tok', tok);
-    sessionStorage.setItem('lore.who', member);
+  sessionStorage.removeItem('lore.room');
+  if (!tok) return;
+  sessionStorage.setItem('lore.tok', tok);
+  const probe = await roomMember(tok);
+  if (!probe.reached){
+    sessionStorage.setItem('lore.room', 'unknown');
+    return;
   }
+  sessionStorage.setItem('lore.room', probe.user ? 'member' : 'reader');
+  if (probe.user) sessionStorage.setItem('lore.who', probe.user);
 }
 async function restore(){
   const k = sessionStorage.getItem('lore.dk');
@@ -1604,6 +1610,9 @@ let cbPngCache = {};
 let cbSaveTimers = {};
 let cbArmedDrop = null;
 let cbArmTimer = null;
+let cbPollEvery = 4000;
+let cbQuiet = 0;
+let cbKnockTimer = null;
 let cbPaint = { tool: 'pen', color: '#f0b13c', width: 5, undo: [], drawing: false, last: null };
 const CB_TAGS = new Set(['b','i','em','strong','u','ul','ol','li','br','p','div']);
 const cbNarrow = () => {
@@ -1624,16 +1633,49 @@ function cbSanitize(html){
   });
 }
 
-async function cbApi(method, path, body){
-  const res = await fetch('/api/collab' + path, {
+async function cbSend(method, path, body){
+  return fetch('/api/collab' + path, {
     method,
     headers: {'authorization': 'Bearer ' + cbTok(), ...(body !== undefined ? {'content-type': 'application/json'} : {})},
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
-  if (res.status === 401){ cbSeal(); throw new Error('sealed'); }
+}
+
+async function cbApi(method, path, body, opts){
+  const quiet = opts && opts.quiet;
+  let res = null, err = null;
+  for (let attempt = 0; attempt < 2; attempt++){
+    try { res = await cbSend(method, path, body); err = null; } catch (e) { res = null; err = e; }
+    if (res && res.status === 401){ cbSeal(); throw new Error('sealed'); }
+    if (res && res.ok) break;
+    if (res && res.status < 500 && res.status !== 429) break;
+    if (attempt === 0) await new Promise(r => setTimeout(r, 700));
+  }
+  if (!res){
+    if (!quiet) cbTrouble('the room is unreachable');
+    throw new Error(String(err || 'offline'));
+  }
   const data = await res.json().catch(() => ({}));
-  if (!res.ok){ cbToast(data.error || 'the room did not answer'); throw new Error(data.error || res.status); }
+  if (!res.ok){
+    if (!quiet) cbTrouble(data.error || `the room did not answer (${res.status})`);
+    throw new Error(data.error || res.status);
+  }
+  cbSteady();
   return data;
+}
+
+function cbTrouble(msg){
+  cbPollEvery = Math.min(30000, Math.max(8000, cbPollEvery * 2));
+  if (cbIdea) cbStartPoll();
+  const now = Date.now();
+  if (now - cbQuiet > 20000){ cbQuiet = now; cbToast(msg + '. still trying'); }
+}
+
+function cbSteady(){
+  if (cbPollEvery === 4000) return;
+  cbPollEvery = 4000;
+  cbQuiet = 0;
+  if (cbIdea) cbStartPoll();
 }
 
 function cbToast(msg){
@@ -1652,6 +1694,9 @@ function cbSeal(){
 
 function collabBoot(){
   if (!cbTok() || cbBooted) return;
+  const standing = sessionStorage.getItem('lore.room');
+  if (standing === 'reader') return;
+  if (standing !== 'member'){ cbKnock(); return; }
   cbBooted = true;
   $('app').classList.add('collab');
   const split = parseFloat(localStorage.getItem('lore.split') || '0.55');
@@ -1662,6 +1707,26 @@ function collabBoot(){
   cbLoadIdeas();
   document.addEventListener('visibilitychange', () => { if (document.hidden) cbStopPoll(); else if (cbIdea) cbStartPoll(); });
   addEventListener('resize', () => { if (cbTab === 'board') requestAnimationFrame(cbFitCanvas); });
+}
+
+function cbKnock(wait){
+  clearTimeout(cbKnockTimer);
+  const delay = Math.min(60000, wait || 2000);
+  cbKnockTimer = setTimeout(async () => {
+    let answered = null;
+    try {
+      const res = await cbSend('GET', '/me');
+      if (res.ok) answered = (await res.json()).user || false;
+    } catch {}
+    if (answered === false){ sessionStorage.setItem('lore.room', 'reader'); return; }
+    if (answered){
+      sessionStorage.setItem('lore.room', 'member');
+      sessionStorage.setItem('lore.who', answered);
+      collabBoot();
+      return;
+    }
+    cbKnock(delay * 2);
+  }, delay);
 }
 
 function cbSetSplit(f, save){
@@ -1883,13 +1948,17 @@ async function cbOpenIdea(id){
   } catch {}
 }
 
-function cbStartPoll(){ cbStopPoll(); cbPollTimer = setInterval(cbRefresh, 4000); }
+function cbStartPoll(){ cbStopPoll(); cbPollTimer = setInterval(cbRefresh, cbPollEvery); }
 function cbStopPoll(){ if (cbPollTimer){ clearInterval(cbPollTimer); cbPollTimer = null; } }
 
 async function cbRefresh(){
   if (!cbIdea) return;
   let doc;
-  try { doc = await cbApi('GET', '/ideas/' + cbIdea.meta.id); } catch { return; }
+  try {
+    const meta = await cbApi('GET', `/ideas/${cbIdea.meta.id}/meta`, undefined, {quiet: true});
+    if (meta && meta.editedAt && meta.editedAt === cbIdea.meta.editedAt) return;
+  } catch { return; }
+  try { doc = await cbApi('GET', '/ideas/' + cbIdea.meta.id, undefined, {quiet: true}); } catch { return; }
   const j = JSON.stringify(doc);
   if (j === cbIdeaJSON) return;
   cbIdea = doc; cbIdeaJSON = j;
