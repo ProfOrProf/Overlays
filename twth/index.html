@@ -22,7 +22,15 @@
   .mlabel { position:fixed; left:240px; font-size:13px; font-weight:800; color:#fff; text-shadow:0 2px 0 #000; }
   #magicL { top:96px; } #fuelL { top:120px; }
 
-  #friendhud { position:fixed; top:146px; left:22px; font-size:15px; font-weight:900; color:#8affc1; text-shadow:0 2px 0 #000; letter-spacing:1px; }
+  #friendhud { position:fixed; top:146px; left:22px; width:34px; height:34px; border-radius:50%; display:none; border:3px solid #000;
+               background:conic-gradient(#8affc1 var(--fill, 0%), rgba(10,20,14,.7) 0); }
+  #friendhud.ready { box-shadow:0 0 14px #8affc1; }
+  #counts { display:none; }
+  #hearts.pulse { animation:heartpulse .45s ease-out; transform-origin:left center; }
+  @keyframes heartpulse { 40% { transform:scale(1.18); filter:brightness(1.5); } }
+  .flashred { animation:flashred .5s steps(2) 2; }
+  @keyframes flashred { 50% { outline:3px solid #ff2a2a; outline-offset:2px; background-color:rgba(255,42,42,.55); } }
+  #title h2, #controls, #gameover h2, #winsub, #winstats { display:none !important; }
   #counts { position:fixed; top:18px; right:22px; text-align:right; font-size:22px; font-weight:900;
             color:#fff; text-shadow:0 2px 0 #000; line-height:1.5; }
   #announce { position:fixed; top:26%; width:100%; text-align:center; font-size:64px; font-weight:900;
@@ -93,7 +101,7 @@
 <div id="hud">
   <div id="hearts"></div><div id="lives"></div>
   <div class="meter" id="magicM"><div class="fill"></div></div><div class="mlabel" id="magicL">MAGIC</div>
-  <div class="meter" id="fuelM"><div class="fill"></div></div><div class="mlabel" id="fuelL">MR. BIG STUFF</div>
+  <div class="meter" id="fuelM"><div class="fill"></div></div><div class="mlabel" id="fuelL">Fuel</div>
   <div id="friendhud"></div>
   <div id="counts"></div>
   <div id="announce"></div><div id="subann"></div>
