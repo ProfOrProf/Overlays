@@ -25,6 +25,9 @@
   #friendhud { position:fixed; top:146px; left:22px; width:34px; height:34px; border-radius:50%; display:none; border:3px solid #000;
                background:conic-gradient(#8affc1 var(--fill, 0%), rgba(10,20,14,.7) 0); }
   #friendhud.ready { box-shadow:0 0 14px #8affc1; }
+  #wristmap { position:fixed; top:18px; right:22px; width:132px; height:132px; display:none; border:3px solid #000; border-radius:50%; background:rgba(0,0,0,.35); }
+  #weaponhud { position:fixed; top:150px; left:66px; display:none; gap:5px; align-items:center; }
+  #weaponhud i { display:block; width:14px; height:26px; border:3px solid #000; border-radius:4px; background:linear-gradient(#9fd8ff,#2a66d8); }
   #counts { display:none; }
   #hearts.pulse { animation:heartpulse .45s ease-out; transform-origin:left center; }
   @keyframes heartpulse { 40% { transform:scale(1.18); filter:brightness(1.5); } }
@@ -102,7 +105,8 @@
   <div id="hearts"></div><div id="lives"></div>
   <div class="meter" id="magicM"><div class="fill"></div></div><div class="mlabel" id="magicL">MAGIC</div>
   <div class="meter" id="fuelM"><div class="fill"></div></div><div class="mlabel" id="fuelL">Fuel</div>
-  <div id="friendhud"></div>
+  <div id="friendhud"></div><div id="weaponhud"></div>
+  <canvas id="wristmap" width="132" height="132"></canvas>
   <div id="counts"></div>
   <div id="announce"></div><div id="subann"></div>
   <div id="bossbar"><div id="bossname"></div><div id="bbtrack"><div id="bbfill"></div></div></div>
