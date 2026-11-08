@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="color-scheme" content="dark">
+<title>Auto Hit Counter Overlay</title>
+<style>
+:root{
+  --w:520px;
+  --stage-h:300px;
+  --gap:110px;
+  --ink:#fff4f8; --dim:#e8a0c0;
+  --clean:#9af0b8; --pace:#ffd23a; --behind:#ff5c8a; --fail:#ff3b3b;
+  --done:var(--clean);
+  --state:var(--clean);
+  --bar-bg:rgba(232,160,192,.14);
+  --face:"Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+  --games:"Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1920px;height:1080px}
+body{background:transparent;overflow:hidden;font-family:var(--face);color:var(--ink);letter-spacing:.04em;text-transform:uppercase}
+#stage{position:relative;width:1920px;height:1080px}
+body.only-banner #titlerow,body.only-banner .main,body.only-banner #bar,body.only-banner #flash{display:none}
+body.only-banner #banner{margin-bottom:0;width:100%}
+body.only-banner #center{left:436px;top:8px;transform:none;width:1054px}
+body.only-banner #overlay{padding:0}
+body.only-logo #banner,body.only-logo .main,body.only-logo #bar,body.only-logo #flash{display:none}
+body.only-logo #titlerow{min-height:96px}
+body.only-logo #logo{max-height:96px;max-width:100%}
+body.only-logo #game{font-size:48px}
+body.only-strip #banner,body.only-strip #titlerow{display:none}
+body.only-splits #center,body.only-card #center{display:none}
+body.only-splits #card,body.only-card #card{display:block}
+body.only-card #cardrow{display:none}
+#card{display:none;position:absolute;left:32px;top:8px;width:1856px;height:417px;transform-origin:0 0;transform:scale(var(--card-scale,1))}
+#cardin{position:absolute;inset:0}
+#cardin.struck{animation:knock .4s ease-out}
+#cardflash{position:absolute;left:-40px;right:-40px;top:-40px;bottom:-40px;opacity:0;pointer-events:none;
+  background:radial-gradient(closest-side ellipse at 50% 60%,rgba(255,60,96,.42),rgba(255,30,70,.12) 60%,rgba(255,30,70,0) 100%)}
+#cardflash.pop{animation:redflash .45s ease-out}
+#cardrow{position:absolute;left:262px;top:26px;width:1345px;aspect-ratio:1054 / 68}
+#cardtitle{position:absolute;left:596px;top:140px;width:670px}
+.line{position:absolute;height:14px;background:#fff;box-shadow:4px 5px 4px rgba(0,0,0,.55)}
+#lL1{left:24px;top:187px;width:549px}
+#lL2{left:162px;top:270px;width:411px}
+#lL3{left:299px;top:353px;width:274px}
+#lR1{left:1287px;top:187px;width:548px}
+#lR2{left:1287px;top:270px;width:411px}
+#lR3{left:1287px;top:353px;width:273px}
+#cfill{position:absolute;inset:0 auto 0 0;width:0;background:#eca5c5;transition:width .25s ease;box-shadow:0 0 12px rgba(236,165,197,.7)}
+#cmarks{position:absolute;inset:-9px 0;pointer-events:none}
+#cmarks i{position:absolute;top:0;bottom:0;width:7px;margin-left:-3.5px;border-radius:2px;background:#b3202f;box-shadow:0 0 8px rgba(179,32,47,.9)}
+.slot{position:absolute;height:68px;display:flex;align-items:flex-end;gap:16px;white-space:nowrap;overflow:hidden;line-height:1;padding-bottom:6px}
+.slot.l{justify-content:flex-end}
+.slot.r{justify-content:flex-start}
+.slot .k{font-size:26px;color:var(--dim);letter-spacing:.16em;padding-bottom:5px}
+.slot .v{font-size:56px;font-variant-numeric:tabular-nums}
+.slot .k,.slot .v{text-shadow:0 0 1.5px rgba(0,0,0,.95),4px 4px 4px rgba(0,0,0,.55),0 0 18px color-mix(in srgb,currentColor 35%,transparent)}
+#sL1{left:24px;top:119px;width:549px}
+#sL2{left:162px;top:202px;width:411px}
+#sL3{left:299px;top:285px;width:274px}
+#sR1{left:1287px;top:119px;width:548px}
+#sR2{left:1287px;top:202px;width:411px}
+#sR3{left:1287px;top:285px;width:273px}
+#cHits{color:var(--state)}
+#cSplit.hit{color:var(--behind)}
+#card.complete #cSplit{color:var(--done)}
+#center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:var(--w)}
+#overlay{position:relative;width:100%;display:grid;row-gap:7px;padding:6px 10px 0}
+#flash{position:absolute;left:-320px;right:-320px;top:-220px;bottom:-220px;z-index:0;
+  background:radial-gradient(closest-side ellipse at 50% 50%,rgba(255,60,96,.5),rgba(255,30,70,.14) 55%,rgba(255,30,70,0) 100%);
+  opacity:0;pointer-events:none}
+#flash.pop{animation:redflash .45s ease-out}
+@keyframes redflash{0%{opacity:0}8%{opacity:1}100%{opacity:0}}
+#overlay > *:not(#flash){position:relative;z-index:1}
+#titlerow{display:grid;justify-items:center;align-items:center;min-height:40px}
+#logo{max-width:78%;max-height:40px;object-fit:contain;display:none;
+  filter:drop-shadow(0 2px 10px rgba(0,0,0,.6))}
+#logo.on{display:block}
+#logo.on + #game{display:none}
+#banner{position:relative;width:94%;justify-self:center;aspect-ratio:1054 / 68;display:none;margin-bottom:var(--gap)}
+#banner.on{display:block}
+.row img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.row img.layer{opacity:0;transition:opacity .3s ease}
+.row img.layer.on{opacity:1}
+#game{font-family:var(--games);font-size:26px;line-height:1.05;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink);
+  text-shadow:0 0 18px rgba(232,160,192,.35)}
+.main{position:relative;display:grid;grid-template-columns:1fr calc(var(--w) * .58) 1fr;align-items:center;column-gap:8px}
+.stat{display:grid;justify-items:center;line-height:1}
+.stat .v{font-size:30px;font-variant-numeric:tabular-nums}
+.stat .l{font-size:14px;color:var(--dim);letter-spacing:.12em;margin-top:3px}
+#total{color:var(--state)}
+.centre{display:grid;justify-items:center;min-width:0}
+#name{font-size:32px;line-height:1;max-width:100%;white-space:nowrap;padding:20px 0;margin:-20px 0;overflow:hidden}
+#name.roll{text-align:left;-webkit-mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 18px),transparent 100%);mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 18px),transparent 100%)}
+#name b{display:inline-block;font-weight:inherit;will-change:transform}
+#name.hit{color:var(--behind)}
+#igt{font-size:16px;color:var(--dim);letter-spacing:.08em;font-variant-numeric:tabular-nums;margin-top:2px}
+#bar{height:8px;margin-top:2px;background:var(--bar-bg);position:relative;border-radius:4px;box-shadow:0 0 0 1px rgba(0,0,0,.6),2.3px 1.9px 3px rgba(0,0,0,.6)}
+#fill{position:absolute;inset:0 auto 0 0;width:0;background:var(--dim);transition:width .25s ease;border-radius:4px}
+#marks{position:absolute;inset:-3px 0;pointer-events:none}
+#marks i{position:absolute;top:0;bottom:0;width:5px;margin-left:-2.5px;border-radius:2px;
+  background:#b3202f;box-shadow:0 0 6px rgba(179,32,47,.8)}
+#overlay.complete #name{color:var(--done)}
+#overlay.struck{animation:knock .4s ease-out}
+@keyframes knock{
+  0%{transform:translate(0,0) rotate(0)}
+  12%{transform:translate(-13px,3px) rotate(-1.2deg)}
+  34%{transform:translate(7px,-2px) rotate(.7deg)}
+  58%{transform:translate(-4px,1px) rotate(-.3deg)}
+  100%{transform:translate(0,0) rotate(0)}
+}
+.flash{animation:flash .35s ease-out}
+@keyframes flash{from{filter:brightness(2.2)}to{filter:brightness(1)}}
+
+.stat .v,.stat .l,#name,#igt,#game{text-shadow:0 0 1.5px rgba(0,0,0,.95),2.3px 1.9px 2px rgba(0,0,0,.9),0 0 16px color-mix(in srgb,currentColor 38%,transparent)}
+#name{text-shadow:0 0 1.5px rgba(0,0,0,.95),2.3px 1.9px 2px rgba(0,0,0,.9),0 0 20px color-mix(in srgb,currentColor 45%,transparent)}
+#fill{box-shadow:0 1px 2px rgba(0,0,0,.5),0 0 12px color-mix(in srgb,var(--dim) 45%,transparent)}
+#glogo,#logo{filter:drop-shadow(0 0 1.5px rgba(0,0,0,.95)) drop-shadow(2.3px 1.9px 2px rgba(0,0,0,.85)) drop-shadow(0 0 12px rgba(255,255,255,.3))}
+.row img.white{filter:drop-shadow(0 0 10px rgba(255,255,255,.45))}
+.row img.pink{filter:drop-shadow(0 0 1.5px rgba(0,0,0,.95)) drop-shadow(2.3px 1.9px 2px rgba(0,0,0,.85)) drop-shadow(0 0 11px rgba(232,160,192,.62))}
+</style>
+</head>
+<body>
+<div id="stage">
+ <div id="center">
+  <div id="overlay">
+    <div id="flash"></div>
+
+    <div id="banner" class="row"></div>
+    <div id="titlerow"><img id="logo" alt=""><div id="game"></div></div>
+    <div class="main">
+      <div class="stat"><span class="v" id="progress">0/0</span><span class="l">SPLIT</span></div>
+      <div class="centre"><span id="name"><b></b></span><span id="igt">0:00:00</span></div>
+      <div class="stat"><span class="v" id="total">0</span><span class="l">HITS</span></div>
+    </div>
+      <div id="bar"><div id="fill"></div><div id="marks"></div></div>
+  </div>
+ </div>
+ <div id="card">
+  <div id="cardin">
+    <div id="cardflash"></div>
+    <div id="cardrow" class="row"></div>
+    <img id="cardtitle" src="banner/GodRun-Title.png" alt="">
+    <div class="line" id="lL1"><div id="cfill"></div><div id="cmarks"></div></div>
+    <div class="line" id="lL2"></div>
+    <div class="line" id="lL3"></div>
+    <div class="line" id="lR1"></div>
+    <div class="line" id="lR2"></div>
+    <div class="line" id="lR3"></div>
+    <div class="slot l" id="sL1"><span class="v" id="cSplit"></span></div>
+    <div class="slot l" id="sL2"><span class="k">HITS</span><span class="v" id="cHits">0</span></div>
+    <div class="slot l" id="sL3"><span class="k">SPLIT</span><span class="v" id="cProgress">0/0</span></div>
+    <div class="slot r" id="sR1"><span class="v" id="cGame"></span></div>
+    <div class="slot r" id="sR2"><span class="v" id="cIgt">0:00:00</span></div>
+    <div class="slot r" id="sR3"><span class="k">GAME</span><span class="v" id="cRun">0/7</span></div>
+  </div>
+ </div>
+</div>
+<script>
+(function(){
+  var WS_URL='ws://'+(new URLSearchParams(location.search).get('host')||'localhost')+':16200', RETRY=3000;
+  var cfg={showIgt:true,titleText:'',runCompleteText:'RUN COMPLETE'};
+  var RUN_ORDER=['ER','SK','BB','DS3','DS2','DS1','DES'];
+  var GAME_CODES={'elden-ring':'ER','sekiro':'SK','sekiro-shadows-die-twice':'SK','dark-souls-iii':'DS3','dark-souls-3':'DS3',
+                  'bloodborne':'BB','dark-souls-ii':'DS2','dark-souls-2':'DS2','dark-souls-ii-scholar-of-the-first-sin':'DS2',
+                  'dark-souls':'DS1','dark-souls-remastered':'DS1','dark-souls-i':'DS1',
+                  'demon-s-souls':'DES','demons-souls':'DES'};
+  var shownGame='', doneOverride=[], enginePlaying='', engineSeen='', ahcGame='', marathonOn=true;
+  var root=document.documentElement, overlay=document.getElementById('overlay');
+  var el={igt:document.getElementById('igt'),logo:document.getElementById('logo'),game:document.getElementById('game'),
+          banner:document.getElementById('banner'),total:document.getElementById('total'),
+          progress:document.getElementById('progress'),name:document.getElementById('name'),fill:document.getElementById('fill'),
+          flash:document.getElementById('flash'),
+          marks:document.getElementById('marks')};
+  var card={box:document.getElementById('card'),inner:document.getElementById('cardin'),flash:document.getElementById('cardflash'),
+            split:document.getElementById('cSplit'),hits:document.getElementById('cHits'),progress:document.getElementById('cProgress'),
+            game:document.getElementById('cGame'),igt:document.getElementById('cIgt'),run:document.getElementById('cRun'),
+            row:document.getElementById('cardrow'),fill:document.getElementById('cfill'),marks:document.getElementById('cmarks')};
+  var lastTotal=-1, runComplete=false, completeSent='';
+
+  [el.banner, card.row].forEach(function(row){
+    var html='<img src="banner/GodRun-Grey.png" alt="">';
+    RUN_ORDER.forEach(function(c){
+      html+='<img class="layer white g-'+c+'-white" src="banner/'+c+'-white.png" alt="">'
+          +'<img class="layer pink g-'+c+'-pink" src="banner/'+c+'-pink.png" alt="">';
+    });
+    row.innerHTML=html;
+  });
+
+  function fitText(span){
+    var slot=span.parentNode, size=56, room=slot.clientWidth;
+    Array.prototype.forEach.call(slot.children, function(c){ if(c!==span) room-=c.offsetWidth+16; });
+    span.style.fontSize='';
+    while(size>24 && span.offsetWidth>room){ size-=2; span.style.fontSize=size+'px'; }
+  }
+
+  function cardText(span, text){
+    if(span.textContent===text) return;
+    span.textContent=text;
+    fitText(span);
+  }
+
+  function cardRun(){
+    var at=RUN_ORDER.indexOf(codeFor(shownGame));
+    cardText(card.run, (at>=0 ? at+1 : doneOverride.length)+'/'+RUN_ORDER.length);
+  }
+
+  var params=new URLSearchParams(location.search);
+  var ENGINE=(params.get('engine')||'http://127.0.0.1:8780').replace(/\/+$/,'');
+  var only=(params.get('only')||'').toLowerCase();
+  if(only==='banner'||only==='games') document.body.classList.add('only-banner');
+  else if(only==='logo'||only==='title') document.body.classList.add('only-logo');
+  else if(only==='strip') document.body.classList.add('only-strip');
+  else if(only==='splits') document.body.classList.add('only-splits');
+  else if(only==='card') document.body.classList.add('only-card');
+  if(params.get('scale')!==null){
+    var scale=parseFloat(params.get('scale'));
+    if(scale>0) document.documentElement.style.setProperty('--card-scale', String(scale));
+  }
+  if(params.get('gap')!==null){
+    var gap=parseInt(params.get('gap'),10);
+    if(gap>=0) document.documentElement.style.setProperty('--gap', gap+'px');
+  }
+  function strike(){
+    el.flash.classList.remove('pop'); void el.flash.offsetWidth; el.flash.classList.add('pop');
+    overlay.classList.remove('struck'); void overlay.offsetWidth; overlay.classList.add('struck');
+    card.flash.classList.remove('pop'); void card.flash.offsetWidth; card.flash.classList.add('pop');
+    card.inner.classList.remove('struck'); void card.inner.offsetWidth; card.inner.classList.add('struck');
+  }
+
+  var nameRoll=null, nameShown='';
+
+  function setName(text){
+    var inner=el.name.firstElementChild || el.name;
+    if(text===nameShown){ return; }
+    nameShown=text;
+    inner.textContent=text;
+    if(nameRoll){ nameRoll.cancel(); nameRoll=null; }
+    el.name.classList.remove('roll');
+    inner.style.transform='translateX(0)';
+    requestAnimationFrame(function(){
+      var over=inner.scrollWidth - el.name.clientWidth;
+      if(over<=2 || !inner.animate) return;
+      el.name.classList.add('roll');
+      var travel=Math.max(900, (over/45)*1000), hold=5000, rest=2000, back=700;
+      var total=hold+travel+rest+back;
+      nameRoll=inner.animate([
+        {transform:'translateX(0)',            offset:0},
+        {transform:'translateX(0)',            offset:hold/total},
+        {transform:'translateX(-'+over+'px)',  offset:(hold+travel)/total},
+        {transform:'translateX(-'+over+'px)',  offset:(hold+travel+rest)/total},
+        {transform:'translateX(0)',            offset:1}
+      ], {duration:total, iterations:Infinity, easing:'linear'});
+    });
+  }
+
+  function fmt(t){ return t ? String(t).replace(/^0(\d:)/,'$1') : ''; }
+
+  function pace(children, cur){
+    var d=0;
+    for(var i=0;i<children.length && i<=cur;i++){ d += (children[i].hits||0) - (children[i].pb||0); }
+    return d;
+  }
+
+  function marks(children){
+    var n=children.length, html='', big='';
+    for(var i=0;i<n;i++){
+      var h=children[i].hits||0;
+      for(var k=0;k<h;k++){
+        var at=Math.max(0.6,(i/n)*100).toFixed(3)+'%';
+        html+='<i style="left:'+at+';margin-left:'+(-2.5 - k*7)+'px"></i>';
+        big+='<i style="left:'+at+';margin-left:'+(-3.5 - k*10)+'px"></i>';
+      }
+    }
+    if(el.marks.innerHTML!==html) el.marks.innerHTML=html;
+    if(card.marks.innerHTML!==big) card.marks.innerHTML=big;
+  }
+
+  function slug(s){ return String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''); }
+
+  var KNOWN_CODES=['ER','SK','BB','DS3','DS2','DS1','DES'];
+
+  function codeFor(name){
+    var raw=String(name||'').trim().toUpperCase();
+    if(KNOWN_CODES.indexOf(raw)>=0) return raw;
+    var key=slug(name);
+    if(GAME_CODES[key]) return GAME_CODES[key];
+    for(var k in GAME_CODES) if(key.indexOf(k)===0) return GAME_CODES[k];
+    return '';
+  }
+
+  function showGame(name){
+    if(name===shownGame) return;
+    shownGame=name;
+    var code=codeFor(name), at=RUN_ORDER.indexOf(code);
+    el.banner.classList.toggle('on', at>=0 && marathonOn);
+    card.row.style.visibility=marathonOn?'':'hidden';
+    el.game.textContent=name||'';
+    cardText(card.game, name||'');
+    cardRun();
+    el.logo.classList.remove('on');
+    if(code){
+      el.logo.onload=function(){ el.logo.classList.add('on'); };
+      el.logo.onerror=function(){ el.logo.classList.remove('on'); };
+      el.logo.src='logos/'+code+'.png';
+    } else el.logo.removeAttribute('src');
+    paintBanner(at);
+  }
+
+  function paintBanner(at){
+    if(at===undefined) at=RUN_ORDER.indexOf(codeFor(shownGame));
+    RUN_ORDER.forEach(function(c,i){
+      var done = doneOverride.indexOf(c)>=0 || (runComplete && i===at);
+      document.querySelectorAll('.g-'+c+'-white').forEach(function(img){ img.classList.toggle('on', at>=0 && i===at && !done); });
+      document.querySelectorAll('.g-'+c+'-pink').forEach(function(img){ img.classList.toggle('on', done); });
+    });
+  }
+
+  function markDone(){
+    var code=codeFor(shownGame);
+    if(!code || completeSent===code || params.has('demo')) return;
+    completeSent=code;
+    fetch(ENGINE+'/api/title?donegame=1', {cache:'no-store'}).catch(function(){});
+  }
+
+  function setDone(list){
+    var next=(list||[]).map(function(x){ return codeFor(x) || String(x).trim().toUpperCase(); })
+                       .filter(function(c){ return RUN_ORDER.indexOf(c)>=0; });
+    var same = next.length===doneOverride.length
+               && next.every(function(c,i){ return c===doneOverride[i]; });
+    doneOverride=next;
+    if(!same){ paintBanner(); cardRun(); }
+  }
+
+  function pollDone(){
+    fetch(ENGINE+'/api/title', {cache:'no-store'})
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(j){
+        if(j && j.done){
+          setDone(j.done);
+          if(typeof j.marathon==='boolean' && j.marathon!==marathonOn){
+            marathonOn=j.marathon;
+            var keep=shownGame; shownGame=''; showGame(keep);
+          }
+          if(j.playing && j.playing!==engineSeen){ engineSeen=j.playing; enginePlaying=j.playing; showGame(j.playing); }
+        }
+      })
+      .catch(function(){});
+  }
+
+  function render(s){
+    var children=s.splits.filter(function(x){return !x.isParent;});
+    var cur=children.findIndex(function(x){return x.isCurrent;});
+    var shown=cur>=0?cur:(s.isRunComplete?children.length-1:0);
+    var current=children[shown]||{name:'',hits:0};
+    var total=s.totalHits||0;
+    var behind = pace(children, shown) > 0;
+    var colour = total===0 ? 'var(--clean)' : (behind ? 'var(--behind)' : 'var(--ink)');
+    root.style.setProperty('--state', colour);
+    root.style.setProperty('--done', total===0 ? 'var(--clean)' : (behind ? 'var(--fail)' : 'var(--ink)'));
+    el.total.textContent=total;
+    var reported=s.gameName || s.profileName || '';
+    if(reported!==ahcGame){ ahcGame=reported; enginePlaying=''; }
+    showGame(enginePlaying || reported);
+    el.progress.textContent=(shown+1)+'/'+children.length;
+    setName(s.isRunComplete ? (cfg.runCompleteText||'RUN COMPLETE') : (current.name||''));
+    el.name.classList.toggle('hit',!s.isRunComplete && (current.hits||0)>0);
+    el.fill.style.width=(children.length?((s.isRunComplete?children.length:shown)/children.length)*100:0)+'%';
+    marks(children);
+    overlay.classList.toggle('complete',!!s.isRunComplete);
+    cardText(card.split, s.isRunComplete ? (cfg.runCompleteText||'RUN COMPLETE') : (current.name||''));
+    card.split.classList.toggle('hit',!s.isRunComplete && (current.hits||0)>0);
+    card.box.classList.toggle('complete',!!s.isRunComplete);
+    card.fill.style.width=el.fill.style.width;
+    if(!!s.isRunComplete!==runComplete){
+      runComplete=!!s.isRunComplete;
+      paintBanner();
+      if(runComplete) markDone(); else completeSent='';
+    }
+    cardText(card.hits, String(total));
+    cardText(card.progress, (shown+1)+'/'+children.length);
+    if(cfg.showIgt && s.inGameTime){ el.igt.textContent=fmt(s.inGameTime); card.igt.textContent=fmt(s.inGameTime); }
+    el.igt.style.display=cfg.showIgt?'':'none';
+    card.igt.parentNode.style.visibility=cfg.showIgt?'':'hidden';
+    if(lastTotal>=0 && total>lastTotal){
+      el.total.classList.remove('flash'); void el.total.offsetWidth; el.total.classList.add('flash');
+      strike();
+    }
+    lastTotal=total;
+  }
+
+  function applyConfig(c){
+    if(c.titleText!==undefined) cfg.titleText=c.titleText;
+    if(c.showIgt!==undefined) cfg.showIgt=!!c.showIgt;
+    if(c.runCompleteText) cfg.runCompleteText=c.runCompleteText;
+    if(c.overlayWidth>0) root.style.setProperty('--w', c.overlayWidth+'px');
+    if(c.customCss!==undefined){
+      var s=document.getElementById('customCss');
+      if(!s){ s=document.createElement('style'); s.id='customCss'; document.head.appendChild(s); }
+      s.textContent=c.customCss||'';
+    }
+  }
+
+  var last=null;
+  function connect(){
+    var ws=new WebSocket(WS_URL);
+    ws.onclose=function(){ setTimeout(connect,RETRY); };
+    ws.onerror=function(){ ws.close(); };
+    ws.onmessage=function(e){
+      var m=JSON.parse(e.data);
+      if(m.type==='state'){ last=m.data; render(m.data); }
+      else if(m.type==='igt'){ if(cfg.showIgt){ el.igt.textContent=fmt(m.data); card.igt.textContent=fmt(m.data); } }
+      else if(m.type==='config'){ applyConfig(m.data); if(last) render(last); }
+    };
+  }
+
+  if(params.get('done')!==null) setDone(params.get('done').split(',').filter(function(x){ return x.trim().length; }));
+  if(params.get('poll')!=='0'){ pollDone(); setInterval(pollDone, 2000); }
+
+  window.addEventListener('keydown',function(e){ if(e.key==='h'||e.key==='H') strike(); });
+  document.addEventListener('click',function(){ strike(); });
+
+  if(params.has('demo')){
+    var names=['Gascoigne','Vicar Amelia','Shadows of Yharnam','Rom','The One Reborn',"Mergo's Wet Nurse"];
+    var games=['Elden Ring','Sekiro','Bloodborne','Dark Souls III','Dark Souls II','Dark Souls Remastered',"Demon's Souls"], gameAt=0;
+    function fresh(){
+      if(gameAt % games.length===0) setDone([]);
+      else setDone(games.slice(0, gameAt % games.length));
+      return {profileName:'God Run 3',gameName:games[gameAt++ % games.length],totalHits:0,isRunComplete:false,inGameTime:'02:41:08',
+      splits:names.map(function(n,i){return {name:n,hits:0,pb:i%3===0?1:0,isCurrent:i===0,isParent:false};})}; }
+    var demo=fresh(), step=0, t=9668, held=0;
+    render(demo);
+    setInterval(function(){
+      t++;
+      demo.inGameTime=String(Math.floor(t/3600)).padStart(2,'0')+':'+String(Math.floor(t/60)%60).padStart(2,'0')+':'+String(t%60).padStart(2,'0');
+      el.igt.textContent=fmt(demo.inGameTime);
+      card.igt.textContent=fmt(demo.inGameTime);
+      if(demo.isRunComplete){ if(++held>=6){ demo=fresh(); step=0; held=0; lastTotal=-1; render(demo); } return; }
+      if(t%4===0){
+        step++;
+        var cur=demo.splits.findIndex(function(x){return x.isCurrent;});
+        if(step%3===0){ demo.splits[cur].hits++; demo.totalHits++; }
+        else if(cur<demo.splits.length-1){ demo.splits[cur].isCurrent=false; demo.splits[cur+1].isCurrent=true; }
+        else { demo.isRunComplete=true; }
+        render(demo);
+      }
+    },1000);
+  } else {
+    connect();
+  }
+})();
+</script>
+</body>
+</html>

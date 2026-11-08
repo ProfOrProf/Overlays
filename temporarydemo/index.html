@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>God Run 3</title>
+<style>
+:root{color-scheme:dark}
+html,body{margin:0;height:100%;background:#141414}
+body{display:grid;place-items:center;overflow:hidden}
+#wrap{position:relative;width:100vw;aspect-ratio:1920 / 440;max-height:100vh}
+#wrap iframe{position:absolute;left:0;top:0;width:1920px;height:440px;border:0;transform-origin:0 0;background:transparent}
+</style>
+</head>
+<body>
+<div id="wrap"><iframe id="ov" src="overlay.html?only=splits&amp;demo&amp;poll=0" scrolling="no" allowtransparency="true"></iframe></div>
+<script>
+(function(){
+  var wrap=document.getElementById('wrap'), ov=document.getElementById('ov');
+  function fit(){ ov.style.transform='scale('+(wrap.clientWidth/1920)+')'; }
+  window.addEventListener('resize',fit); fit();
+})();
+</script>
+</body>
+</html>
