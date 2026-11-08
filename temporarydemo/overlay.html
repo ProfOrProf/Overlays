@@ -16,6 +16,9 @@
   --bar-bg:rgba(232,160,192,.14);
   --face:"Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
   --games:"Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+  --pink:#eca5c5; --grey:#8e8a8c;
+  --soft:0 0 2px rgba(0,0,0,.85),0 4px 10px rgba(0,0,0,.6);
+  --glow:0 0 22px color-mix(in srgb,currentColor 42%,transparent);
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{width:1920px;height:1080px}
@@ -33,15 +36,20 @@ body.only-strip #banner,body.only-strip #titlerow{display:none}
 body.only-splits #center,body.only-card #center{display:none}
 body.only-splits #card,body.only-card #card{display:block}
 body.only-card #cardrow{display:none}
+#card.single #cardrow,#card.single #cardtitle{display:none}
+#cardlogo{position:absolute;left:596px;top:150px;width:670px;height:230px;object-fit:contain;display:none;
+  filter:drop-shadow(0 0 2px rgba(0,0,0,.85)) drop-shadow(0 4px 10px rgba(0,0,0,.6)) drop-shadow(0 0 18px rgba(255,255,255,.3))}
+#card.single #cardlogo.on{display:block}
+#card.single:not(.haslogo) #cardtitle{display:block}
 #card{display:none;position:absolute;left:32px;top:8px;width:1856px;height:417px;transform-origin:0 0;transform:scale(var(--card-scale,1))}
 #cardin{position:absolute;inset:0}
 #cardin.struck{animation:knock .4s ease-out}
 #cardflash{position:absolute;left:-40px;right:-40px;top:-40px;bottom:-40px;opacity:0;pointer-events:none;
   background:radial-gradient(closest-side ellipse at 50% 60%,rgba(255,60,96,.42),rgba(255,30,70,.12) 60%,rgba(255,30,70,0) 100%)}
 #cardflash.pop{animation:redflash .45s ease-out}
-#cardrow{position:absolute;left:262px;top:26px;width:1345px;aspect-ratio:1054 / 68}
-#cardtitle{position:absolute;left:596px;top:140px;width:670px}
-.line{position:absolute;height:14px;background:#fff;box-shadow:4px 5px 4px rgba(0,0,0,.55)}
+#cardrow{position:absolute;left:262px;top:22px;width:1345px;height:92px}
+#cardtitle{position:absolute;left:596px;top:140px;width:670px;filter:drop-shadow(0 0 16px rgba(255,255,255,.22)) drop-shadow(0 0 20px rgba(236,165,197,.25))}
+.line{position:absolute;height:14px;background:#fff;box-shadow:0 0 2px rgba(0,0,0,.85),0 5px 12px rgba(0,0,0,.6),0 0 16px rgba(255,255,255,.3)}
 #lL1{left:24px;top:187px;width:549px}
 #lL2{left:162px;top:270px;width:411px}
 #lL3{left:299px;top:353px;width:274px}
@@ -56,7 +64,7 @@ body.only-card #cardrow{display:none}
 .slot.r{justify-content:flex-start}
 .slot .k{font-size:26px;color:var(--dim);letter-spacing:.16em;padding-bottom:5px}
 .slot .v{font-size:56px;font-variant-numeric:tabular-nums}
-.slot .k,.slot .v{text-shadow:0 0 1.5px rgba(0,0,0,.95),4px 4px 4px rgba(0,0,0,.55),0 0 18px color-mix(in srgb,currentColor 35%,transparent)}
+.slot .k,.slot .v{text-shadow:var(--soft),var(--glow)}
 #sL1{left:24px;top:119px;width:549px}
 #sL2{left:162px;top:202px;width:411px}
 #sL3{left:299px;top:285px;width:274px}
@@ -80,10 +88,11 @@ body.only-card #cardrow{display:none}
 #logo.on{display:block}
 #logo.on + #game{display:none}
 #banner{position:relative;width:94%;justify-self:center;aspect-ratio:1054 / 68;display:none;margin-bottom:var(--gap)}
-#banner.on{display:block}
-.row img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
-.row img.layer{opacity:0;transition:opacity .3s ease}
-.row img.layer.on{opacity:1}
+#banner.on{display:flex}
+.row{container-type:size;display:flex;justify-content:space-between;align-items:center;font-family:var(--games);line-height:1}
+.row .g{font-size:82cqh;letter-spacing:.02em;color:var(--grey);text-shadow:var(--soft);transition:color .35s ease,text-shadow .35s ease}
+.row .g.cur{color:#fff;text-shadow:var(--soft),0 0 18px rgba(255,255,255,.55),0 0 34px rgba(255,255,255,.25)}
+.row .g.done{color:var(--pink);text-shadow:var(--soft),0 0 18px rgba(236,165,197,.7),0 0 34px rgba(236,165,197,.3)}
 #game{font-family:var(--games);font-size:26px;line-height:1.05;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink);
   text-shadow:0 0 18px rgba(232,160,192,.35)}
 .main{position:relative;display:grid;grid-template-columns:1fr calc(var(--w) * .58) 1fr;align-items:center;column-gap:8px}
@@ -118,8 +127,6 @@ body.only-card #cardrow{display:none}
 #name{text-shadow:0 0 1.5px rgba(0,0,0,.95),2.3px 1.9px 2px rgba(0,0,0,.9),0 0 20px color-mix(in srgb,currentColor 45%,transparent)}
 #fill{box-shadow:0 1px 2px rgba(0,0,0,.5),0 0 12px color-mix(in srgb,var(--dim) 45%,transparent)}
 #glogo,#logo{filter:drop-shadow(0 0 1.5px rgba(0,0,0,.95)) drop-shadow(2.3px 1.9px 2px rgba(0,0,0,.85)) drop-shadow(0 0 12px rgba(255,255,255,.3))}
-.row img.white{filter:drop-shadow(0 0 10px rgba(255,255,255,.45))}
-.row img.pink{filter:drop-shadow(0 0 1.5px rgba(0,0,0,.95)) drop-shadow(2.3px 1.9px 2px rgba(0,0,0,.85)) drop-shadow(0 0 11px rgba(232,160,192,.62))}
 </style>
 </head>
 <body>
@@ -143,6 +150,7 @@ body.only-card #cardrow{display:none}
     <div id="cardflash"></div>
     <div id="cardrow" class="row"></div>
     <img id="cardtitle" src="banner/GodRun-Title.png" alt="">
+    <img id="cardlogo" alt="">
     <div class="line" id="lL1"><div id="cfill"></div><div id="cmarks"></div></div>
     <div class="line" id="lL2"></div>
     <div class="line" id="lL3"></div>
@@ -154,7 +162,7 @@ body.only-card #cardrow{display:none}
     <div class="slot l" id="sL3"><span class="k">SPLIT</span><span class="v" id="cProgress">0/0</span></div>
     <div class="slot r" id="sR1"><span class="v" id="cGame"></span></div>
     <div class="slot r" id="sR2"><span class="v" id="cIgt">0:00:00</span></div>
-    <div class="slot r" id="sR3"><span class="k">GAME</span><span class="v" id="cRun">0/7</span></div>
+    <div class="slot r" id="sR3"><span class="k" id="cRunKey">GAME</span><span class="v" id="cRun">0/7</span></div>
   </div>
  </div>
 </div>
@@ -177,16 +185,14 @@ body.only-card #cardrow{display:none}
   var card={box:document.getElementById('card'),inner:document.getElementById('cardin'),flash:document.getElementById('cardflash'),
             split:document.getElementById('cSplit'),hits:document.getElementById('cHits'),progress:document.getElementById('cProgress'),
             game:document.getElementById('cGame'),igt:document.getElementById('cIgt'),run:document.getElementById('cRun'),
-            row:document.getElementById('cardrow'),fill:document.getElementById('cfill'),marks:document.getElementById('cmarks')};
+            row:document.getElementById('cardrow'),fill:document.getElementById('cfill'),marks:document.getElementById('cmarks'),
+            logo:document.getElementById('cardlogo'),runKey:document.getElementById('cRunKey')};
+  var NAMES={ER:'Elden Ring',SK:'Sekiro',BB:'Bloodborne',DS3:'Dark Souls III',DS2:'Dark Souls II',DS1:'Dark Souls',DES:"Demon's Souls"};
+  var forceSingle=new URLSearchParams(location.search).has('single'), pbTotal=0;
   var lastTotal=-1, runComplete=false, completeSent='';
 
   [el.banner, card.row].forEach(function(row){
-    var html='<img src="banner/GodRun-Grey.png" alt="">';
-    RUN_ORDER.forEach(function(c){
-      html+='<img class="layer white g-'+c+'-white" src="banner/'+c+'-white.png" alt="">'
-          +'<img class="layer pink g-'+c+'-pink" src="banner/'+c+'-pink.png" alt="">';
-    });
-    row.innerHTML=html;
+    row.innerHTML=RUN_ORDER.map(function(c){ return '<span class="g g-'+c+'">'+c+'</span>'; }).join('');
   });
 
   function fitText(span){
@@ -202,9 +208,29 @@ body.only-card #cardrow{display:none}
     fitText(span);
   }
 
+  function single(){ return forceSingle || !marathonOn; }
+
   function cardRun(){
+    if(single()){
+      card.runKey.textContent='PB';
+      cardText(card.run, String(pbTotal));
+      return;
+    }
     var at=RUN_ORDER.indexOf(codeFor(shownGame));
+    card.runKey.textContent='GAME';
     cardText(card.run, (at>=0 ? at+1 : doneOverride.length)+'/'+RUN_ORDER.length);
+  }
+
+  function cardMode(code){
+    card.box.classList.toggle('single', single());
+    card.logo.classList.remove('on');
+    card.box.classList.remove('haslogo');
+    if(single() && code){
+      card.logo.onload=function(){ card.logo.classList.add('on'); card.box.classList.add('haslogo'); };
+      card.logo.onerror=function(){ card.logo.classList.remove('on'); card.box.classList.remove('haslogo'); };
+      card.logo.src='logos/'+code+'.png';
+    }
+    cardRun();
   }
 
   var params=new URLSearchParams(location.search);
@@ -283,7 +309,7 @@ body.only-card #cardrow{display:none}
   var KNOWN_CODES=['ER','SK','BB','DS3','DS2','DS1','DES'];
 
   function codeFor(name){
-    var raw=String(name||'').trim().toUpperCase();
+    var raw=String(name||'').trim().toUpperCase().replace(/-SOLO$/,'');
     if(KNOWN_CODES.indexOf(raw)>=0) return raw;
     var key=slug(name);
     if(GAME_CODES[key]) return GAME_CODES[key];
@@ -295,11 +321,11 @@ body.only-card #cardrow{display:none}
     if(name===shownGame) return;
     shownGame=name;
     var code=codeFor(name), at=RUN_ORDER.indexOf(code);
-    el.banner.classList.toggle('on', at>=0 && marathonOn);
-    card.row.style.visibility=marathonOn?'':'hidden';
-    el.game.textContent=name||'';
-    cardText(card.game, name||'');
-    cardRun();
+    var label=NAMES[code] || name || '';
+    el.banner.classList.toggle('on', at>=0 && !single());
+    el.game.textContent=label;
+    cardText(card.game, label);
+    cardMode(code);
     el.logo.classList.remove('on');
     if(code){
       el.logo.onload=function(){ el.logo.classList.add('on'); };
@@ -313,14 +339,16 @@ body.only-card #cardrow{display:none}
     if(at===undefined) at=RUN_ORDER.indexOf(codeFor(shownGame));
     RUN_ORDER.forEach(function(c,i){
       var done = doneOverride.indexOf(c)>=0 || (runComplete && i===at);
-      document.querySelectorAll('.g-'+c+'-white').forEach(function(img){ img.classList.toggle('on', at>=0 && i===at && !done); });
-      document.querySelectorAll('.g-'+c+'-pink').forEach(function(img){ img.classList.toggle('on', done); });
+      document.querySelectorAll('.g-'+c).forEach(function(g){
+        g.classList.toggle('cur', at>=0 && i===at && !done);
+        g.classList.toggle('done', done);
+      });
     });
   }
 
   function markDone(){
     var code=codeFor(shownGame);
-    if(!code || completeSent===code || params.has('demo')) return;
+    if(!code || single() || completeSent===code || params.has('demo')) return;
     completeSent=code;
     fetch(ENGINE+'/api/title?donegame=1', {cache:'no-store'}).catch(function(){});
   }
@@ -374,6 +402,8 @@ body.only-card #cardrow{display:none}
     card.split.classList.toggle('hit',!s.isRunComplete && (current.hits||0)>0);
     card.box.classList.toggle('complete',!!s.isRunComplete);
     card.fill.style.width=el.fill.style.width;
+    var pb=children.reduce(function(a,x){ return a+(x.pb||0); },0);
+    if(pb!==pbTotal){ pbTotal=pb; cardRun(); }
     if(!!s.isRunComplete!==runComplete){
       runComplete=!!s.isRunComplete;
       paintBanner();
