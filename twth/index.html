@@ -127,6 +127,12 @@
 
   #intro { position:fixed; inset:0; display:none; flex-direction:column; align-items:center; justify-content:center;
             background:radial-gradient(circle at 50% 45%, rgba(20,30,70,.82) 0%, rgba(5,8,20,.9) 70%); z-index:11; text-align:center; }
+  #questpop { position:fixed; left:0; right:0; top:19%; text-align:center; pointer-events:none; z-index:12; opacity:0; transform:translateY(-10px);
+              transition:opacity .35s, transform .35s; }
+  #questpop.on { opacity:1; transform:none; }
+  #questname { font-size:clamp(30px,5vw,58px); font-weight:900; color:#fff; letter-spacing:2px; -webkit-text-stroke:2px #1b2a6b; text-shadow:0 4px 0 #1b2a6b; }
+  #questline { margin-top:6px; font-size:clamp(18px,2.6vw,30px); font-weight:900; color:#ffe66d; text-shadow:0 3px 0 #000; }
+  #questart { display:none; margin:0 auto; max-width:min(760px,84vw); max-height:30vh; object-fit:contain; }
   #introicon { font-size:clamp(70px,12vw,140px); line-height:1; animation:introbob 1.2s ease-in-out infinite; }
   @keyframes introbob { 50% { transform:translateY(-10px) rotate(-4deg); } }
   #introname { margin-top:10px; font-size:clamp(40px,7vw,90px); font-weight:900; color:#fff; letter-spacing:2px;
@@ -194,6 +200,7 @@
   <div id="again">PRESS START TO PLAY AGAIN</div>
 </div>
 
+<div id="questpop"><div id="questname"></div><div id="questline"></div><img id="questart" alt="" /></div>
 <div id="intro"><div id="introicon"></div><div id="introname"></div><div id="introline"></div><div id="introhint">PRESS ANY BUTTON</div></div>
 
 <div id="paused">PAUSED</div>
