@@ -15,51 +15,49 @@
 
   #touchpad { position:fixed; inset:0; z-index:25; display:none; pointer-events:none; }
   body.touch[data-mode="play"] #touchpad, body.touch[data-mode="map"] #touchpad, body.touch[data-mode="race"] #touchpad { display:block; }
-  #tp-stickzone { position:absolute; pointer-events:auto; touch-action:none; left:0; bottom:0; width:45vw; height:78vh; }
-  #tp-stick { position:absolute; width:26vmin; height:26vmin; margin:-13vmin 0 0 -13vmin; border-radius:50%; left:18vmin; top:calc(100% - 20vmin);
-              border:3px solid rgba(26,20,16,.55); background:rgba(255,255,255,.14); opacity:.45; pointer-events:none; }
-  #tp-stick.live { opacity:1; }
-  #tp-knob, #tp-rknob { position:absolute; left:50%; top:50%; width:11vmin; height:11vmin; border-radius:50%; transform:translate(-50%,-50%);
-             background:rgba(255,255,255,.8); border:3px solid #1a1410; box-shadow:0 3px 0 rgba(0,0,0,.3); pointer-events:none; }
-  #tp-rstick { position:absolute; width:22vmin; height:22vmin; right:calc(env(safe-area-inset-right) + 28vmin); bottom:calc(env(safe-area-inset-bottom) + 1vmin);
-               border-radius:50%; border:3px solid rgba(26,20,16,.55); background:rgba(255,255,255,.14); opacity:.6; pointer-events:auto; touch-action:none; }
-  #tp-rstick.live { opacity:1; }
-  #tp-rknob { width:9.5vmin; height:9.5vmin; }
-  .tp-btn { position:absolute; display:flex; flex-direction:column; align-items:center; justify-content:center; line-height:1;
-            font-family:"Segoe UI",Verdana,sans-serif; font-weight:900; color:#fff; text-shadow:0 2px 0 rgba(0,0,0,.5);
-            border:3px solid #1a1410; box-shadow:0 4px 0 rgba(0,0,0,.35); pointer-events:auto; touch-action:none; opacity:.85; }
-  .tp-btn b { font-size:5vmin; font-weight:900; }
-  .tp-btn span { font-size:1.7vmin; letter-spacing:.08em; margin-top:.4vmin; }
-  .tp-btn.down { transform:translateY(3px) scale(.94); box-shadow:0 1px 0 rgba(0,0,0,.35); opacity:1; filter:brightness(1.2); }
-  .tp-btn.face { width:12.5vmin; height:12.5vmin; border-radius:50%; background:#22252e; margin:0 -6.25vmin -6.25vmin 0; }
-  .tp-btn.cross { right:calc(env(safe-area-inset-right) + 20vmin); bottom:calc(env(safe-area-inset-bottom) + 25vmin); color:#7fb2ff; }
-  .tp-btn.circle { right:calc(env(safe-area-inset-right) + 9vmin); bottom:calc(env(safe-area-inset-bottom) + 36vmin); color:#ff6b6b; }
-  .tp-btn.square { right:calc(env(safe-area-inset-right) + 31vmin); bottom:calc(env(safe-area-inset-bottom) + 36vmin); color:#ff8ad6; }
-  .tp-btn.triangle { right:calc(env(safe-area-inset-right) + 20vmin); bottom:calc(env(safe-area-inset-bottom) + 47vmin); color:#5fe0b0; }
-  .tp-btn.face span { color:#fff; }
-  .tp-btn.shoulder { width:21vmin; height:7.5vmin; flex-direction:row; gap:1.4vmin; background:#2c2f3a; }
-  .tp-btn.shoulder b { font-size:2.8vmin; }
-  .tp-btn.shoulder span { margin-top:0; font-size:1.8vmin; }
-  .tp-btn.l1 { left:calc(env(safe-area-inset-left) + 4vmin); bottom:calc(env(safe-area-inset-bottom) + 56vmin); border-radius:2vmin 2vmin 1vmin 1vmin; }
-  .tp-btn.l2 { left:calc(env(safe-area-inset-left) + 4vmin); bottom:calc(env(safe-area-inset-bottom) + 64vmin); border-radius:3.5vmin 3.5vmin 1vmin 1vmin; }
-  .tp-btn.r1 { right:calc(env(safe-area-inset-right) + 4vmin); bottom:calc(env(safe-area-inset-bottom) + 56vmin); border-radius:2vmin 2vmin 1vmin 1vmin; }
-  .tp-btn.r2 { right:calc(env(safe-area-inset-right) + 4vmin); bottom:calc(env(safe-area-inset-bottom) + 64vmin); border-radius:3.5vmin 3.5vmin 1vmin 1vmin; }
-  .tp-btn.options { left:50%; bottom:calc(env(safe-area-inset-bottom) + 6vmin); width:13vmin; height:6vmin; margin-left:-6.5vmin; border-radius:3vmin; background:#2c2f3a; }
-  .tp-btn.options b { display:none; }
-  .tp-btn.options span { margin-top:0; }
-  body.touch[data-mode="race"] .tp-btn.triangle, body.touch[data-mode="race"] .l1, body.touch[data-mode="race"] .l2 { display:none; }
-  @media (max-height:520px), (max-width:520px) { body.touch #hud { zoom:.68; } }
+  #touchpad { --u:min(1vmin, 7.2px); --sr:env(safe-area-inset-right); --sb:env(safe-area-inset-bottom); --sl:env(safe-area-inset-left); }
+  #tp-movezone, #tp-lookzone { position:absolute; bottom:0; top:22vh; pointer-events:auto; touch-action:none; }
+  #tp-movezone { left:0; width:50vw; }
+  #tp-lookzone { right:0; width:50vw; }
+  .tp-stick { position:absolute; width:calc(var(--u) * 24); height:calc(var(--u) * 24); margin:calc(var(--u) * -12) 0 0 calc(var(--u) * -12); border-radius:50%;
+              border:3px solid rgba(26,20,16,.45); background:rgba(255,255,255,.12); pointer-events:none; opacity:0; transition:opacity .15s; }
+  .tp-stick.live { opacity:1; transition:none; }
+  #tp-move { left:calc(var(--sl) + var(--u) * 20); top:calc(100% - var(--sb) - var(--u) * 20); opacity:.4; }
+  #tp-move.live { opacity:1; }
+  .tp-knob { position:absolute; left:50%; top:50%; width:calc(var(--u) * 10); height:calc(var(--u) * 10); border-radius:50%; transform:translate(-50%,-50%);
+             background:rgba(255,255,255,.82); border:3px solid #1a1410; box-shadow:0 3px 0 rgba(0,0,0,.3); }
+  .tp-btn { position:absolute; display:flex; align-items:center; justify-content:center; border-radius:50%; line-height:1;
+            font-family:"Segoe UI",Verdana,sans-serif; font-weight:900; color:#fff; text-shadow:0 2px 0 rgba(0,0,0,.45); letter-spacing:.04em;
+            border:3px solid #1a1410; box-shadow:0 4px 0 rgba(0,0,0,.35); pointer-events:auto; touch-action:none; opacity:.86;
+            margin:0 calc(var(--d) / -2) calc(var(--d) / -2) 0; width:var(--d); height:var(--d); font-size:calc(var(--d) * .2);
+            right:calc(var(--sr) + var(--u) * var(--x)); bottom:calc(var(--sb) + var(--u) * var(--y)); }
+  .tp-btn.down { transform:translateY(3px) scale(.94); box-shadow:0 1px 0 rgba(0,0,0,.35); opacity:1; filter:brightness(1.18); }
+  .tp-btn.main { --d:calc(var(--u) * 19); font-size:calc(var(--d) * .19); }
+  .tp-btn.big { --d:calc(var(--u) * 16); }
+  .tp-btn.mid { --d:calc(var(--u) * 12.5); }
+  .tp-btn.small { --d:calc(var(--u) * 10.5); font-size:calc(var(--d) * .19); }
+  .tp-sword  { --x:15; --y:15; background:#9aa4b8; }
+  .tp-jump   { --x:36; --y:10; background:#3a6cff; }
+  .tp-roll   { --x:32; --y:28; background:#ff5c5c; }
+  .tp-kick   { --x:14; --y:35; background:#58c04c; }
+  .tp-fire   { --x:50; --y:22; background:#ff7b00; }
+  .tp-water  { --x:46; --y:38; background:#2aa8ff; }
+  .tp-juice  { --x:31; --y:46; background:#e8b34b; }
+  .tp-friend { --x:13; --y:51; background:#8a4fd0; }
+  .tp-btn.pause { --d:calc(var(--u) * 9); border-radius:calc(var(--u) * 2.5); width:calc(var(--u) * 15); font-size:calc(var(--u) * 2.2);
+                  right:auto; left:50%; bottom:auto; top:calc(env(safe-area-inset-top) + 8px); margin:0 0 0 calc(var(--u) * -7.5); background:rgba(26,20,16,.6); border-color:rgba(255,255,255,.6); }
+  body.touch[data-mode="race"] .tp-kick, body.touch[data-mode="race"] .tp-water, body.touch[data-mode="race"] .tp-friend { display:none; }
+  @media (max-height:520px), (max-width:520px) { body.touch #hud { zoom:.68; } body.touch .mlabel { display:none; } }
   body.touch #rockyplate { left:0 !important; right:0; margin-inline:auto; width:fit-content; bottom:auto !important; top:calc(env(safe-area-inset-top) + 8px) !important;
                            max-width:min(520px,56vw) !important; transition:transform .28s, opacity .2s !important; }
   body.touch[data-mode="play"] #rockyplate { top:calc(env(safe-area-inset-top) + 12vmin + 12px) !important; }
   body.touch #rockyplate[data-shown="0"], body.touch #elaplate[data-shown="0"] { opacity:0; }
   @media (orientation:portrait) {
-    body.touch #bossbar { bottom:calc(78vmin + 20px); width:86vw; }
-    body.touch #elaplate { bottom:calc(78vmin + 16px) !important; }
+    body.touch #bossbar { bottom:calc(min(1vmin, 7.2px) * 62 + 20px); width:86vw; }
+    body.touch #elaplate { bottom:calc(min(1vmin, 7.2px) * 62 + 16px) !important; }
     body.touch #rockyplate, body.touch[data-mode="play"] #rockyplate { max-width:92vw !important; top:calc(env(safe-area-inset-top) + 112px) !important; }
     #title h1 { font-size:9.5vw; }
-    #tp-stickzone { width:45vw; height:55vh; }
-    .tp-btn.options { bottom:calc(env(safe-area-inset-bottom) + 50vmin); }
+    #tp-movezone, #tp-lookzone { top:45vh; }
   }
 
   
@@ -181,7 +179,7 @@
   <div id="press">PRESS START</div>
   <div id="lvlpick" style="margin-top:10px;font-size:clamp(14px,2vw,22px);font-weight:900;color:#1b2a6b;"></div>
   <div id="controls">
-    <b>Left stick</b> move &nbsp; <b>Right stick</b> camera &nbsp; <b>/A</b> jump · hold for Mr.&nbsp;Big&nbsp;Stuff &nbsp; <b>○/B</b> roll &nbsp; <b>□/X</b> apple juice &nbsp; <b>△/Y</b> kick &nbsp; <b>R1/RB</b> sword &nbsp; <b>L1/LB</b> call a friend &nbsp; <b>R2/RT</b> &nbsp; <b>L2/LT</b><br>
+    <b>Left stick</b> move &nbsp; <b>Right stick</b> camera &nbsp; <b>/A</b> jump · hold for Mr.&nbsp;Big&nbsp;Stuff &nbsp; <b>○/B</b> roll &nbsp; <b>□/X</b> sword &nbsp; <b>△/Y</b> kick &nbsp; <b>R1/RB</b> apple juice &nbsp; <b>L1/LB</b> call a friend &nbsp; <b>R2/RT</b> &nbsp; <b>L2/LT</b><br>
     ⌨ <b>WASD</b> move &nbsp; <b>Space</b> jump/jetpack &nbsp; <b>Shift</b> roll &nbsp; <b>Q</b>/<b>E</b> camera &nbsp; <b>F</b> juice &nbsp; <b>J</b>/<b>L</b> sword &nbsp; <b>K</b> kick &nbsp; <b>R</b> friend &nbsp; <b>1</b> &nbsp; <b>2</b> &nbsp; <b>Esc</b> pause<br>
     <b>SOULS RULES:</b> 3 lives · 5 apple juices refill your hearts · a 1-in-100 <b>chocolate muffin</b> = +1 life · every boss you befriend gives you their <b>heart</b> — collect ROYGBIV, silver, gold… then
   </div>
