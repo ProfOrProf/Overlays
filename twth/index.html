@@ -257,6 +257,15 @@
   #tpage #press, #tpage #lvlpick, #tpage #minipick { margin:0 !important; padding:1.5% 6% !important; font:900 min(5.4vh, 7.4vw) Georgia,"Palatino Linotype",serif !important; letter-spacing:.04em; color:#3a2a14 !important; background:none; border:none; border-radius:0; box-shadow:none; text-shadow:none; text-align:center; animation:none; cursor:pointer; }
   #tpage #lvlpick { font-size:min(3vh, 4.2vw) !important; color:#7a5a30 !important; }
   #tpage #press { font-size:min(8vh, 11vw) !important; color:#c2392b !important; }
+  #tbook { transition:transform 1.1s cubic-bezier(.5,0,.2,1), height 1.1s cubic-bezier(.5,0,.2,1); }
+  #title[data-open="1"] #tbook { height:min(82vh, 62vw); transform:translateX(50%); }
+  #tcover { transform-style:preserve-3d; background:none; border:none; box-shadow:none; transition:transform 1.1s cubic-bezier(.5,0,.2,1); }
+  #title[data-open="1"] #tcover { transform:rotateY(-180deg); opacity:1; }
+  #tfront, #tmap { position:absolute; inset:0; border:5px solid #1a1410; backface-visibility:hidden; -webkit-backface-visibility:hidden; }
+  #tfront { border-radius:8px 20px 20px 8px; background:#c2392b; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5%; box-shadow:inset 0 0 0 10px #c2392b, inset 0 0 0 15px #ffd23e, inset 22px 0 0 -6px rgba(0,0,0,.18), 0 12px 0 rgba(0,0,0,.35); }
+  #tmap { border-radius:20px 8px 8px 20px; transform:rotateY(180deg); background:#fff6dc center / cover no-repeat; box-shadow:inset -16px 0 22px -12px rgba(0,0,0,.4), 0 12px 0 rgba(0,0,0,.35); }
+  #tpage #press, #tpage #minipick { transition:transform .15s ease, text-shadow .15s ease; }
+  #tpage #press:hover, #tpage #minipick:hover { transform:scale(1.08); text-shadow:0 0 18px rgba(255,190,60,.95), 0 0 6px rgba(255,220,120,.9); }
 </style>
 </head>
 <body>
@@ -297,9 +306,12 @@
       <div id="minipick">MINI GAMES</div>
     </div>
     <div id="tcover">
-      <h1><span class="mw">TINY WAYNE</span><br><span class="hero">THE HERO</span></h1>
-      <div id="tcrown"></div>
-      <div id="topen">OPEN THE BOOK</div>
+      <div id="tfront">
+        <h1><span class="mw">TINY WAYNE</span><br><span class="hero">THE HERO</span></h1>
+        <div id="tcrown"></div>
+        <div id="topen">OPEN THE BOOK</div>
+      </div>
+      <div id="tmap"></div>
     </div>
   </div>
   <h2>a game by Tiny Wayne, age 4 &nbsp;•&nbsp; built with Daddy &amp; Rocky</h2>
