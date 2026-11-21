@@ -131,9 +131,9 @@
   @keyframes twindown { 50% { border-color:#e8b830; } }
 
   #rockyplate { max-width:100%; align-items:center; gap:calc(var(--h) * 12);
-                background:rgba(5,10,6,.88); border:3px solid #00aa44; border-radius:14px;
+                background:#fff6dc; border:4px solid #1a1410; border-radius:18px; box-shadow:0 6px 0 rgba(0,0,0,.25);
                 padding:calc(var(--h) * 10) calc(var(--h) * 18) calc(var(--h) * 10) calc(var(--h) * 12);
-                font:800 max(13px, calc(var(--h) * 17)) Consolas,Menlo,"SF Mono","Roboto Mono",monospace; color:#7dff9a; text-shadow:0 2px 0 #000; }
+                font:800 max(13px, calc(var(--h) * 18)) "Segoe UI",Verdana,sans-serif; color:#3a2a14; }
   #racebar { display:none; position:relative; flex:0 0 auto; width:min(420px, calc(var(--vw) * 46)); max-width:calc(100% - var(--h) * 44);
              height:calc(var(--h) * 12); margin-top:calc(var(--h) * 8); border:max(2px, calc(var(--h) * 3)) solid #000; border-radius:calc(var(--h) * 8); background:rgba(10,8,20,.6); }
   #racebar i { position:absolute; top:calc(var(--h) * -7); width:calc(var(--h) * 20); height:calc(var(--h) * 20); margin-left:calc(var(--h) * -10); border-radius:50%;
@@ -151,8 +151,8 @@
   #rockyplate.on, #rockyplate.leaving, #elaplate.on, #elaplate.leaving { display:flex; }
   #rockyplate.on, #elaplate.on { animation:risein .28s cubic-bezier(.34,1.4,.64,1) both; }
   #rockyplate.leaving, #elaplate.leaving { animation:riseout .28s ease-in both; }
-  #rockyplate canvas { width:calc(var(--h) * 52); height:calc(var(--h) * 52); image-rendering:pixelated; flex:0 0 auto; }
-  #rockyname { font-size:max(9px, calc(var(--h) * 11)); color:#00d455; letter-spacing:2px; margin-bottom:2px; }
+  #rockyplate canvas { width:calc(var(--h) * 56); height:calc(var(--h) * 56); flex:0 0 auto; }
+  #rockyname { font-size:max(9px, calc(var(--h) * 11)); color:#b0701a; letter-spacing:3px; margin-bottom:2px; }
   #elaplate { max-width:100%; align-items:center; gap:calc(var(--h) * 14);
               background:#fff6dc; border:4px solid #1a1410; border-radius:18px; box-shadow:0 6px 0 rgba(0,0,0,.25);
               padding:calc(var(--h) * 12) calc(var(--h) * 22) calc(var(--h) * 12) calc(var(--h) * 14);
@@ -313,5 +313,6 @@
 <script src="minigames.js"></script>
 <script src="game.js"></script>
 <script src="levels.js"></script>
+<script src="story.js"></script>
 </body>
 </html>
