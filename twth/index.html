@@ -187,6 +187,7 @@
   body.touch #rockyplate.leaving, body.touch #elaplate.leaving { animation:popout .2s ease both; }
   body.touch #paused { padding-bottom:calc(var(--vh) * 22); }
   body[data-paused="1"] .pop { display:none !important; }
+  body[data-story="1"] #hudhead, body[data-story="1"] #touchpad { display:none !important; }
   @media (orientation:portrait) {
     #title h1 { font-size:9.5vw; }
     #tp-movezone, #tp-lookzone { top:calc(var(--vh) * 45); }
