@@ -56,7 +56,8 @@
   .tp-btn.pause span { display:block; width:calc(var(--d) * .32); height:calc(var(--d) * .38); border-left:calc(var(--d) * .11) solid #fff; border-right:calc(var(--d) * .11) solid #fff; }
   body[data-paused="1"] .tp-btn.pause span { width:0; height:0; border-style:solid; border-color:transparent transparent transparent #fff;
                                               border-width:calc(var(--d) * .2) 0 calc(var(--d) * .2) calc(var(--d) * .32); margin-left:calc(var(--d) * .08); }
-  body.touch[data-mode="race"] .tp-kick, body.touch[data-mode="race"] .tp-water, body.touch[data-mode="race"] .tp-friend { display:none; }
+  body.touch[data-mode="race"] .tp-kick, body.touch[data-mode="race"] .tp-water, body.touch[data-mode="race"] .tp-friend,
+  body.touch[data-mode="race"] .tp-roll, body.touch[data-mode="race"] .tp-fire, body.touch[data-mode="race"] .tp-juice { display:none; }
   body.touch #lvlpick { padding:13px 26px; margin-top:0 !important; }
 
   #hud { position:fixed; inset:0; pointer-events:none; display:none; }
@@ -121,6 +122,13 @@
               text-shadow:0 2px 0 #000; margin-bottom:calc(var(--h) * 5); white-space:nowrap; }
   #bbtrack { height:calc(var(--h) * 16); border:max(2px, calc(var(--h) * 3)) solid #000; border-radius:calc(var(--h) * 6); background:rgba(10,4,8,.72); overflow:hidden; }
   #bbfill { height:100%; width:100%; transition:width .18s ease; background:#d8352c; }
+  #bossname2, #bbtrack2 { display:none; }
+  #bossbar.twins #bossname2 { display:block; margin-top:calc(var(--h) * 8); font-size:calc(var(--h) * 22); line-height:1.15; font-weight:900; color:#fff; letter-spacing:calc(var(--h) * 3); text-shadow:0 2px 0 #000; margin-bottom:calc(var(--h) * 5); white-space:nowrap; }
+  #bossbar.twins #bbtrack2 { display:block; height:calc(var(--h) * 16); border:max(2px, calc(var(--h) * 3)) solid #000; border-radius:calc(var(--h) * 6); background:rgba(10,4,8,.72); overflow:hidden; }
+  #bossbar.twins #bbfill { background:#e8b830; }
+  #bbfill2 { height:100%; width:100%; transition:width .18s ease; background:#b8c4d8; }
+  #bbtrack.down, #bbtrack2.down { animation:twindown .5s steps(2) infinite; }
+  @keyframes twindown { 50% { border-color:#e8b830; } }
 
   #rockyplate { max-width:100%; align-items:center; gap:calc(var(--h) * 12);
                 background:rgba(5,10,6,.88); border:3px solid #00aa44; border-radius:14px;
@@ -131,6 +139,12 @@
   #racebar i { position:absolute; top:calc(var(--h) * -7); width:calc(var(--h) * 20); height:calc(var(--h) * 20); margin-left:calc(var(--h) * -10); border-radius:50%;
                border:max(2px, calc(var(--h) * 3)) solid #000; }
   #racebar .them { background:#9b5de5; }
+  #racebar .racecount { position:absolute; left:50%; top:calc(var(--h) * 18); transform:translateX(-50%); white-space:nowrap; font:900 calc(var(--h) * 18) system-ui,"Segoe UI",Verdana,sans-serif; color:#fff; text-shadow:0 2px 0 #000; }
+  #racebar .racecount b { color:#ffd23e; }
+  #racebar .racecount.met b { color:#8affc1; }
+  #racebar .racecount i { display:inline-block; width:calc(var(--h) * 18); }
+  #racebar .racecount s { text-decoration:none; color:#ff8a8a; }
+  #racebar .racecount s::before { content:'¶5 '; }
   #racebar .me { background:#ffe066; }
   #racebar b { position:absolute; right:calc(var(--h) * -14); top:calc(var(--h) * -12); width:calc(var(--h) * 16); height:calc(var(--h) * 16); border:max(2px, calc(var(--h) * 3)) solid #000;
                background:conic-gradient(#fff 25%,#16121c 0 50%,#fff 0 75%,#16121c 0); }
@@ -189,6 +203,7 @@
   #title h1 .mw { color:#ffe66d; } #title h1 .hero { color:#ff5c5c; }
   #title h2 { margin-top:14px; font-size:clamp(14px,2vw,22px); font-weight:800; color:#1b2a6b;
               background:rgba(255,255,255,.75); padding:8px 22px; border-radius:20px; }
+  #minipick { margin-top:14px; padding:10px 26px; font-size:clamp(16px,2.2vw,26px); font-weight:900; color:#fff; letter-spacing:2px; cursor:pointer; background:#ff4fd8; border:4px solid #1b2a6b; border-radius:18px; box-shadow:0 5px 0 #1b2a6b; }
   #press { margin-top:44px; font-size:clamp(18px,3vw,32px); font-weight:900; color:#fff;
            text-shadow:0 3px 0 #1b2a6b; animation:blink 1s steps(2) infinite; }
   @keyframes blink { 50% { opacity:.15; } }
@@ -224,6 +239,7 @@
   #gameover h2 { margin-top:14px; font-size:clamp(16px,2.6vw,28px); color:#ffd0a0; font-weight:900; text-shadow:0 3px 0 #000; }
   #goagain { margin-top:38px; font-size:24px; font-weight:900; color:#fff; text-shadow:0 3px 0 #5a0a12;
              animation:blink 1.1s steps(2) infinite; }
+  @media (max-height:440px) { #title { padding-top:calc(2vh + 14px); } #press { margin-top:16px; } #minipick { margin-top:8px; padding:6px 20px; } #title h1 { font-size:min(8.5vw, 14vh); } }
 </style>
 </head>
 <body>
@@ -250,7 +266,7 @@
   <div id="hudlow">
     <div id="rockyslot"></div>
     <div id="elaslot"></div>
-    <div id="bossbar"><div id="bossname"></div><div id="bbtrack"><div id="bbfill"></div></div></div>
+    <div id="bossbar"><div id="bossname"></div><div id="bbtrack"><div id="bbfill"></div></div><div id="bossname2">KNIGHT TWIN (SILVER)</div><div id="bbtrack2"><div id="bbfill2"></div></div></div>
   </div>
   <div id="counts"></div>
 </div>
@@ -260,6 +276,7 @@
   <h2>a game by Tiny Wayne, age 4 &nbsp;•&nbsp; built with Daddy &amp; Rocky</h2>
   <div id="press">PRESS START</div>
   <div id="lvlpick" style="margin-top:10px;font-size:clamp(14px,2vw,22px);font-weight:900;color:#1b2a6b;"></div>
+  <div id="minipick">MINI GAMES</div>
   <div id="controls">
     <b>Left stick</b> move &nbsp; <b>Right stick</b> camera &nbsp; <b>/A</b> jump · hold for Mr.&nbsp;Big&nbsp;Stuff &nbsp; <b>○/B</b> roll &nbsp; <b>□/X</b> sword &nbsp; <b>△/Y</b> kick &nbsp; <b>R1/RB</b> apple juice &nbsp; <b>L1/LB</b> call a friend &nbsp; <b>R2/RT</b> &nbsp; <b>L2/LT</b><br>
     ⌨ <b>WASD</b> move &nbsp; <b>Space</b> jump/jetpack &nbsp; <b>Shift</b> roll &nbsp; <b>Q</b>/<b>E</b> camera &nbsp; <b>F</b> juice &nbsp; <b>J</b>/<b>L</b> sword &nbsp; <b>K</b> kick &nbsp; <b>R</b> friend &nbsp; <b>1</b> &nbsp; <b>2</b> &nbsp; <b>Esc</b> pause<br>
@@ -293,6 +310,7 @@
 <script src="paths.js"></script>
 <script src="rover.js"></script>
 <script src="touch.js"></script>
+<script src="minigames.js"></script>
 <script src="game.js"></script>
 <script src="levels.js"></script>
 </body>
