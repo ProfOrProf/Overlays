@@ -3,6 +3,16 @@
 <head>
 <meta charset="utf-8" />
 <meta name="robots" content="noindex, nofollow">
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="ProfOrProf" />
+<meta property="og:title" content="Tiny Wayne the Hero" />
+<meta property="og:description" content="A storybook adventure made with a four year old. Fly to the island, befriend every boss, and reach the castle." />
+<meta property="og:url" content="https://proforprof.com/twth/" />
+<meta property="og:image" content="https://proforprof.com/twth/card.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="theme-color" content="#c2392b" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 <meta name="mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -201,7 +211,7 @@
   #title h1 { font-size:clamp(42px, 8.5vw, 110px); font-weight:900; line-height:1.02; letter-spacing:1px;
               color:#fff; -webkit-text-stroke:4px #1b2a6b;
               text-shadow:0 6px 0 #1b2a6b, 0 12px 24px rgba(0,0,0,.35); transform:rotate(-2deg); }
-  #title h1 .mw { color:#ffe66d; } #title h1 .hero { color:#ff5c5c; }
+  #title h1 .tw { color:#ffe66d; } #title h1 .hero { color:#ff5c5c; }
   #title h2 { margin-top:14px; font-size:clamp(14px,2vw,22px); font-weight:800; color:#1b2a6b;
               background:rgba(255,255,255,.75); padding:8px 22px; border-radius:20px; }
   #minipick { margin-top:14px; padding:10px 26px; font-size:clamp(16px,2.2vw,26px); font-weight:900; color:#fff; letter-spacing:2px; cursor:pointer; background:#ff4fd8; border:4px solid #1b2a6b; border-radius:18px; box-shadow:0 5px 0 #1b2a6b; }
@@ -263,6 +273,7 @@
   @media (orientation:portrait) { #tpage { gap:3%; } #tpage #press { font-size:9vw !important; } #tpage #minipick { font-size:5.2vw !important; white-space:nowrap; } #tpage #lvlpick { font-size:3.2vw !important; } #tcontents { font-size:3.4vw; } }
   #paused .home { margin-top:28px; padding:.45em 1.3em; font:900 clamp(16px, 2.6vw, 26px) Georgia,"Palatino Linotype",serif; letter-spacing:.12em; color:#3a2a14; background:#fff6dc; border:4px solid #1a1410; border-radius:16px; box-shadow:0 5px 0 rgba(0,0,0,.3); cursor:pointer; text-shadow:none; pointer-events:auto; touch-action:manipulation; }
   #paused { flex-direction:column; }
+  @media (max-height:500px) { body.touch #paused { justify-content:flex-start; padding-top:16vh; padding-bottom:0; font-size:8vh; } body.touch #paused .home { margin-top:10px; font-size:14px; padding:.4em 1em; } }
   body[data-cine="1"] #hudhead, body[data-cine="1"] #touchpad { display:none !important; }
   #gameover, #win { background:radial-gradient(circle at 50% 40%, #2a2038 0%, #0c0812 75%) !important; }
   #gameover h1, #win h1 { font-family:Georgia,"Palatino Linotype",serif; -webkit-text-stroke:0; color:#fff6dc; text-shadow:0 4px 0 #1a1410, 0 0 30px rgba(255,214,120,.35); transform:none; }
@@ -316,19 +327,15 @@
     </div>
     <div id="tcover">
       <div id="tfront">
-        <h1><span class="mw">TINY WAYNE</span><br><span class="hero">THE HERO</span></h1>
+        <h1><span class="tw">TINY WAYNE</span><br><span class="hero">THE HERO</span></h1>
         <div id="tcrown"></div>
         <div id="topen">OPEN THE BOOK</div>
       </div>
       <div id="tmap"></div>
     </div>
   </div>
-  <h2>a game by Tiny Wayne, age 4 &nbsp;•&nbsp; built with Daddy &amp; Rocky</h2>
-  <div id="controls">
-    <b>Left stick</b> move &nbsp; <b>Right stick</b> camera &nbsp; <b>/A</b> jump · hold for Mr.&nbsp;Big&nbsp;Stuff &nbsp; <b>○/B</b> roll &nbsp; <b>□/X</b> sword &nbsp; <b>△/Y</b> kick &nbsp; <b>R1/RB</b> apple juice &nbsp; <b>L1/LB</b> call a friend &nbsp; <b>R2/RT</b> &nbsp; <b>L2/LT</b><br>
-    ⌨ <b>WASD</b> move &nbsp; <b>Space</b> jump/jetpack &nbsp; <b>Shift</b> roll &nbsp; <b>Q</b>/<b>E</b> camera &nbsp; <b>F</b> juice &nbsp; <b>J</b>/<b>L</b> sword &nbsp; <b>K</b> kick &nbsp; <b>R</b> friend &nbsp; <b>1</b> &nbsp; <b>2</b> &nbsp; <b>Esc</b> pause<br>
-    <b>SOULS RULES:</b> 3 lives · 5 apple juices refill your hearts · a 1-in-100 <b>chocolate muffin</b> = +1 life · every boss you befriend gives you their <b>heart</b> — collect ROYGBIV, silver, gold… then
-  </div>
+  
+  
 </div>
 
 <div class="screen" id="gameover">
@@ -344,7 +351,7 @@
   <div id="again">PLAY AGAIN</div>
 </div>
 
-<div id="intro"><div id="introicon"></div><div id="introname"></div><div id="introline"></div><div id="introhint">PRESS ANY BUTTON</div></div>
+<div id="intro"><div id="introicon"></div><div id="introname"></div><div id="introline"></div><div id="introhint">TAP OR PRESS ANY BUTTON</div></div>
 
 <div id="fade"></div>
 
