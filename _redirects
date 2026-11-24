@@ -1,2 +1,5 @@
 /profsaves/downloads.html   /profsaves/   301
 /profsaves/downloads        /profsaves/   301
+/decks.html                  /decks/   301
+/decks                       /decks/   301
+/decks/*                     https://profcards-binder.netlify.app/decks/:splat   200
