@@ -119,11 +119,8 @@
   @keyframes risein { from { transform:translateY(190%); } }
   @keyframes riseout { to { transform:translateY(190%); } }
 
-  #questpop, #shout { max-width:100%; }
-  #questpop.on, #questpop.leaving, #shout.on, #shout.leaving { display:block; }
-  #questname { font-size:clamp(26px, calc(var(--vw) * 5), 58px); line-height:1.1; font-weight:900; color:#fff; letter-spacing:2px; -webkit-text-stroke:2px #1b2a6b; text-shadow:0 4px 0 #1b2a6b; }
-  #questline { margin-top:6px; font-size:clamp(16px, calc(var(--vw) * 2.6), 30px); font-weight:900; color:#ffe66d; text-shadow:0 3px 0 #000; }
-  #questart { display:none; margin:0 auto; max-width:min(760px, 100%); max-height:calc(var(--vh) * 40); object-fit:contain; }
+  #shout { max-width:100%; }
+  #shout.on, #shout.leaving { display:block; }
   #announce { font-size:calc(var(--h) * 64); line-height:1.1; font-weight:900; color:#fff; text-shadow:0 4px 0 #000; letter-spacing:2px; }
   #subann   { font-size:calc(var(--h) * 26); font-weight:800; color:#ffe66d; text-shadow:0 3px 0 #000; }
 
@@ -171,14 +168,11 @@
   #elaname { font-size:max(9px, calc(var(--h) * 12)); letter-spacing:3px; color:#b0701a; margin-bottom:2px; }
   .unsaid { visibility:hidden; }
 
-  body[data-hud="desk"] #questpop { margin-top:calc(var(--vh) * 19 - var(--st) - var(--m)); }
-  body[data-hud="desk"] #shout { margin-top:calc(var(--vh) * 7); }
-  body[data-hud="desk"] #questpop:not(.on):not(.leaving) + #shout { margin-top:calc(var(--vh) * 26 - var(--st) - var(--m)); }
+  body[data-hud="desk"] #shout { margin-top:calc(var(--vh) * 26 - var(--st) - var(--m)); }
   body[data-hud="desk"][data-boss="1"] #rockyslot { min-height:98px; }
 
   body[data-hud="wide"] #bossbar { width:calc(var(--vw) * 46); }
-  body[data-hud="wide"] #questpop, body[data-hud="wide"] #shout { margin-top:calc(var(--h) * 12); }
-  body[data-hud="wide"] #questart { max-height:calc(var(--vh) * 100 - var(--st) - var(--sb) - var(--m) - var(--u) * 44 - var(--h) * 70); }
+  body[data-hud="wide"] #shout { margin-top:calc(var(--h) * 12); }
   body[data-hud="wide"] #hudlow { padding:0 calc(var(--u) * 58 - var(--m)) 0 calc(var(--u) * 34 - var(--m)); }
   body[data-hud="wide"] #rockyslot { align-self:center; }
   body[data-hud="wide"] #elaslot { padding-bottom:calc(var(--h) * 10); }
@@ -189,8 +183,7 @@
   body[data-hud="tall"] #hudunder { display:flex; }
   body[data-hud="tall"] #bossbar { align-self:stretch; width:auto; margin-top:calc(var(--h) * 14); }
   body[data-hud="tall"] #racebar { align-self:stretch; width:auto; max-width:none; margin:calc(var(--h) * 20) calc(var(--h) * 18) 0 calc(var(--h) * 12); }
-  body[data-hud="tall"] #questpop, body[data-hud="tall"] #shout { margin-top:calc(var(--h) * 12); }
-  body[data-hud="tall"] #questart { max-height:calc(var(--vh) * 26); }
+  body[data-hud="tall"] #shout { margin-top:calc(var(--h) * 12); }
   body[data-hud="tall"] #rockyplate, body[data-hud="tall"] #elaplate { margin-top:calc(var(--h) * 14); }
 
   body.touch #rockyplate.on, body.touch #elaplate.on { animation:popin .25s ease both; }
@@ -302,7 +295,6 @@
         <div id="charges"><div id="friendhud"></div><div id="weaponhud"></div></div>
       </div>
       <div id="hudmid">
-        <div id="questpop" class="pop"><div id="questname"></div><div id="questline"></div><img id="questart" alt="" /></div>
         <div id="shout" class="pop"><div id="announce"></div><div id="subann"></div></div>
       </div>
       <div id="hudcorner"><canvas id="wristmap" width="132" height="132"></canvas></div>
