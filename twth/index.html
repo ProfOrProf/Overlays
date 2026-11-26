@@ -167,6 +167,14 @@
   #elaplate canvas { width:calc(var(--h) * 64); height:calc(var(--h) * 64); flex:0 0 auto; }
   #elaname { font-size:max(9px, calc(var(--h) * 12)); letter-spacing:3px; color:#b0701a; margin-bottom:2px; }
   .unsaid { visibility:hidden; }
+  #talkplate { position:fixed; left:50%; bottom:max(18px, env(safe-area-inset-bottom)); transform:translate(-50%, 140%); z-index:40; display:flex; align-items:center; gap:14px; width:max-content; max-width:min(860px, calc(100vw - 32px)); box-sizing:border-box;
+               background:#fff6dc; border:4px solid #1a1410; border-radius:18px; box-shadow:0 6px 0 rgba(0,0,0,.25); padding:12px 22px 12px 14px;
+               font:800 clamp(13px, min(2.4vw, 3.8vh), 24px) "Segoe UI",Verdana,sans-serif; color:#3a2a14; transition:transform .3s cubic-bezier(.34,1.4,.64,1); pointer-events:none; }
+  #talkplate.on { transform:translate(-50%, 0); }
+  #talkplate .talkface { flex:0 0 auto; }
+  #talkplate canvas { width:clamp(40px, min(7vw, 11vh), 72px); height:clamp(40px, min(7vw, 11vh), 72px); display:block; }
+  @media (orientation:portrait) { #talkplate { width:calc(100vw - 32px); bottom:max(28px, env(safe-area-inset-bottom)); } }
+  #talkplate .talkname { font-size:clamp(10px, 1.3vw, 14px); letter-spacing:3px; color:#b0701a; margin-bottom:2px; }
 
   body[data-hud="desk"] #shout { margin-top:calc(var(--vh) * 26 - var(--st) - var(--m)); }
   body[data-hud="desk"][data-boss="1"] #rockyslot { min-height:98px; }
@@ -357,6 +365,8 @@
 <script src="rover.js"></script>
 <script src="touch.js"></script>
 <script src="minigames.js"></script>
+<script src="lines.js"></script>
+<script src="toys.js"></script>
 <script src="game.js"></script>
 <script src="levels.js"></script>
 <script src="story.js"></script>
